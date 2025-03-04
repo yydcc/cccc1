@@ -39,6 +39,7 @@ class SignInController extends GetxController {
         final storage = await StorageService.instance;
         await storage.setToken(response.data['token']);
         await storage.setRole(selectedRole.value);
+        await storage.setUsername(usernameController.text);
         print(storage);
         print('Token saved: ${response.data['token']}');
         Get.snackbar("登录成功", response.msg);

@@ -31,4 +31,12 @@ class StorageService {
   String? getRole() {
     return _preferences!.getString('role');
   }
+
+  Future<bool> setUsername(String username) async {
+    return await _preferences!.setString('username', username);
+  }
+
+  String? getUsername() {
+    return _preferences!.getString('username');
+  }
 } 

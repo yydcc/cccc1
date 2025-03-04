@@ -10,7 +10,7 @@ class ProfileController extends GetxController {
   final HttpUtil httpUtil = HttpUtil();
   final RxString username = 'yizhe'.obs;
   final RxString role = 'student'.obs;
-  final RxString avatarUrl = 'https://img1.baidu.com/it/u=728383910,3448060628&fm=253&fmt=auto&app=120&f=JPEG?w=800&h=800'.obs;
+  final RxString avatarUrl = ''.obs;
   
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController oldPasswordController = TextEditingController();
@@ -38,19 +38,21 @@ class ProfileController extends GetxController {
       final userRole = storage.getRole() ?? 'student';
       role.value = userRole == 'student' ? '学生' : '教师';
       
-      final response = await httpUtil.get('/$userRole/info');
+      username.value = storage.getUsername() ?? '';
+      
+      final response = await httpUtil.get('/$userRole/info?username=$username');
       if (response.code == 200) {
-        username.value = response.data['username'] ?? '';
         avatarUrl.value = response.data['avatar'] ?? '';
+        if (response.data['username'] != null && response.data['username'] != username.value) {
+          username.value = response.data['username'];
+          await storage.setUsername(username.value);
+        }
       }
     } catch (e) {
       print('Load user info error: $e');
       Get.snackbar(
         '错误',
         '获取用户信息失败',
-        backgroundColor: Colors.white,
-        colorText: GlobalThemData.textPrimaryColor,
-        snackPosition: SnackPosition.TOP,
       );
     }
   }
@@ -124,19 +126,17 @@ class ProfileController extends GetxController {
         final storage = await StorageService.instance;
         final userRole = storage.getRole() ?? 'student';
         
-        final response = await httpUtil.put(
+        final response = await httpUtil.post(
           '/$userRole/update/username',
           data: {'username': result},
         );
 
         if (response.code == 200) {
           username.value = result;
+          await storage.setUsername(username.value);
           Get.snackbar(
             '成功',
             '用户名修改成功',
-            backgroundColor: Colors.white,
-            colorText: GlobalThemData.textPrimaryColor,
-            snackPosition: SnackPosition.TOP,
           );
         }
       } catch (e) {
@@ -144,9 +144,6 @@ class ProfileController extends GetxController {
         Get.snackbar(
           '错误',
           '修改用户名失败',
-          backgroundColor: Colors.white,
-          colorText: GlobalThemData.textPrimaryColor,
-          snackPosition: SnackPosition.TOP,
         );
       }
     }
@@ -212,7 +209,12 @@ class ProfileController extends GetxController {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () => Get.back(),
+                    onPressed: () {
+                      oldPasswordController.clear();
+                      newPasswordController.clear();
+                      confirmPasswordController.clear();
+                      Get.back(result: false);
+                    },
                     child: Text(
                       '取消',
                       style: TextStyle(
@@ -251,25 +253,24 @@ class ProfileController extends GetxController {
         final response = await httpUtil.put(
           '/$userRole/update/password',
           data: {
-            'oldPassword': oldPasswordController.text,
+            'username': username.value,
+            'password': oldPasswordController.text,
             'newPassword': newPasswordController.text,
           },
         );
-
+        usernameController.clear();
+        oldPasswordController.clear();
+        newPasswordController.clear();
         if (response.code == 200) {
           Get.snackbar('成功', '密码修改成功');
           await storage.removeToken();
           Get.offAllNamed(AppRoutes.SIGN_IN);
         }
+        else{
+          Get.snackbar("修改失败", response.meg);
+        }
       } catch (e) {
         print('Change password error: $e');
-        Get.snackbar(
-          '错误',
-          '修改密码失败',
-          backgroundColor: Colors.white,
-          colorText: GlobalThemData.textPrimaryColor,
-          snackPosition: SnackPosition.TOP,
-        );
       }
     }
   }
@@ -339,9 +340,7 @@ class ProfileController extends GetxController {
         Get.snackbar(
           '错误',
           '退出登录失败',
-          backgroundColor: Colors.white,
-          colorText: GlobalThemData.textPrimaryColor,
-          snackPosition: SnackPosition.TOP,
+
         );
       }
     }
@@ -412,7 +411,12 @@ class ProfileController extends GetxController {
       try {
         final storage = await StorageService.instance;
         final userRole = storage.getRole() ?? 'student';
-        final response = await httpUtil.delete('/$userRole/delete');
+        final response = await httpUtil.post('/$userRole/delete',
+        data: {
+          'username': username.value
+        }
+        
+        );
         
         if (response.code == 200) {
           await storage.removeToken();
@@ -420,9 +424,6 @@ class ProfileController extends GetxController {
           Get.snackbar(
             '成功',
             '账号已删除',
-            backgroundColor: Colors.white,
-            colorText: GlobalThemData.textPrimaryColor,
-            snackPosition: SnackPosition.TOP,
           );
         }
       } catch (e) {
@@ -430,9 +431,6 @@ class ProfileController extends GetxController {
         Get.snackbar(
           '错误',
           '删除账号失败',
-          backgroundColor: Colors.white,
-          colorText: GlobalThemData.textPrimaryColor,
-          snackPosition: SnackPosition.TOP,
         );
       }
     }

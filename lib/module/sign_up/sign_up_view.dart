@@ -1,3 +1,4 @@
+import 'package:cccc1/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -139,7 +140,7 @@ class SignUpPage extends GetView<SignUpController> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () => Get.back(),
+                      onPressed: () =>Get.offNamed(AppRoutes.SIGN_IN),
                       child: Text(
                         '立即登录',
                         style: TextStyle(

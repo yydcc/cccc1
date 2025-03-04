@@ -109,7 +109,7 @@ class SignInPage extends GetView<SignInController> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () => Get.toNamed('/sign_up'),
+                      onPressed: () => Get.offNamed(AppRoutes.SIGN_UP),
                       child: Text(
                         '立即注册',
                         style: TextStyle(
