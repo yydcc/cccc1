@@ -206,34 +206,59 @@ class ProfileController extends GetxController {
               ),
               SizedBox(height: 20.h),
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  TextButton(
+                  ElevatedButton(
                     onPressed: () {
                       oldPasswordController.clear();
                       newPasswordController.clear();
                       confirmPasswordController.clear();
-                      Get.back(result: false);
+                      Get.back();
                     },
-                    child: Text(
-                      '取消',
-                      style: TextStyle(
-                        color: GlobalThemData.textSecondaryColor,
-                        fontSize: 14.sp,
-                      ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
                     ),
+                    child: Text('取消', style: TextStyle(fontSize: 14.sp)),
                   ),
                   SizedBox(width: 10.w),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (newPasswordController.text != confirmPasswordController.text) {
                         Get.snackbar('错误', '两次输入的新密码不一致');
                         return;
                       }
-                      Get.back(result: true);
+                      
+                      try {
+                        final storage = await StorageService.instance;
+                        final userRole = storage.getRole() ?? 'student';
+                        
+                        final response = await httpUtil.post(
+                          '/$userRole/update/password',
+                          data: {
+                            'username': username.value,
+                            'password': oldPasswordController.text,
+                            'newPassword': newPasswordController.text,
+                          },
+                        );
+
+                        if (response.code == 200) {
+                          Get.back(); // 只在成功时关闭对话框
+                          oldPasswordController.clear();
+                          newPasswordController.clear();
+                          confirmPasswordController.clear();
+                          Get.snackbar('成功', '密码修改成功');
+                          await storage.removeToken();
+                          Get.offAllNamed(AppRoutes.SIGN_IN);
+                        } else {
+                          Get.snackbar("修改失败", response.msg);
+                        }
+                      } catch (e) {
+                        print('Change password error: $e');
+                        Get.snackbar('错误', '修改密码失败，请稍后重试');
+                      }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: GlobalThemData.primaryColor,
+                      backgroundColor: Colors.black,
                     ),
                     child: Text('确定', style: TextStyle(fontSize: 14.sp)),
                   ),
@@ -244,35 +269,6 @@ class ProfileController extends GetxController {
         ),
       ),
     );
-
-    if (result == true) {
-      try {
-        final storage = await StorageService.instance;
-        final userRole = storage.getRole() ?? 'student';
-        
-        final response = await httpUtil.put(
-          '/$userRole/update/password',
-          data: {
-            'username': username.value,
-            'password': oldPasswordController.text,
-            'newPassword': newPasswordController.text,
-          },
-        );
-        usernameController.clear();
-        oldPasswordController.clear();
-        newPasswordController.clear();
-        if (response.code == 200) {
-          Get.snackbar('成功', '密码修改成功');
-          await storage.removeToken();
-          Get.offAllNamed(AppRoutes.SIGN_IN);
-        }
-        else{
-          Get.snackbar("修改失败", response.meg);
-        }
-      } catch (e) {
-        print('Change password error: $e');
-      }
-    }
   }
 
   Future<void> handleLogout() async {
