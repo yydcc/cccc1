@@ -5,6 +5,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:oktoast/oktoast.dart';
+import 'common/utils/storage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,11 +14,14 @@ void main() async {
     defaultTransition: Transition.fadeIn,
     defaultDurationTransition: Duration(milliseconds: 200),
   );
-  
-  runApp(MyApp());
+  final storage = await StorageService.instance;
+  bool isLogined = storage.getToken() != null?true:false;
+  runApp(MyApp(isLogined:isLogined));
 }
 
 class MyApp extends StatelessWidget {
+  final bool isLogined;
+  const MyApp({super.key, required this.isLogined});
   @override
   Widget build(BuildContext context) {
     return OKToast( // 包裹整个应用以启用 OKToast
@@ -30,7 +34,7 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             title: 'Flutter Demo',
             theme: GlobalThemData.currentTheme.value,
-            initialRoute: AppPages.INITIAL,
+            initialRoute: isLogined?AppRoutes.HOME:AppPages.INITIAL,
             getPages: AppPages.routes,
             builder: EasyLoading.init(),
           ));

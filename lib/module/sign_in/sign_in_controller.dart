@@ -43,7 +43,7 @@ class SignInController extends GetxController {
         print(storage);
         print('Token saved: ${response.data['token']}');
         Get.snackbar("登录成功", response.msg);
-        Get.offAllNamed(AppRoutes.HOME);
+        Get.offAndToNamed(AppRoutes.HOME);
       }
       else{
         Get.snackbar("登录失败", response.msg);
