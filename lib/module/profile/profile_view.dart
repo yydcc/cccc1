@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../common/theme/color.dart';
+import '../../common/utils/http.dart';
 import 'profile_controller.dart';
 
 class ProfilePage extends GetView<ProfileController> {
@@ -30,18 +31,44 @@ class ProfilePage extends GetView<ProfileController> {
   Widget _buildHeader() {
     return Container(
       padding: EdgeInsets.all(30.w),
-      decoration: BoxDecoration(
 
-      ),
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 50.r,
-            backgroundColor: GlobalThemData.primaryColor.withOpacity(0.1),
-            child: Icon(
-              Icons.person,
-              size: 50.r,
-              color: GlobalThemData.primaryColor,
+          GestureDetector(
+            onTap: controller.handleUpdateAvatar,
+            child: Stack(
+              children: [
+                Obx(() => CircleAvatar(
+                  radius: 50.r,
+                  backgroundColor: GlobalThemData.primaryColor.withOpacity(0.1),
+                  backgroundImage: controller.avatarUrl.value.isNotEmpty
+                      ? NetworkImage('${HttpUtil.SERVER_API_URL}${controller.avatarUrl.value}')
+                      : null,
+                  child: controller.avatarUrl.value.isEmpty
+                      ? Icon(
+                          Icons.person,
+                          size: 50.r,
+                          color: GlobalThemData.primaryColor,
+                        )
+                      : null,
+                )),
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    padding: EdgeInsets.all(8.r),
+                    decoration: BoxDecoration(
+                      color: GlobalThemData.primaryColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.camera_alt,
+                      color: Colors.white,
+                      size: 20.r,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           SizedBox(height: 10.h),
@@ -97,7 +124,7 @@ class ProfilePage extends GetView<ProfileController> {
           _buildDivider(),
           _buildMenuItem(
             icon: Icons.camera_alt_outlined,
-            title: '更改头像',
+            title: '更改主题',
             onTap: () {},
           ),
           _buildDivider(),

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide FormData, MultipartFile;
 import '../../common/utils/http.dart';
 import '../../common/utils/storage.dart';
 import '../../routes/app_pages.dart';
 import '../../common/theme/color.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:dio/dio.dart';
 
 class ProfileController extends GetxController {
   final HttpUtil httpUtil = HttpUtil();
@@ -433,6 +435,60 @@ class ProfileController extends GetxController {
           '删除账号失败',
         );
       }
+    }
+  }
+
+  Future<void> handleUpdateAvatar() async {
+    try {
+      // TODO: 使用 image_picker 选择图片
+      // 这里需要添加 image_picker 依赖
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      
+      if (image == null) return;
+
+      // 创建 FormData
+      String fileName = image.path.split('/').last;
+      FormData formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(
+          image.path,
+          filename: fileName,
+        ),
+        'username': username.value,
+      });
+
+      final storage = await StorageService.instance;
+      final userRole = storage.getRole() ?? 'student';
+
+      // 上传头像
+      final response = await httpUtil.post(
+        '/upload/image',
+        data: formData,
+      );
+
+      if (response.code == 200) {
+        // 更新头像地址
+        final avatarPath = response.data['path'];
+        final updateResponse = await httpUtil.post(
+          '/$userRole/update',
+          data: {
+            'username': username.value,
+            'avatar': avatarPath,
+          },
+        );
+
+        if (updateResponse.code == 200) {
+          avatarUrl.value = avatarPath;
+          Get.snackbar('成功', '头像更新成功');
+        } else {
+          Get.snackbar('更新失败', updateResponse.msg);
+        }
+      } else {
+        Get.snackbar('上传失败', response.msg);
+      }
+    } catch (e) {
+      print('Update avatar error: $e');
+      Get.snackbar('错误', '更新头像失败，请稍后重试');
     }
   }
 } 
