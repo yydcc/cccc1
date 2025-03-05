@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class GlobalThemData {
   // 定义主题色
   static const Color primaryColor = Color(0xFF2196F3);  // 主色调
-  static const Color secondaryColor = Colors.amber; // 次要色调
+  static const Color secondaryColor = Colors.black; // 次要色调
   static const Color accentColor = Colors.deepOrange;   // 强调色
   static const Color backgroundColor = Color(0xFFF5F5F5); // 背景色
   static const Color textPrimaryColor = Color(0xFF333333); // 主文本色

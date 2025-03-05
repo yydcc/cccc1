@@ -58,7 +58,7 @@ class ProfileController extends GetxController {
   }
 
   Future<void> handleUpdateUsername() async {
-    final result = await Get.dialog(
+    await Get.dialog(
       Dialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.r),
@@ -93,23 +93,54 @@ class ProfileController extends GetxController {
               ),
               SizedBox(height: 20.h),
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  TextButton(
-                    onPressed: () => Get.back(),
-                    child: Text(
-                      '取消',
-                      style: TextStyle(
-                        color: GlobalThemData.textSecondaryColor,
-                        fontSize: 14.sp,
-                      ),
+                  ElevatedButton(
+                    onPressed: () {
+                      usernameController.clear();
+                      Get.back();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: GlobalThemData.secondaryColor,
                     ),
+                    child: Text('取消', style: TextStyle(fontSize: 14.sp)),
                   ),
                   SizedBox(width: 10.w),
                   ElevatedButton(
-                    onPressed: () => Get.back(result: usernameController.text),
+                    onPressed: () async {
+                      if (usernameController.text.isEmpty) {
+                        Get.snackbar('错误', '用户名不能为空');
+                        return;
+                      }
+
+                      try {
+                        final storage = await StorageService.instance;
+                        final userRole = storage.getRole() ?? 'student';
+                        
+                        final response = await httpUtil.post(
+                          '/$userRole/update/username',
+                          data: {
+                            'username': username.value,
+                            'newUsername': usernameController.text,
+                          },
+                        );
+
+                        if (response.code == 200) {
+                          username.value = usernameController.text;
+                          await storage.setUsername(username.value);
+                          Get.back(); // 只在成功时关闭对话框
+                          usernameController.clear();
+                          Get.snackbar('成功', '用户名修改成功');
+                        } else {
+                          Get.snackbar('修改失败', response.msg);
+                        }
+                      } catch (e) {
+                        print('Update username error: $e');
+                        Get.snackbar('错误', '修改用户名失败，请稍后重试');
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: GlobalThemData.primaryColor,
+                      backgroundColor: GlobalThemData.secondaryColor,
                     ),
                     child: Text('确定', style: TextStyle(fontSize: 14.sp)),
                   ),
@@ -120,33 +151,6 @@ class ProfileController extends GetxController {
         ),
       ),
     );
-
-    if (result != null && result.toString().isNotEmpty) {
-      try {
-        final storage = await StorageService.instance;
-        final userRole = storage.getRole() ?? 'student';
-        
-        final response = await httpUtil.post(
-          '/$userRole/update/username',
-          data: {'username': result},
-        );
-
-        if (response.code == 200) {
-          username.value = result;
-          await storage.setUsername(username.value);
-          Get.snackbar(
-            '成功',
-            '用户名修改成功',
-          );
-        }
-      } catch (e) {
-        print('Update username error: $e');
-        Get.snackbar(
-          '错误',
-          '修改用户名失败',
-        );
-      }
-    }
   }
 
   Future<void> handleChangePassword() async {
@@ -216,7 +220,7 @@ class ProfileController extends GetxController {
                       Get.back();
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
+                      backgroundColor: GlobalThemData.secondaryColor,
                     ),
                     child: Text('取消', style: TextStyle(fontSize: 14.sp)),
                   ),
@@ -258,7 +262,7 @@ class ProfileController extends GetxController {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
+                      backgroundColor: GlobalThemData.secondaryColor,
                     ),
                     child: Text('确定', style: TextStyle(fontSize: 14.sp)),
                   ),
@@ -304,7 +308,7 @@ class ProfileController extends GetxController {
                   ElevatedButton(
                     onPressed: () => Get.back(result: false),
                     style:ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
+                      backgroundColor: GlobalThemData.secondaryColor,
                     ),
                     child: Text(
                       '取消',
@@ -314,7 +318,7 @@ class ProfileController extends GetxController {
                   ElevatedButton(
                     onPressed: () => Get.back(result: true),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
+                      backgroundColor: GlobalThemData.secondaryColor,
                     ),
                     child: Text('确定'),
                   ),
@@ -380,7 +384,7 @@ class ProfileController extends GetxController {
                 children: [
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
+                      backgroundColor: GlobalThemData.secondaryColor,
                     ),
                     onPressed: () => Get.back(result: false),
                     child: Text(
@@ -391,7 +395,7 @@ class ProfileController extends GetxController {
                   ElevatedButton(
                     onPressed: () => Get.back(result: true),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
+                      backgroundColor: GlobalThemData.accentColor,
                     ),
                     child: Text('确定删除'),
                   ),

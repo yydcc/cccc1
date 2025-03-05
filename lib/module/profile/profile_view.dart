@@ -92,7 +92,7 @@ class ProfilePage extends GetView<ProfileController> {
           _buildMenuItem(
             icon: Icons.person_outline,
             title: '修改用户名',
-            onTap: () {},
+            onTap: controller.handleUpdateUsername,
           ),
           _buildDivider(),
           _buildMenuItem(
