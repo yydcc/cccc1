@@ -34,41 +34,44 @@ class ProfilePage extends GetView<ProfileController> {
 
       child: Column(
         children: [
-          GestureDetector(
-            onTap: controller.handleUpdateAvatar,
-            child: Stack(
-              children: [
-                Obx(() => CircleAvatar(
-                  radius: 50.r,
-                  backgroundColor: GlobalThemData.primaryColor.withOpacity(0.1),
-                  backgroundImage: controller.avatarUrl.value.isNotEmpty
-                      ? NetworkImage('${HttpUtil.SERVER_API_URL}${controller.avatarUrl.value}')
-                      : null,
-                  child: controller.avatarUrl.value.isEmpty
-                      ? Icon(
-                          Icons.person,
-                          size: 50.r,
-                          color: GlobalThemData.primaryColor,
-                        )
-                      : null,
-                )),
-                Positioned(
-                  right: 0,
-                  bottom: 0,
-                  child: Container(
-                    padding: EdgeInsets.all(8.r),
-                    decoration: BoxDecoration(
-                      color: GlobalThemData.primaryColor,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.camera_alt,
-                      color: Colors.white,
-                      size: 20.r,
+          GetBuilder<ProfileController>(
+            id: 'avatar',
+            builder: (controller) => GestureDetector(
+              onTap: controller.handleUpdateAvatar,
+              child: Stack(
+                children: [
+                  CircleAvatar(
+                    radius: 50.r,
+                    backgroundColor: Colors.grey[200],
+                    backgroundImage: controller.avatarUrl.value.isNotEmpty
+                        ? NetworkImage('${HttpUtil.SERVER_API_URL}${controller.avatarUrl.value}')
+                        : null,
+                    child: controller.avatarUrl.value.isEmpty
+                        ? Icon(
+                            Icons.person,
+                            size: 50.r,
+                            color: Colors.grey,
+                          )
+                        : null,
+                  ),
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      padding: EdgeInsets.all(8.r),
+                      decoration: BoxDecoration(
+                        color: GlobalThemData.primaryColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.camera_alt,
+                        color: Colors.white,
+                        size: 20.r,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           SizedBox(height: 10.h),

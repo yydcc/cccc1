@@ -86,8 +86,10 @@ class ProfileController extends GetxController {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.r),
-                    borderSide: BorderSide(color: GlobalThemData.primaryColor),
+                    borderSide: BorderSide(color: Theme.of(Get.context!).primaryColor),
                   ),
+                  hoverColor: Theme.of(Get.context!).primaryColor.withOpacity(0.1),
+                  focusColor: Theme.of(Get.context!).primaryColor,
                 ),
               ),
               SizedBox(height: 20.h),
@@ -423,11 +425,71 @@ class ProfileController extends GetxController {
 
   Future<void> handleUpdateAvatar() async {
     try {
-      // TODO: 使用 image_picker 选择图片
-      // 这里需要添加 image_picker 依赖
+      final source = await Get.dialog<ImageSource>(
+        Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.r),
+          ),
+          child: Container(
+            padding: EdgeInsets.all(20.w),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '选择图片来源',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                    color: GlobalThemData.textPrimaryColor,
+                  ),
+                ),
+                SizedBox(height: 20.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () => Get.back(result: ImageSource.camera),
+                      icon: Icon(Icons.camera_alt,color: GlobalThemData.backgroundColor),
+                      label: Center(child: Text('相机')),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(Get.context!).primaryColor,
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () => Get.back(result: ImageSource.gallery),
+                      icon: Icon(Icons.photo_library,color: GlobalThemData.backgroundColor),
+                      label: Center(child: Text('相册')),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(Get.context!).primaryColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      if (source == null) return;
+
       final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      XFile? image;
       
+      // 处理相机权限和异常
+      try {
+        image = await picker.pickImage(
+          source: source,
+          maxWidth: 1080,  // 限制图片大小
+          maxHeight: 1080,
+          imageQuality: 85,  // 压缩质量
+        );
+      } catch (e) {
+        print('Pick image error: $e');
+        Get.snackbar('错误', '无法访问${source == ImageSource.camera ? '相机' : '相册'}，请检查权限设置');
+        return;
+      }
+
       if (image == null) return;
 
       // 创建 FormData
@@ -450,7 +512,6 @@ class ProfileController extends GetxController {
       );
 
       if (response.code == 200) {
-        // 更新头像地址
         final avatarPath = response.data['path'];
         final updateResponse = await httpUtil.post(
           '/$userRole/update',
@@ -462,6 +523,8 @@ class ProfileController extends GetxController {
 
         if (updateResponse.code == 200) {
           avatarUrl.value = avatarPath;
+          // 强制更新 UI
+          update(['avatar']);
           Get.snackbar('成功', '头像更新成功');
         } else {
           Get.snackbar('更新失败', updateResponse.msg);
