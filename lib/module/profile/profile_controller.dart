@@ -52,11 +52,7 @@ class ProfileController extends GetxController {
       }
     } catch (e) {
       print('Load user info error: $e');
-      Get.snackbar(
-        '错误',
-        '获取用户信息失败',
-        duration: const Duration(seconds: 2),
-      );
+      Get.snackbar('错误', '获取用户信息失败');
     }
   }
 
@@ -112,7 +108,7 @@ class ProfileController extends GetxController {
                   ElevatedButton(
                     onPressed: () async {
                       if (usernameController.text.isEmpty) {
-                        Get.snackbar('错误', '用户名不能为空', duration: const Duration(seconds: 2));
+                        Get.snackbar('错误', '用户名不能为空');
                         return;
                       }
 
@@ -133,13 +129,13 @@ class ProfileController extends GetxController {
                           await storage.setUsername(username.value);
                           Get.back(); // 只在成功时关闭对话框
                           usernameController.clear();
-                          Get.snackbar('成功', '用户名修改成功', duration: const Duration(seconds: 2));
+                          Get.snackbar('成功', '用户名修改成功');
                         } else {
-                          Get.snackbar('修改失败', response.msg, duration: const Duration(seconds: 2));
+                          Get.snackbar('修改失败', response.msg);
                         }
                       } catch (e) {
                         print('Update username error: $e');
-                        Get.snackbar('错误', '修改用户名失败，请稍后重试', duration: const Duration(seconds: 2));
+                        Get.snackbar('错误', '修改用户名失败，请稍后重试');
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -231,7 +227,7 @@ class ProfileController extends GetxController {
                   ElevatedButton(
                     onPressed: () async {
                       if (newPasswordController.text != confirmPasswordController.text) {
-                        Get.snackbar('错误', '两次输入的新密码不一致', duration: const Duration(seconds: 2));
+                        Get.snackbar('错误', '两次输入的新密码不一致');
                         return;
                       }
                       
@@ -253,15 +249,15 @@ class ProfileController extends GetxController {
                           oldPasswordController.clear();
                           newPasswordController.clear();
                           confirmPasswordController.clear();
-                          Get.snackbar('成功', '密码修改成功', duration: const Duration(seconds: 2));
+                          Get.snackbar('成功', '密码修改成功');
                           await storage.removeToken();
                           Get.offAllNamed(AppRoutes.SIGN_IN);
                         } else {
-                          Get.snackbar("修改失败", response.msg, duration: const Duration(seconds: 2));
+                          Get.snackbar("修改失败", response.msg);
                         }
                       } catch (e) {
                         print('Change password error: $e');
-                        Get.snackbar('错误', '修改密码失败，请稍后重试', duration: const Duration(seconds: 2));
+                        Get.snackbar('错误', '修改密码失败，请稍后重试');
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -338,11 +334,7 @@ class ProfileController extends GetxController {
         Get.offAllNamed(AppRoutes.SIGN_IN);
       } catch (e) {
         print('Logout error: $e');
-        Get.snackbar(
-          '错误',
-          '退出登录失败',
-          duration: const Duration(seconds: 2),
-        );
+        Get.snackbar('错误', '退出登录失败');
       }
     }
   }
@@ -420,19 +412,11 @@ class ProfileController extends GetxController {
         if (response.code == 200) {
           await storage.removeToken();
           Get.offAllNamed(AppRoutes.SIGN_IN);
-          Get.snackbar(
-            '成功',
-            '账号已删除',
-            duration: const Duration(seconds: 2),
-          );
+          Get.snackbar('成功', '账号已删除');
         }
       } catch (e) {
         print('Delete account error: $e');
-        Get.snackbar(
-          '错误',
-          '删除账号失败',
-          duration: const Duration(seconds: 2),
-        );
+        Get.snackbar('错误', '删除账号失败');
       }
     }
   }
@@ -478,16 +462,16 @@ class ProfileController extends GetxController {
 
         if (updateResponse.code == 200) {
           avatarUrl.value = avatarPath;
-          Get.snackbar('成功', '头像更新成功', duration: const Duration(seconds: 2));
+          Get.snackbar('成功', '头像更新成功');
         } else {
-          Get.snackbar('更新失败', updateResponse.msg, duration: const Duration(seconds: 2));
+          Get.snackbar('更新失败', updateResponse.msg);
         }
       } else {
-        Get.snackbar('上传失败', response.msg, duration: const Duration(seconds: 2));
+        Get.snackbar('上传失败', response.msg);
       }
     } catch (e) {
       print('Update avatar error: $e');
-      Get.snackbar('错误', '更新头像失败，请稍后重试', duration: const Duration(seconds: 2));
+      Get.snackbar('错误', '更新头像失败，请稍后重试');
     }
   }
 

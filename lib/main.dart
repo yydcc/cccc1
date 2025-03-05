@@ -9,6 +9,11 @@ import 'package:oktoast/oktoast.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GlobalThemData.init();
+  Get.config(
+    defaultTransition: Transition.fadeIn,
+    defaultDurationTransition: Duration(milliseconds: 200),
+  );
+  
   runApp(MyApp());
 }
 

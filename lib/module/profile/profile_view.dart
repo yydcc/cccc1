@@ -20,7 +20,7 @@ class ProfilePage extends GetView<ProfileController> {
         child: Column(
           children: [
             _buildHeader(),
-            SizedBox(height: 20.h),
+
             _buildMenuSection(),
           ],
         ),
