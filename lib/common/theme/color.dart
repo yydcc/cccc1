@@ -1,11 +1,13 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GlobalThemData {
   // 定义主题色
   static const Color primaryColor = Color(0xFF2196F3);  // 主色调
-  static const Color secondaryColor = Colors.black; // 次要色调
+  static const Color secondaryColor = Color(0xFF42A5F5); // 次要色调
   static const Color accentColor = Colors.deepOrange;   // 强调色
   static const Color backgroundColor = Color(0xFFF5F5F5); // 背景色
   static const Color textPrimaryColor = Color(0xFF333333); // 主文本色
@@ -71,4 +73,150 @@ class GlobalThemData {
     onSurface: Colors.white,
     brightness: Brightness.dark,
   );
+
+  // 主题色配置
+  static final Map<String, ThemeData> themes = {
+    'blue': _blueTheme,
+    'green': _greenTheme,
+    'purple': _purpleTheme,
+  };
+
+  // 蓝色主题
+  static final ThemeData _blueTheme = ThemeData(
+    primaryColor: Color(0xFF2196F3),
+    colorScheme: ColorScheme.light(
+      primary: Color(0xFF2196F3),
+      secondary: Color(0xFF42A5F5),
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+    ),
+    scaffoldBackgroundColor: backgroundColor,
+    textTheme: TextTheme(
+      bodyLarge: TextStyle(color: textPrimaryColor),
+      bodyMedium: TextStyle(color: textSecondaryColor),
+    ),
+    dividerColor: dividerColor,
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: Color(0xFF2196F3),
+      ),
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: Color(0xFF2196F3),
+      elevation: 0,
+      iconTheme: IconThemeData(color: Colors.white),
+      titleTextStyle: TextStyle(
+        color: Colors.white,
+        fontSize: 20,
+        fontWeight: FontWeight.w500,
+      ),
+    ),
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      backgroundColor: Colors.white,
+      selectedItemColor: Color(0xFF2196F3),
+      unselectedItemColor: textSecondaryColor,
+    ),
+  );
+
+  // 绿色主题
+  static final ThemeData _greenTheme = ThemeData(
+    primaryColor: Color(0xFF4CAF50),
+    colorScheme: ColorScheme.light(
+      primary: Color(0xFF4CAF50),
+      secondary: Color(0xFF81C784),
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+    ),
+    scaffoldBackgroundColor: backgroundColor,
+    textTheme: TextTheme(
+      bodyLarge: TextStyle(color: textPrimaryColor),
+      bodyMedium: TextStyle(color: textSecondaryColor),
+    ),
+    dividerColor: dividerColor,
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: Color(0xFF4CAF50),
+      ),
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: Color(0xFF4CAF50),
+      elevation: 0,
+      iconTheme: IconThemeData(color: Colors.white),
+      titleTextStyle: TextStyle(
+        color: Colors.white,
+        fontSize: 20,
+        fontWeight: FontWeight.w500,
+      ),
+    ),
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      backgroundColor: Colors.white,
+      selectedItemColor: Color(0xFF4CAF50),
+      unselectedItemColor: textSecondaryColor,
+    ),
+  );
+
+  // 紫色主题
+  static final ThemeData _purpleTheme = ThemeData(
+    primaryColor: Color(0xFF9C27B0),
+    colorScheme: ColorScheme.light(
+      primary: Color(0xFF9C27B0),
+      secondary: Color(0xFFBA68C8),
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+    ),
+    scaffoldBackgroundColor: backgroundColor,
+    textTheme: TextTheme(
+      bodyLarge: TextStyle(color: textPrimaryColor),
+      bodyMedium: TextStyle(color: textSecondaryColor),
+    ),
+    dividerColor: dividerColor,
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: Color(0xFF9C27B0),
+      ),
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: Color(0xFF9C27B0),
+      elevation: 0,
+      iconTheme: IconThemeData(color: Colors.white),
+      titleTextStyle: TextStyle(
+        color: Colors.white,
+        fontSize: 20,
+        fontWeight: FontWeight.w500,
+      ),
+    ),
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      backgroundColor: Colors.white,
+      selectedItemColor: Color(0xFF9C27B0),
+      unselectedItemColor: textSecondaryColor,
+    ),
+  );
+
+  // 当前主题
+  static final Rx<ThemeData> currentTheme = _blueTheme.obs;
+
+  // 初始化主题
+  static Future<void> init() async {
+    final prefs = await SharedPreferences.getInstance();
+    final themeName = prefs.getString('theme') ?? 'blue';
+    currentTheme.value = themes[themeName] ?? _blueTheme;
+  }
+
+  // 切换主题
+  static Future<void> changeTheme(String themeName) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('theme', themeName);
+    currentTheme.value = themes[themeName] ?? _blueTheme;
+  }
+
+  // 获取主题名称
+  static String getCurrentThemeName() {
+    if (currentTheme.value == _blueTheme) return 'blue';
+    if (currentTheme.value == _greenTheme) return 'green';
+    if (currentTheme.value == _purpleTheme) return 'purple';
+    return 'blue';
+  }
 }

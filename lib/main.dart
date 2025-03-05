@@ -6,7 +6,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:oktoast/oktoast.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await GlobalThemData.init();
   runApp(MyApp());
 }
 
@@ -19,16 +21,14 @@ class MyApp extends StatelessWidget {
         minTextAdapt: true,
         splitScreenMode: true,
         builder: (_, child) {
-          return GetMaterialApp(
+          return Obx(() => GetMaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Flutter Demo',
-            theme: GlobalThemData.lightThemeData,
-            darkTheme: GlobalThemData.darkThemeData,
-            themeMode: ThemeMode.system,
+            theme: GlobalThemData.currentTheme.value,
             initialRoute: AppPages.INITIAL,
-            getPages:AppPages.routes,
+            getPages: AppPages.routes,
             builder: EasyLoading.init(),
-          );
+          ));
         },
       ),
     );

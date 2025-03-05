@@ -41,7 +41,7 @@ class MainPage extends GetView<MainController> {
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.white,
           elevation: 0,
-          selectedItemColor: GlobalThemData.primaryColor,
+          selectedItemColor: Theme.of(context).primaryColor,
           unselectedItemColor: GlobalThemData.textSecondaryColor,
           selectedFontSize: 12.sp,
           unselectedFontSize: 12.sp,
@@ -58,24 +58,28 @@ class MainPage extends GetView<MainController> {
               Icons.home,
               '首页',
               0,
+              context,
             ),
             _buildBottomNavigationBarItem(
               Icons.calendar_month_outlined,
               Icons.calendar_month,
               '课程表',
               1,
+              context,
             ),
             _buildBottomNavigationBarItem(
               Icons.message_outlined,
               Icons.message,
               '消息',
               2,
+              context,
             ),
             _buildBottomNavigationBarItem(
               Icons.person_outline,
               Icons.person,
               '我的',
               3,
+              context,
             ),
           ],
         ),
@@ -88,13 +92,14 @@ class MainPage extends GetView<MainController> {
     IconData selectedIcon,
     String label,
     int index,
+    BuildContext context,
   ) {
     return BottomNavigationBarItem(
       icon: Obx(() => Icon(
         controller.currentPage.value == index ? selectedIcon : unselectedIcon,
         size: 26.sp,
         color: controller.currentPage.value == index 
-          ? GlobalThemData.primaryColor 
+          ? Theme.of(context).primaryColor 
           : GlobalThemData.textSecondaryColor,
       )),
       label: label,

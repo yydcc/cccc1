@@ -55,6 +55,7 @@ class ProfileController extends GetxController {
       Get.snackbar(
         '错误',
         '获取用户信息失败',
+        duration: const Duration(seconds: 2),
       );
     }
   }
@@ -103,7 +104,7 @@ class ProfileController extends GetxController {
                       Get.back();
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: GlobalThemData.secondaryColor,
+                      backgroundColor: Theme.of(Get.context!).primaryColor,
                     ),
                     child: Text('取消', style: TextStyle(fontSize: 14.sp)),
                   ),
@@ -111,7 +112,7 @@ class ProfileController extends GetxController {
                   ElevatedButton(
                     onPressed: () async {
                       if (usernameController.text.isEmpty) {
-                        Get.snackbar('错误', '用户名不能为空');
+                        Get.snackbar('错误', '用户名不能为空', duration: const Duration(seconds: 2));
                         return;
                       }
 
@@ -132,17 +133,17 @@ class ProfileController extends GetxController {
                           await storage.setUsername(username.value);
                           Get.back(); // 只在成功时关闭对话框
                           usernameController.clear();
-                          Get.snackbar('成功', '用户名修改成功');
+                          Get.snackbar('成功', '用户名修改成功', duration: const Duration(seconds: 2));
                         } else {
-                          Get.snackbar('修改失败', response.msg);
+                          Get.snackbar('修改失败', response.msg, duration: const Duration(seconds: 2));
                         }
                       } catch (e) {
                         print('Update username error: $e');
-                        Get.snackbar('错误', '修改用户名失败，请稍后重试');
+                        Get.snackbar('错误', '修改用户名失败，请稍后重试', duration: const Duration(seconds: 2));
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: GlobalThemData.secondaryColor,
+                      backgroundColor: Theme.of(Get.context!).primaryColor,
                     ),
                     child: Text('确定', style: TextStyle(fontSize: 14.sp)),
                   ),
@@ -222,7 +223,7 @@ class ProfileController extends GetxController {
                       Get.back();
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: GlobalThemData.secondaryColor,
+                      backgroundColor: Theme.of(Get.context!).primaryColor,
                     ),
                     child: Text('取消', style: TextStyle(fontSize: 14.sp)),
                   ),
@@ -230,7 +231,7 @@ class ProfileController extends GetxController {
                   ElevatedButton(
                     onPressed: () async {
                       if (newPasswordController.text != confirmPasswordController.text) {
-                        Get.snackbar('错误', '两次输入的新密码不一致');
+                        Get.snackbar('错误', '两次输入的新密码不一致', duration: const Duration(seconds: 2));
                         return;
                       }
                       
@@ -252,19 +253,19 @@ class ProfileController extends GetxController {
                           oldPasswordController.clear();
                           newPasswordController.clear();
                           confirmPasswordController.clear();
-                          Get.snackbar('成功', '密码修改成功');
+                          Get.snackbar('成功', '密码修改成功', duration: const Duration(seconds: 2));
                           await storage.removeToken();
                           Get.offAllNamed(AppRoutes.SIGN_IN);
                         } else {
-                          Get.snackbar("修改失败", response.msg);
+                          Get.snackbar("修改失败", response.msg, duration: const Duration(seconds: 2));
                         }
                       } catch (e) {
                         print('Change password error: $e');
-                        Get.snackbar('错误', '修改密码失败，请稍后重试');
+                        Get.snackbar('错误', '修改密码失败，请稍后重试', duration: const Duration(seconds: 2));
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: GlobalThemData.secondaryColor,
+                      backgroundColor: Theme.of(Get.context!).primaryColor,
                     ),
                     child: Text('确定', style: TextStyle(fontSize: 14.sp)),
                   ),
@@ -308,19 +309,17 @@ class ProfileController extends GetxController {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(Get.context!).primaryColor,
+                    ),
                     onPressed: () => Get.back(result: false),
-                    style:ElevatedButton.styleFrom(
-                      backgroundColor: GlobalThemData.secondaryColor,
-                    ),
-                    child: Text(
-                      '取消',
-                    ),
+                    child: Text('取消'),
                   ),
                   SizedBox(width: 10.w),
                   ElevatedButton(
                     onPressed: () => Get.back(result: true),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: GlobalThemData.secondaryColor,
+                      backgroundColor: Theme.of(Get.context!).primaryColor,
                     ),
                     child: Text('确定'),
                   ),
@@ -342,7 +341,7 @@ class ProfileController extends GetxController {
         Get.snackbar(
           '错误',
           '退出登录失败',
-
+          duration: const Duration(seconds: 2),
         );
       }
     }
@@ -385,21 +384,19 @@ class ProfileController extends GetxController {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: GlobalThemData.secondaryColor,
-                    ),
                     onPressed: () => Get.back(result: false),
-                    child: Text(
-                      '取消'
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(Get.context!).primaryColor,
                     ),
+                    child: Text('取消'),
                   ),
-                  SizedBox(width: 10),
+                  SizedBox(width: 10.w),
                   ElevatedButton(
                     onPressed: () => Get.back(result: true),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: GlobalThemData.accentColor,
+                      backgroundColor: Colors.red,
                     ),
-                    child: Text('确定删除'),
+                    child: Text('确认删除'),
                   ),
                 ],
               ),
@@ -426,6 +423,7 @@ class ProfileController extends GetxController {
           Get.snackbar(
             '成功',
             '账号已删除',
+            duration: const Duration(seconds: 2),
           );
         }
       } catch (e) {
@@ -433,6 +431,7 @@ class ProfileController extends GetxController {
         Get.snackbar(
           '错误',
           '删除账号失败',
+          duration: const Duration(seconds: 2),
         );
       }
     }
@@ -479,16 +478,94 @@ class ProfileController extends GetxController {
 
         if (updateResponse.code == 200) {
           avatarUrl.value = avatarPath;
-          Get.snackbar('成功', '头像更新成功');
+          Get.snackbar('成功', '头像更新成功', duration: const Duration(seconds: 2));
         } else {
-          Get.snackbar('更新失败', updateResponse.msg);
+          Get.snackbar('更新失败', updateResponse.msg, duration: const Duration(seconds: 2));
         }
       } else {
-        Get.snackbar('上传失败', response.msg);
+        Get.snackbar('上传失败', response.msg, duration: const Duration(seconds: 2));
       }
     } catch (e) {
       print('Update avatar error: $e');
-      Get.snackbar('错误', '更新头像失败，请稍后重试');
+      Get.snackbar('错误', '更新头像失败，请稍后重试', duration: const Duration(seconds: 2));
     }
+  }
+
+  Future<void> handleChangeTheme() async {
+    final result = await Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.r),
+        ),
+        child: Container(
+          padding: EdgeInsets.all(20.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '选择主题',
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                  color: GlobalThemData.textPrimaryColor,
+                ),
+              ),
+              SizedBox(height: 20.h),
+              _buildThemeOption('blue', '蓝色主题'),
+              SizedBox(height: 10.h),
+              _buildThemeOption('green', '绿色主题'),
+              SizedBox(height: 10.h),
+              _buildThemeOption('purple', '紫色主题'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThemeOption(String themeName, String label) {
+    return InkWell(
+      onTap: () {
+        GlobalThemData.changeTheme(themeName);
+        Get.back();  // 只保留关闭对话框
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 20.w),
+        decoration: BoxDecoration(
+          color: GlobalThemData.themes[themeName]?.primaryColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(10.r),
+          border: Border.all(
+            color: GlobalThemData.themes[themeName]?.primaryColor ?? Colors.transparent,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 20.w,
+              height: 20.w,
+              decoration: BoxDecoration(
+                color: GlobalThemData.themes[themeName]?.primaryColor,
+                shape: BoxShape.circle,
+              ),
+            ),
+            SizedBox(width: 15.w),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 16.sp,
+                color: GlobalThemData.textPrimaryColor,
+              ),
+            ),
+            Spacer(),
+            if (GlobalThemData.getCurrentThemeName() == themeName)
+              Icon(
+                Icons.check_circle,
+                color: GlobalThemData.themes[themeName]?.primaryColor,
+                size: 20.sp,
+              ),
+          ],
+        ),
+      ),
+    );
   }
 } 

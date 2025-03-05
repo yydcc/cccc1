@@ -123,9 +123,9 @@ class ProfilePage extends GetView<ProfileController> {
           ),
           _buildDivider(),
           _buildMenuItem(
-            icon: Icons.camera_alt_outlined,
+            icon: Icons.color_lens_outlined,
             title: '更改主题',
-            onTap: () {},
+            onTap: controller.handleChangeTheme,
           ),
           _buildDivider(),
           _buildMenuItem(

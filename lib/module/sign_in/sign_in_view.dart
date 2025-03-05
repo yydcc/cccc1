@@ -38,13 +38,13 @@ class SignInPage extends GetView<SignInController> {
                   decoration: InputDecoration(
                     labelText: '用户名',
                     labelStyle: TextStyle(color: GlobalThemData.textSecondaryColor),
-                    prefixIcon: Icon(Icons.person_outline, color: GlobalThemData.primaryColor),
+                    prefixIcon: Icon(Icons.person_outline, color: Theme.of(context).primaryColor),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.r),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.r),
-                      borderSide: BorderSide(color: GlobalThemData.primaryColor),
+                      borderSide: BorderSide(color: Theme.of(context).primaryColor),
                     ),
                   ),
                 ),
@@ -55,13 +55,13 @@ class SignInPage extends GetView<SignInController> {
                   decoration: InputDecoration(
                     labelText: '密码',
                     labelStyle: TextStyle(color: GlobalThemData.textSecondaryColor),
-                    prefixIcon: Icon(Icons.lock_outline, color: GlobalThemData.primaryColor),
+                    prefixIcon: Icon(Icons.lock_outline, color: Theme.of(context).primaryColor),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.r),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.r),
-                      borderSide: BorderSide(color: GlobalThemData.primaryColor),
+                      borderSide: BorderSide(color: Theme.of(context).primaryColor),
                     ),
                   ),
                 ),
@@ -77,9 +77,9 @@ class SignInPage extends GetView<SignInController> {
                 SizedBox(height: 15.h),
                 Row(
                   children: [
-                    Expanded(child: _buildRoleChoice('student', '学生', Icons.school)),
+                    Expanded(child: _buildRoleChoice('student', '学生', Icons.school, context)),
                     SizedBox(width: 15.w),
-                    Expanded(child: _buildRoleChoice('teacher', '教师', Icons.person)),
+                    Expanded(child: _buildRoleChoice('teacher', '教师', Icons.person, context)),
                   ],
                 ),
                 SizedBox(height: 40.h),
@@ -89,7 +89,7 @@ class SignInPage extends GetView<SignInController> {
                   child: ElevatedButton(
                     onPressed: controller.handleSignIn,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: GlobalThemData.primaryColor,
+                      backgroundColor: Theme.of(context).primaryColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.r),
                       ),
@@ -114,7 +114,7 @@ class SignInPage extends GetView<SignInController> {
                         '立即注册',
                         style: TextStyle(
                           fontSize: 14.sp,
-                          color: GlobalThemData.primaryColor,
+                          color: Theme.of(context).primaryColor,
                         ),
                       ),
                     ),
@@ -128,19 +128,19 @@ class SignInPage extends GetView<SignInController> {
     );
   }
 
-  Widget _buildRoleChoice(String value, String label, IconData icon) {
+  Widget _buildRoleChoice(String value, String label, IconData icon, BuildContext context) {
     return InkWell(
       onTap: () => controller.setRole(value),
       child: Obx(() => Container(
         padding: EdgeInsets.symmetric(vertical: 15.h),
         decoration: BoxDecoration(
           color: controller.selectedRole.value == value 
-            ? GlobalThemData.primaryColor.withOpacity(0.1)
+            ? Theme.of(context).primaryColor.withOpacity(0.1)
             : Colors.transparent,
           borderRadius: BorderRadius.circular(10.r),
           border: Border.all(
             color: controller.selectedRole.value == value 
-              ? GlobalThemData.primaryColor
+              ? Theme.of(context).primaryColor
               : GlobalThemData.dividerColor,
           ),
         ),
@@ -149,7 +149,7 @@ class SignInPage extends GetView<SignInController> {
             Icon(
               icon,
               color: controller.selectedRole.value == value 
-                ? GlobalThemData.primaryColor
+                ? Theme.of(context).primaryColor
                 : GlobalThemData.textSecondaryColor,
               size: 24.sp,
             ),
@@ -158,7 +158,7 @@ class SignInPage extends GetView<SignInController> {
               label,
               style: TextStyle(
                 color: controller.selectedRole.value == value 
-                  ? GlobalThemData.primaryColor
+                  ? Theme.of(context).primaryColor
                   : GlobalThemData.textSecondaryColor,
                 fontSize: 14.sp,
               ),
