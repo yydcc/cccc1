@@ -41,6 +41,7 @@ dependencies:
 
   permission_handler: ^11.3.0
   image_picker: ^1.0.7
+  easy_refresh: ^3.4.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

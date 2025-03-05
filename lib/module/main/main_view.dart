@@ -4,10 +4,9 @@ import 'package:get/get.dart';
 import 'main_controller.dart';
 import '../home/home_view.dart';
 import '../schedule/schedule_view.dart';
-import '../message/message_view.dart';
 import '../profile/profile_view.dart';
 import '../../common/theme/color.dart';
-
+import '../classinfo/classinfo_view.dart';
 class MainPage extends GetView<MainController> {
   const MainPage({Key? key}) : super(key: key);
 
@@ -17,10 +16,10 @@ class MainPage extends GetView<MainController> {
       backgroundColor: GlobalThemData.backgroundColor,
       body: Obx(() => IndexedStack(
         index: controller.currentPage.value,
-        children: const [
+        children: [
           HomePage(),
           SchedulePage(),
-          MessagePage(),
+          ClassinfoView(),
           ProfilePage(),
         ],
       )),
@@ -68,9 +67,9 @@ class MainPage extends GetView<MainController> {
               context,
             ),
             _buildBottomNavigationBarItem(
-              Icons.message_outlined,
-              Icons.message,
-              '消息',
+              Icons.class_outlined,
+              Icons.class_,
+              '班级',
               2,
               context,
             ),
@@ -105,4 +104,4 @@ class MainPage extends GetView<MainController> {
       label: label,
     );
   }
-} 
+}
