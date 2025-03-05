@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import '../../common/theme/color.dart';
 import '../../common/utils/http.dart';
 import 'profile_controller.dart';
-
+import 'package:cached_network_image/cached_network_image.dart';
 class ProfilePage extends GetView<ProfileController> {
   const ProfilePage({Key? key}) : super(key: key);
 
@@ -19,8 +19,7 @@ class ProfilePage extends GetView<ProfileController> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _buildHeader(),
-
+            _buildHeader(context),
             _buildMenuSection(),
           ],
         ),
@@ -28,7 +27,7 @@ class ProfilePage extends GetView<ProfileController> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(30.w),
 
@@ -40,32 +39,32 @@ class ProfilePage extends GetView<ProfileController> {
               onTap: controller.handleUpdateAvatar,
               child: Stack(
                 children: [
-                  CircleAvatar(
-                    radius: 50.r,
-                    backgroundColor: Colors.grey[200],
-                    backgroundImage: controller.avatarUrl.value.isNotEmpty
-                        ? NetworkImage('${HttpUtil.SERVER_API_URL}${controller.avatarUrl.value}')
-                        : null,
-                    child: controller.avatarUrl.value.isEmpty
-                        ? Icon(
-                            Icons.person,
-                            size: 50.r,
-                            color: Colors.grey,
-                          )
-                        : null,
-                  ),
+                     Obx(() => CircleAvatar(
+                  radius: 50.r,
+                  backgroundColor: GlobalThemData.primaryColor.withOpacity(0.1),
+                  backgroundImage: controller.avatarUrl.value.isNotEmpty
+                      ? CachedNetworkImageProvider('${HttpUtil.SERVER_API_URL}${controller.avatarUrl.value}')
+                      : null,
+                  child: controller.avatarUrl.value.isEmpty
+                      ? Icon(
+                          Icons.person,
+                          size: 50.r,
+                          color: GlobalThemData.primaryColor,
+                        )
+                      : null,
+                )),
                   Positioned(
                     right: 0,
                     bottom: 0,
                     child: Container(
                       padding: EdgeInsets.all(8.r),
                       decoration: BoxDecoration(
-                        color: GlobalThemData.primaryColor,
+                        color:Theme.of(context).primaryColor,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.camera_alt,
-                        color: Colors.white,
+                        color: GlobalThemData.backgroundColor,
                         size: 20.r,
                       ),
                     ),

@@ -10,8 +10,8 @@ import 'package:dio/dio.dart';
 
 class ProfileController extends GetxController {
   final HttpUtil httpUtil = HttpUtil();
-  final RxString username = 'yizhe'.obs;
-  final RxString role = 'student'.obs;
+  final RxString username = ''.obs;
+  final RxString role = ''.obs;
   final RxString avatarUrl = ''.obs;
   
   final TextEditingController usernameController = TextEditingController();
@@ -39,15 +39,17 @@ class ProfileController extends GetxController {
       final storage = await StorageService.instance;
       final userRole = storage.getRole() ?? 'student';
       role.value = userRole == 'student' ? '学生' : '教师';
-      
+      avatarUrl.value = storage.getAvatarUrl()??'';
       username.value = storage.getUsername() ?? '';
-      
       final response = await httpUtil.get('/$userRole/info?username=$username');
       if (response.code == 200) {
-        avatarUrl.value = response.data['avatar'] ?? '';
         if (response.data['username'] != null && response.data['username'] != username.value) {
           username.value = response.data['username'];
           await storage.setUsername(username.value);
+        }
+        if(response.data['avatar'] != null && response.data['avatar'] != avatarUrl.value){
+          avatarUrl.value = response.data['avatar'];
+          await storage.setAvaterUrl(avatarUrl.value);
         }
       }
     } catch (e) {
@@ -512,19 +514,17 @@ class ProfileController extends GetxController {
       );
 
       if (response.code == 200) {
-        final avatarPath = response.data['path'];
-        final updateResponse = await httpUtil.post(
+         avatarUrl.value =  response.data['path'];
+        storage.setAvaterUrl(avatarUrl.value);
+         final updateResponse = await httpUtil.post(
           '/$userRole/update',
           data: {
             'username': username.value,
-            'avatar': avatarPath,
+            'avatar': avatarUrl.value,
           },
         );
 
         if (updateResponse.code == 200) {
-          avatarUrl.value = avatarPath;
-          // 强制更新 UI
-          update(['avatar']);
           Get.snackbar('成功', '头像更新成功');
         } else {
           Get.snackbar('更新失败', updateResponse.msg);

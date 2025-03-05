@@ -39,4 +39,12 @@ class StorageService {
   String? getUsername() {
     return _preferences!.getString('username');
   }
+  String? getAvatarUrl(){
+    return _preferences!.getString('avatar');
+  }
+  Future<bool> setAvaterUrl(String avatarUrl)async{
+    return await _preferences!.setString('avatar', avatarUrl);
+  }
+
+
 } 
