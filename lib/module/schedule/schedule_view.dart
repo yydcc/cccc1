@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../common/theme/color.dart';
 import 'schedule_controller.dart';
 
 class SchedulePage extends GetView<ScheduleController> {
@@ -8,6 +9,7 @@ class SchedulePage extends GetView<ScheduleController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: GlobalThemData.backgroundColor,
       appBar: AppBar(
         title: const Text('课程表'),
         centerTitle:true,

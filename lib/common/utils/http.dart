@@ -94,7 +94,6 @@ class HttpUtil {
     final storage = await StorageService.instance;
     var token = storage.getToken();
     if (token != null) {
-      // 修改 token 的格式，确保与 Postman 一致
       headers['Authorization'] = 'Bearer $token';
       print('Adding token to header: Bearer $token'); // 调试用
     }

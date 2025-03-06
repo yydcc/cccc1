@@ -562,7 +562,10 @@ class ProfileController extends GetxController {
               SizedBox(height: 10.h),
               _buildThemeOption('green', '绿色主题'),
               SizedBox(height: 10.h),
-              _buildThemeOption('purple', '紫色主题'),
+              _buildThemeOption('orange', '橙色主题'),
+              SizedBox(height: 10.h),
+              _buildThemeOption('black', '黑色主题'),
+              SizedBox(height: 10.h),
             ],
           ),
         ),
@@ -615,4 +618,4 @@ class ProfileController extends GetxController {
       ),
     );
   }
-} 
+}

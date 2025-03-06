@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../common/theme/color.dart';
 import 'classinfo_controller.dart';
 
 class ClassinfoView extends GetView<ClassinfoController> {
@@ -10,6 +11,7 @@ class ClassinfoView extends GetView<ClassinfoController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: GlobalThemData.backgroundColor,
       appBar: AppBar(
         title: const Text('我的班级'),
         centerTitle: true,

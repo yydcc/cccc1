@@ -15,6 +15,7 @@ class HomePage extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: GlobalThemData.backgroundColor,
       appBar: AppBar(
         title: const Text('首页'),
         centerTitle: true,

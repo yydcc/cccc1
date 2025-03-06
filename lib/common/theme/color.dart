@@ -78,7 +78,8 @@ class GlobalThemData {
   static final Map<String, ThemeData> themes = {
     'blue': _blueTheme,
     'green': _greenTheme,
-    'purple': _purpleTheme,
+    'orange': _orangeTheme,
+    'black': _blackTheme,
   };
 
   // 蓝色主题
@@ -157,12 +158,11 @@ class GlobalThemData {
     ),
   );
 
-  // 紫色主题
-  static final ThemeData _purpleTheme = ThemeData(
-    primaryColor: Color(0xFF9C27B0),
+  static final ThemeData _orangeTheme = ThemeData(
+    primaryColor: Color(0xFFFF9800),
     colorScheme: ColorScheme.light(
-      primary: Color(0xFF9C27B0),
-      secondary: Color(0xFFBA68C8),
+      primary: Color(0xFFFF9800),
+      secondary: Color(0xFFFFC107),
       onPrimary: Colors.white,
       onSecondary: Colors.white,
     ),
@@ -175,11 +175,11 @@ class GlobalThemData {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white,
-        backgroundColor: Color(0xFF9C27B0),
+        backgroundColor: Color(0xFFFF9800),
       ),
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: Color(0xFF9C27B0),
+      backgroundColor: Color(0xFFFF9800),
       elevation: 0,
       iconTheme: IconThemeData(color: Colors.white),
       titleTextStyle: TextStyle(
@@ -190,12 +190,49 @@ class GlobalThemData {
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: Colors.white,
-      selectedItemColor: Color(0xFF9C27B0),
+      selectedItemColor: Color(0xFFFF9800),
       unselectedItemColor: textSecondaryColor,
     ),
   );
 
-  // 当前主题
+  // 黑色主题
+  static final ThemeData _blackTheme = ThemeData(
+    primaryColor: Colors.black,
+    colorScheme: ColorScheme.light(
+      primary: Colors.black,
+      secondary: Colors.grey,
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+    ),
+    scaffoldBackgroundColor: Colors.white,
+    textTheme: TextTheme(
+      bodyLarge: TextStyle(color: Colors.black),
+      bodyMedium: TextStyle(color: Colors.black),
+    ),
+    dividerColor: Colors.grey,
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.black,
+      ),
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: Colors.black,
+      elevation: 0,
+      iconTheme: IconThemeData(color: Colors.white),
+      titleTextStyle: TextStyle(
+        color: Colors.white,
+        fontSize: 20,
+        fontWeight: FontWeight.w500,
+      ),
+    ),
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      backgroundColor: Colors.white,
+      selectedItemColor: Colors.black,
+      unselectedItemColor: Colors.grey,
+    ),
+  );
+
   static final Rx<ThemeData> currentTheme = _blueTheme.obs;
 
   // 初始化主题
@@ -216,7 +253,8 @@ class GlobalThemData {
   static String getCurrentThemeName() {
     if (currentTheme.value == _blueTheme) return 'blue';
     if (currentTheme.value == _greenTheme) return 'green';
-    if (currentTheme.value == _purpleTheme) return 'purple';
+    if (currentTheme.value == _blackTheme) return 'black';
+    if (currentTheme.value ==  _orangeTheme) return 'orange';
     return 'blue';
   }
 }
