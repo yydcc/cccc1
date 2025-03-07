@@ -124,7 +124,7 @@ class ClassinfoView extends StatelessWidget {
                         ),
                         SizedBox(width: 4.w),
                         Text(
-                          '人数：${classInfo.studentCount}',
+                          '学生人数：${classInfo.studentCount}',
                           style: TextStyle(
                             fontSize: 14.sp,
                             color: GlobalThemData.textSecondaryColor,

@@ -67,15 +67,15 @@ class TeacherClassinfoController extends GetxController {
       if (response.code == 200) {
         final List<ClassInfo> newClasses = (response.data['classInfoList'] as List? ?? [])
             .map((item) => ClassInfo(
-          teacherId: item['teacherId'],
-          classId: item['classId'] ,
-          className: item['className'] ?? '',
-          teacherNickname: item['teacherNickname'] ?? '',
-          joinedAt: item['joinedAt'] ?? '',
-          courseCode: item['courseCode'] ?? '',
-          createAt: item['createAt'],
-          studentCount: item['studentCount'],
-        ))
+              teacherId: item['teacherId'] ?? 0,
+              classId: item['classId'] ?? 0,
+              className: item['className'] ?? '',
+              teacherNickname: item['teacherNickname'] ?? '',
+              joinedAt: item['joinedAt'] ?? '',
+              courseCode: item['courseCode'] ?? '',
+              createAt: item['createAt'] ?? '',
+              studentCount: item['studentCount'] ?? 0,
+            ))
             .toList();
 
         if (isLoadMore) {
@@ -179,9 +179,11 @@ class TeacherClassinfoController extends GetxController {
     }
 
     try {
+      final storage = await StorageService.instance;
       final response = await httpUtil.post(
         '/teacher/create_class',
         data: {
+          "teacherName":storage.getUsername(),
           'className': classNameController.text,
           'teacherNickname': teacherNicknameController.text,
         },

@@ -204,14 +204,14 @@ class ClassinfoController extends GetxController {
       if (response.code == 200) {
         final List<ClassInfo> newClasses = (response.data['classInfoList'] as List? ?? [])
             .map((item) => ClassInfo(
-                  teacherId: item['teacherId'],
-                  classId: item['classId'] ,
+                  teacherId: item['teacherId']??0,
+                  classId: item['classId']??0 ,
                   className: item['className'] ?? '',
                   teacherNickname: item['teacherNickname'] ?? '',
                   joinedAt: item['joinedAt'] ?? '',
                   courseCode: item['courseCode'] ?? '',
-                  createAt: item['createAt'],
-                  studentCount: item['studentCount'],
+                  createAt: item['createAt']??'',
+                  studentCount: item['studentCount']??0,
                 ))
             .toList();
 

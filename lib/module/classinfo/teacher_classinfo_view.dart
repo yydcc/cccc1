@@ -19,22 +19,27 @@ class TeacherClassinfoView extends GetView<TeacherClassinfoController> {
         backgroundColor: Theme.of(context).primaryColor,
         child: Icon(Icons.add, color: Colors.white),
       ),
-      body: Obx(() {
-        return EasyRefresh(
-          controller: controller.refreshController,
-          header: const ClassicHeader(
-            processedDuration: Duration(milliseconds: 0),
-          ),
-          footer: const ClassicFooter(
-            processedDuration: Duration(milliseconds: 0),
-          ),
-          onRefresh: controller.onRefresh,
-          onLoad: controller.onLoadMore,
-          child: controller.classList.isEmpty
-            ? _buildEmptyState()
-            : _buildClassList(context),
-        );
-      }),
+      body: EasyRefresh(
+        controller: controller.refreshController,
+        header: const ClassicHeader(
+          processedDuration: Duration(milliseconds: 0),
+        ),
+        footer: const ClassicFooter(
+          processedDuration: Duration(milliseconds: 0),
+        ),
+        onRefresh: controller.onRefresh,
+        onLoad: controller.onLoadMore,
+        child: CustomScrollView(
+          slivers: [
+            SliverFillRemaining(
+              child: Obx(() => controller.classList.isEmpty
+                ? _buildEmptyState()
+                : _buildClassList(context)
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -120,7 +125,7 @@ class TeacherClassinfoView extends GetView<TeacherClassinfoController> {
                             borderRadius: BorderRadius.circular(15.r),
                           ),
                           child: Text(
-                            '课程码:${classInfo.courseCode}',
+                            '课程码：${classInfo.courseCode}',
                             style: TextStyle(
                               fontSize: 12.sp,
                               color: Theme.of(context).primaryColor,
@@ -130,12 +135,36 @@ class TeacherClassinfoView extends GetView<TeacherClassinfoController> {
                       ],
                     ),
                     SizedBox(height: 8.h),
-                    Text(
-                      '创建时间：${classInfo.createAt}',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: GlobalThemData.textSecondaryColor,
-                      ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.timer_outlined,
+                          size: 16.sp,
+                          color: GlobalThemData.textSecondaryColor,
+                        ),
+                        SizedBox(width: 4.w),
+                        Text(
+                          '创建时间：${classInfo.createAt.substring(0,10)}',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: GlobalThemData.textSecondaryColor,
+                          ),
+                        ),
+                        Spacer(),
+                        Icon(
+                          Icons.group_outlined,
+                          size: 16.sp,
+                          color: GlobalThemData.textSecondaryColor,
+                        ),
+                        SizedBox(width: 4.w),
+                        Text(
+                          '学生人数：${classInfo.studentCount}',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: GlobalThemData.textSecondaryColor,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
