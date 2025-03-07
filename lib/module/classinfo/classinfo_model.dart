@@ -1,4 +1,4 @@
-import 'dart:ffi';
+
 
 class ClassInfo {
   final int classId;
@@ -6,6 +6,9 @@ class ClassInfo {
   final int teacherId;
   final String teacherNickname;
   final String courseCode;
+  final String createAt;
+  final String joinedAt;
+  final int studentCount;
 
   ClassInfo({
     required this.classId,
@@ -13,6 +16,10 @@ class ClassInfo {
     required this.teacherId,
     required this.teacherNickname,
     required this.courseCode,
+    required this.createAt,
+    required this.joinedAt,
+    required this.studentCount,
+
   });
   factory ClassInfo.fromJson(Map<String, dynamic> json) {
     return ClassInfo(
@@ -21,6 +28,9 @@ class ClassInfo {
       teacherId: json['teacherId'],
       teacherNickname: json['teacherNickname'],
       courseCode: json['courseCode'],
+      createAt: json['createAt'],
+      joinedAt: json['joinedAt'],
+      studentCount: json['studentCount']
     );
   }
 }

@@ -7,6 +7,7 @@ import 'classinfo_model.dart';
 import 'package:cccc1/common/utils/http.dart';
 import 'package:cccc1/common/widget/code_input_field.dart';
 
+
 class ClassinfoController extends GetxController {
   var joinClassCode = ''.obs;
   var isJoining = false.obs; // 标记是否正在加入班级
@@ -116,11 +117,17 @@ class ClassinfoController extends GetxController {
     joinClassCode.value = code;
 
     try {
-      final response = await HttpUtil().post('/join_class', data: {"courseCode": code});
+      final storage = await StorageService.instance;
+      final userRole = storage.getRole() ?? 'student';
+      final response = await httpUtil.post('/$userRole/join_class', data: {
+        "username": storage.getUsername(),
+        "courseCode": code
+
+      });
 
       if (response.code == 200) {
-        Get.snackbar('成功', '成功加入班级');
         Get.back(); // 关闭对话框
+        Get.snackbar('成功', '成功加入班级');
       } else {
         Get.snackbar('错误', response.msg ?? '加入失败，请检查加课码');
       }
@@ -132,19 +139,20 @@ class ClassinfoController extends GetxController {
   }
 
   final HttpUtil httpUtil = HttpUtil();
-  var classList = <ClassInfo>[].obs;
-  late EasyRefreshController refreshController;
-  var page = 1;
-  var hasMore = true.obs;
+  final RxList<ClassInfo> classList = <ClassInfo>[].obs;
+  final refreshController = EasyRefreshController(
+    controlFinishRefresh: true,
+    controlFinishLoad: true,
+  );
+  
+  int currentPage = 1;
+  final int pageSize = 10;
+  bool hasMore = true;
 
   @override
   void onInit() {
     super.onInit();
-    refreshController = EasyRefreshController(
-      controlFinishRefresh: true,
-      controlFinishLoad: true,
-    );
-    fetchClassList();
+    loadClasses();
   }
 
   @override
@@ -159,72 +167,74 @@ class ClassinfoController extends GetxController {
     super.onClose();
   }
 
-  Future<void> fetchClassList() async {
-    try {
-      final storage = await StorageService.instance;
-      final userRole = storage.getRole() ?? 'student';
-      final response = await httpUtil.post("/$userRole/get_class", data: {
-        "username": storage.getUsername(),
-        "page": page,
-        "limit": 10,
-      });
-
-      if (response.code == 200) {
-        var classInfoList = (response.data['classInfoList'] as List<dynamic>)
-            .map((json) => ClassInfo.fromJson(json))
-            .toList();
-
-        if (page == 1) {
-          classList.value = classInfoList;
-        } else {
-          classList.addAll(classInfoList);
-        }
-
-        if (classInfoList.length < 10) {
-          hasMore.value = false;
-        } else {
-          page++;
-        }
-      } else {
-        Get.snackbar("错误", "请求班级数据失败");
-      }
-    } catch (e) {
-      print('Fetch failed: $e');
-    }
-  }
-
   Future<void> onRefresh() async {
-    try {
-      await fetchClassList();
-      refreshController.finishRefresh(IndicatorResult.success);
-      refreshController.resetFooter();
-      hasMore.value = true;
-    } catch (e) {
-      refreshController.finishRefresh(IndicatorResult.fail);
-      print('Refresh failed: $e');
-    }
+    currentPage = 1;
+    hasMore = true;
+    await loadClasses();
+    refreshController.finishRefresh();
+    refreshController.resetFooter();
   }
 
   Future<void> onLoadMore() async {
-    if (!hasMore.value) {
+    if (!hasMore) {
       refreshController.finishLoad(IndicatorResult.noMore);
       return;
     }
+    
+    currentPage++;
+    await loadClasses(isLoadMore: true);
+    refreshController.finishLoad(
+      hasMore ? IndicatorResult.success : IndicatorResult.noMore
+    );
+  }
 
+  Future<void> loadClasses({bool isLoadMore = false}) async {
+    final storage = await StorageService.instance;
+    final username = storage.getUsername() ?? '';
     try {
-      await fetchClassList();
-      if (hasMore.value) {
-        refreshController.finishLoad(IndicatorResult.success);
-      } else {
-        refreshController.finishLoad(IndicatorResult.noMore);
+      final response = await httpUtil.post(
+        '/student/get_class',
+        data: {
+          'username': username,
+          'page': currentPage,
+          'size': pageSize,
+        },
+      );
+      
+      if (response.code == 200) {
+        final List<ClassInfo> newClasses = (response.data['classInfoList'] as List? ?? [])
+            .map((item) => ClassInfo(
+                  teacherId: item['teacherId'],
+                  classId: item['classId'] ,
+                  className: item['className'] ?? '',
+                  teacherNickname: item['teacherNickname'] ?? '',
+                  joinedAt: item['joinedAt'] ?? '',
+                  courseCode: item['courseCode'] ?? '',
+                  createAt: item['createAt'],
+                  studentCount: item['studentCount'],
+                ))
+            .toList();
+
+        if (isLoadMore) {
+          classList.addAll(newClasses);
+        } else {
+          classList.value = newClasses;
+        }
+        
+        hasMore = newClasses.length >= pageSize;
       }
     } catch (e) {
-      refreshController.finishLoad(IndicatorResult.fail);
-      print('Load more failed: $e');
+      print('Load classes error: $e');
+      Get.snackbar('错误', '获取班级列表失败');
     }
   }
 
   Future<void> goToClassDetail(int classId) async {
     Get.toNamed('/class_detail', arguments: {'classId': classId});
+  }
+
+  void handleClassTap(ClassInfo classInfo) {
+    // 处理班级点击事件，可以跳转到班级详情页面
+    // Get.toNamed('/class-detail', arguments: classInfo);
   }
 }

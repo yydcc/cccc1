@@ -1,75 +1,198 @@
+import 'package:cccc1/module/classinfo/teacher_classinfo_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../common/theme/color.dart';
+import '../../common/utils/storage.dart';
 import 'classinfo_controller.dart';
+import 'package:cccc1/module/classinfo/classinfo_model.dart';
 
-class ClassinfoView extends GetView<ClassinfoController> {
+class ClassinfoView extends StatelessWidget {
   const ClassinfoView({Key? key}) : super(key: key);
+
+  Widget _buildEmptyState() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.class_outlined,
+          size: 80.sp,
+          color: GlobalThemData.textSecondaryColor.withOpacity(0.5),
+        ),
+        SizedBox(height: 20.h),
+        Text(
+          '还没有加入任何班级',
+          style: TextStyle(
+            fontSize: 16.sp,
+            color: GlobalThemData.textSecondaryColor,
+          ),
+        ),
+        SizedBox(height: 10.h),
+        Text(
+          '点击右下角按钮加入班级',
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: GlobalThemData.textSecondaryColor,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildClassList(BuildContext context, ClassinfoController controller) {
+    return ListView.builder(
+      padding: EdgeInsets.all(16.w),
+      itemCount: controller.classList.length,
+      itemBuilder: (context, index) {
+        final classInfo = controller.classList[index];
+        return Container(
+          margin: EdgeInsets.only(bottom: 16.h),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => controller.handleClassTap(classInfo),
+              borderRadius: BorderRadius.circular(12.r),
+              child: Padding(
+                padding: EdgeInsets.all(16.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            classInfo.className,
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12.w,
+                            vertical: 4.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(15.r),
+                          ),
+                          child: Text(
+                            '课程码：${classInfo.courseCode}',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8.h),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.school_outlined,
+                          size: 16.sp,
+                          color: GlobalThemData.textSecondaryColor,
+                        ),
+                        SizedBox(width: 4.w),
+                        Text(
+                          '教师：${classInfo.teacherNickname}',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: GlobalThemData.textSecondaryColor,
+                          ),
+                        ),
+                        Spacer(),
+                        Icon(
+                          Icons.person_2_outlined,
+                          size: 16.sp,
+                          color: GlobalThemData.textSecondaryColor,
+                        ),
+                        SizedBox(width: 4.w),
+                        Text(
+                          '人数：${classInfo.studentCount}',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: GlobalThemData.textSecondaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: GlobalThemData.backgroundColor,
-      appBar: AppBar(
-        title: const Text('我的班级'),
-        centerTitle: true,
-      ),
-      floatingActionButton: FloatingActionButton(
-        shape: CircleBorder(),
-        onPressed: () {
-          controller.showJoinClassDialog();
-        },
-        child: Icon(Icons.add),
-      ),
-      body: Obx(() {
-        return EasyRefresh(
-          controller: controller.refreshController,
-          header: const ClassicHeader(
-            processedDuration: Duration(milliseconds: 0),
-          ),
-          footer: const ClassicFooter(
-            processedDuration: Duration(milliseconds: 0),
-          ),
-          onRefresh: controller.onRefresh,
-          onLoad: controller.onLoadMore,
-          child: ListView.builder(
-            padding: EdgeInsets.all(10.w),
-            itemCount: controller.classList.length,
-            itemBuilder: (context, index) {
-              final classInfo = controller.classList[index];
-              return Card(
-                margin: EdgeInsets.symmetric(vertical: 8.h, horizontal: 10.w),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
+    return FutureBuilder<StorageService>(
+      future: StorageService.instance,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        final role = snapshot.data!.getRole();
+        if (role == 'teacher') {
+          return TeacherClassinfoView();
+        } else {
+          return GetBuilder<ClassinfoController>(
+            builder: (controller) => Scaffold(
+              backgroundColor: GlobalThemData.backgroundColor,
+              appBar: AppBar(
+                title: const Text('我的班级'),
+                centerTitle: true,
+              ),
+              floatingActionButton: FloatingActionButton(
+                shape: CircleBorder(),
+                onPressed: () => controller.showJoinClassDialog(),
+                backgroundColor: Theme.of(context).primaryColor,
+                child: Icon(Icons.add, color: Colors.white),
+              ),
+              body: EasyRefresh(
+                controller: controller.refreshController,
+                header: const ClassicHeader(
+                  processedDuration: Duration(milliseconds: 0),
                 ),
-                elevation: 3,
-                child: ListTile(
-                  contentPadding: EdgeInsets.all(16.w),
-                  leading: CircleAvatar(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    child: Text(
-                      classInfo.className.substring(0, 1),
-                      style: const TextStyle(color: Colors.white),
+                footer: const ClassicFooter(
+                  processedDuration: Duration(milliseconds: 0),
+                ),
+                onRefresh: controller.onRefresh,
+                onLoad: controller.onLoadMore,
+                child: CustomScrollView(
+                  slivers: [
+                    SliverFillRemaining(
+                      child: Obx(() => controller.classList.isEmpty
+                        ? _buildEmptyState()
+                        : _buildClassList(context, controller)
+                      ),
                     ),
-                  ),
-                  title: Text(
-                    classInfo.className,
-                    style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(
-                    '教师: ${classInfo.teacherNickname}\n课程码: ${classInfo.courseCode}',
-                    style: TextStyle(fontSize: 14.sp, color: Colors.grey[700]),
-                  ),
-                  trailing: Icon(Icons.arrow_forward_ios, size: 16.sp, color: Colors.grey),
-                  onTap: () => controller.goToClassDetail(classInfo.classId),
+                  ],
                 ),
-              );
-            },
-          ),
-        );
-      }),
+              ),
+            ),
+          );
+        }
+      },
     );
   }
 }

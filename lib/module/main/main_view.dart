@@ -7,6 +7,7 @@ import '../schedule/schedule_view.dart';
 import '../profile/profile_view.dart';
 import '../../common/theme/color.dart';
 import '../classinfo/classinfo_view.dart';
+
 class MainPage extends GetView<MainController> {
   const MainPage({Key? key}) : super(key: key);
 
