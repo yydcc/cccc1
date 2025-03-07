@@ -6,6 +6,7 @@ import '../../common/utils/storage.dart';
 import 'classinfo_model.dart';
 import 'package:cccc1/common/utils/http.dart';
 import 'package:cccc1/common/widget/code_input_field.dart';
+import 'dart:async';
 
 
 class ClassinfoController extends GetxController {
@@ -168,11 +169,21 @@ class ClassinfoController extends GetxController {
   }
 
   Future<void> onRefresh() async {
-    currentPage = 1;
-    hasMore = true;
-    await loadClasses();
-    refreshController.finishRefresh();
-    refreshController.resetFooter();
+    try {
+      currentPage = 1;
+      hasMore = true;
+      await loadClasses().timeout(
+        Duration(seconds: 10),
+        onTimeout: () {
+          throw TimeoutException('请求超时');
+        },
+      );
+      refreshController.finishRefresh(IndicatorResult.success);
+      refreshController.resetFooter();
+    } catch (e) {
+      refreshController.finishRefresh(IndicatorResult.fail);
+      Get.snackbar('提示', '刷新失败，请检查网络');
+    }
   }
 
   Future<void> onLoadMore() async {
@@ -181,11 +192,22 @@ class ClassinfoController extends GetxController {
       return;
     }
     
-    currentPage++;
-    await loadClasses(isLoadMore: true);
-    refreshController.finishLoad(
-      hasMore ? IndicatorResult.success : IndicatorResult.noMore
-    );
+    try {
+      currentPage++;
+      await loadClasses(isLoadMore: true).timeout(
+        Duration(seconds: 10),
+        onTimeout: () {
+          throw TimeoutException('请求超时');
+        },
+      );
+      refreshController.finishLoad(
+        hasMore ? IndicatorResult.success : IndicatorResult.noMore
+      );
+    } catch (e) {
+      currentPage--; // 加载失败，恢复页码
+      refreshController.finishLoad(IndicatorResult.fail);
+      Get.snackbar('提示', '加载失败，请检查网络');
+    }
   }
 
   Future<void> loadClasses({bool isLoadMore = false}) async {
