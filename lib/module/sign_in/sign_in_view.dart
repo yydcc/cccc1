@@ -87,14 +87,25 @@ class SignInPage extends GetView<SignInController> {
                   width: double.infinity,
                   height: 50.h,
                   child: ElevatedButton(
-                    onPressed: controller.handleSignIn,
+                    onPressed: controller.isLoading.value ? null : controller.handleSignIn,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).primaryColor,
+                      minimumSize: Size(double.infinity, 45.h),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                     ),
-                    child: Text('登录', style: TextStyle(fontSize: 16.sp)),
+                    child: Obx(() => controller.isLoading.value
+                      ? SizedBox(
+                          width: 24.w,
+                          height: 24.w,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : Text('登录', style: TextStyle(fontSize: 16.sp))
+                    ),
                   ),
                 ),
                 SizedBox(height: 20.h),

@@ -1,5 +1,3 @@
-
-
 class ClassInfo {
   final int classId;
   final String className;
@@ -32,5 +30,9 @@ class ClassInfo {
       joinedAt: json['joinedAt'],
       studentCount: json['studentCount']
     );
+  }
+
+  String get formattedDate {
+    return createAt.isNotEmpty ? createAt.substring(0, 10) : '';
   }
 }

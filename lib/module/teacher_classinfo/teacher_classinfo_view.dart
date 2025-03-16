@@ -79,6 +79,7 @@ class TeacherClassinfoView extends GetView<TeacherClassinfoController> {
       padding: EdgeInsets.all(16.w),
       itemCount: controller.classList.length,
       itemBuilder: (context, index) {
+        if (index >= controller.classList.length) return null;
         final classInfo = controller.classList[index];
         return Container(
           margin: EdgeInsets.only(bottom: 16.h),
@@ -144,7 +145,7 @@ class TeacherClassinfoView extends GetView<TeacherClassinfoController> {
                         ),
                         SizedBox(width: 4.w),
                         Text(
-                          '创建时间：${classInfo.createAt.substring(0,10)}',
+                          '创建时间：${classInfo.formattedDate}',
                           style: TextStyle(
                             fontSize: 14.sp,
                             color: GlobalThemData.textSecondaryColor,

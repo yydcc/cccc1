@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../common/utils/storage.dart';
-import 'classinfo_model.dart';
+import '../../model/classinfo_model.dart';
 import 'package:cccc1/common/utils/http.dart';
 import 'package:cccc1/common/widget/code_input_field.dart';
 import 'dart:async';
@@ -173,7 +173,7 @@ class ClassinfoController extends GetxController {
       currentPage = 1;
       hasMore = true;
       await loadClasses().timeout(
-        Duration(seconds: 10),
+        Duration(seconds: 3),
         onTimeout: () {
           throw TimeoutException('请求超时');
         },
@@ -195,7 +195,7 @@ class ClassinfoController extends GetxController {
     try {
       currentPage++;
       await loadClasses(isLoadMore: true).timeout(
-        Duration(seconds: 10),
+        Duration(seconds: 3),
         onTimeout: () {
           throw TimeoutException('请求超时');
         },
@@ -224,16 +224,17 @@ class ClassinfoController extends GetxController {
       );
       
       if (response.code == 200) {
-        final List<ClassInfo> newClasses = (response.data['classInfoList'] as List? ?? [])
+        final data = response.data;
+        final List<ClassInfo> newClasses = (data['records'] as List? ?? [])
             .map((item) => ClassInfo(
-                  teacherId: item['teacherId']??0,
-                  classId: item['classId']??0 ,
+                  teacherId: item['teacherId'] ?? 0,
+                  classId: item['classId'] ?? 0,
                   className: item['className'] ?? '',
                   teacherNickname: item['teacherNickname'] ?? '',
                   joinedAt: item['joinedAt'] ?? '',
                   courseCode: item['courseCode'] ?? '',
-                  createAt: item['createAt']??'',
-                  studentCount: item['studentCount']??0,
+                  createAt: item['createdAt'] ?? '',
+                  studentCount: item['studentCount'] ?? 0,
                 ))
             .toList();
 
@@ -243,11 +244,14 @@ class ClassinfoController extends GetxController {
           classList.value = newClasses;
         }
         
-        hasMore = newClasses.length >= pageSize;
+        // 根据后端返回的总页数判断是否还有更多数据
+        final int totalPages = data['pages'] ?? 1;
+        hasMore = currentPage < totalPages;
       }
     } catch (e) {
       print('Load classes error: $e');
       Get.snackbar('错误', '获取班级列表失败');
+      rethrow;  // 重新抛出异常以便上层处理
     }
   }
 

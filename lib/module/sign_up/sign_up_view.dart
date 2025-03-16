@@ -110,18 +110,29 @@ class SignUpPage extends GetView<SignUpController> {
                   ],
                 ),
                 SizedBox(height: 40.h),
-                SizedBox(
+                Container(
                   width: double.infinity,
                   height: 50.h,
                   child: ElevatedButton(
-                    onPressed: controller.handleSignUp,
+                    onPressed: controller.isLoading.value ? null : controller.handleSignUp,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).primaryColor,
+                      minimumSize: Size(double.infinity, 45.h),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                     ),
-                    child: Text('注册', style: TextStyle(fontSize: 16.sp)),
+                    child: Obx(() => controller.isLoading.value
+                      ? SizedBox(
+                          width: 24.w,
+                          height: 24.w,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : Text('注册', style: TextStyle(fontSize: 16.sp))
+                    ),
                   ),
                 ),
                 SizedBox(height: 20.h),

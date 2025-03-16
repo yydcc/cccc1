@@ -7,7 +7,7 @@ import '../../common/theme/color.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'dart:async';
 
-import 'classinfo_model.dart';
+import '../../model/classinfo_model.dart';
 
 
 
@@ -36,7 +36,7 @@ class TeacherClassinfoController extends GetxController {
       currentPage = 1;
       hasMore = true;
       await loadClasses().timeout(
-        Duration(seconds: 10),
+        Duration(seconds: 3),
         onTimeout: () {
           throw TimeoutException('请求超时');
         },
@@ -75,42 +75,46 @@ class TeacherClassinfoController extends GetxController {
 
   Future<void> loadClasses({bool isLoadMore = false}) async {
     final storage = await StorageService.instance;
-    final username = storage.getUsername()??'';
+    final username = storage.getUsername() ?? '';
     try {
       final response = await httpUtil.post(
         '/teacher/get_class',
         data: {
-          'username':username,
+          'username': username,
           'page': currentPage,
           'size': pageSize,
         },
       );
       
       if (response.code == 200) {
-        final List<ClassInfo> newClasses = (response.data['classInfoList'] as List? ?? [])
+        final data = response.data;
+        final List<ClassInfo> newClasses = (data['records'] as List? ?? [])
             .map((item) => ClassInfo(
-              teacherId: item['teacherId'] ?? 0,
-              classId: item['classId'] ?? 0,
-              className: item['className'] ?? '',
-              teacherNickname: item['teacherNickname'] ?? '',
-              joinedAt: item['joinedAt'] ?? '',
-              courseCode: item['courseCode'] ?? '',
-              createAt: item['createAt'] ?? '',
-              studentCount: item['studentCount'] ?? 0,
-            ))
+                  teacherId: item['teacherId'] ?? 0,
+                  classId: item['classId'] ?? 0,
+                  className: item['className'] ?? '',
+                  teacherNickname: item['teacherNickname'] ?? '',
+                  joinedAt: item['joinedAt'] ?? '',
+                  courseCode: item['courseCode'] ?? '',
+                  createAt: item['createAt'] ?? '',
+                  studentCount: item['studentCount'] ?? 0,
+                ))
             .toList();
 
         if (isLoadMore) {
-          classList.addAll(newClasses);
+          final List<ClassInfo> updatedList = [...classList, ...newClasses];
+          classList.value = updatedList;
         } else {
           classList.value = newClasses;
         }
         
-        hasMore = newClasses.length >= pageSize;
+        final int totalPages = data['pages'] ?? 1;
+        hasMore = currentPage < totalPages;
       }
     } catch (e) {
       print('Load classes error: $e');
       Get.snackbar('错误', '获取班级列表失败');
+      rethrow;
     }
   }
 

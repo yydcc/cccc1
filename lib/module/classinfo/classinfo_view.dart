@@ -1,4 +1,4 @@
-import 'package:cccc1/module/classinfo/teacher_classinfo_view.dart';
+import 'package:cccc1/module/teacher_classinfo/teacher_classinfo_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:easy_refresh/easy_refresh.dart';
@@ -6,7 +6,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../common/theme/color.dart';
 import '../../common/utils/storage.dart';
 import 'classinfo_controller.dart';
-import 'package:cccc1/module/classinfo/classinfo_model.dart';
 
 class ClassinfoView extends StatelessWidget {
   const ClassinfoView({Key? key}) : super(key: key);
@@ -45,6 +44,7 @@ class ClassinfoView extends StatelessWidget {
       padding: EdgeInsets.all(16.w),
       itemCount: controller.classList.length,
       itemBuilder: (context, index) {
+        if (index >= controller.classList.length) return null;
         final classInfo = controller.classList[index];
         return Container(
           margin: EdgeInsets.only(bottom: 16.h),
@@ -118,7 +118,7 @@ class ClassinfoView extends StatelessWidget {
                         ),
                         Spacer(),
                         Icon(
-                          Icons.person_2_outlined,
+                          Icons.group_outlined,
                           size: 16.sp,
                           color: GlobalThemData.textSecondaryColor,
                         ),

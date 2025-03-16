@@ -104,7 +104,6 @@ class ProfilePage extends GetView<ProfileController> {
 
   Widget _buildMenuSection() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 40.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10.r),
