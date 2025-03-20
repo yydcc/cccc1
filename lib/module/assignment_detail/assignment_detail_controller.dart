@@ -1,3 +1,4 @@
+import 'package:cccc1/common/utils/storage.dart';
 import 'package:get/get.dart';
 import '../../model/assignment_model.dart';
 import '../../common/utils/http.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AssignmentDetailController extends GetxController {
+
   final HttpUtil httpUtil = HttpUtil();
   final assignment = Rx<Assignment?>(null);
   final RxBool isLoading = true.obs;
@@ -16,12 +18,18 @@ class AssignmentDetailController extends GetxController {
   File? selectedFile;
   final int assignmentId;
   
+  final RxString submissionType = 'content'.obs; // 'content' 或 'file'
+  
   AssignmentDetailController({required this.assignmentId});
 
   @override
   void onInit() {
     super.onInit();
     loadAssignmentDetail();
+  }
+
+  void setSubmissionType(String type) {
+    submissionType.value = type;
   }
 
   Future<void> loadAssignmentDetail() async {
@@ -54,6 +62,7 @@ class AssignmentDetailController extends GetxController {
         if (file.path != null) {
           selectedFile = File(file.path!);
           selectedFileName.value = file.name;
+          submissionType.value = 'file';
         }
       }
     } catch (e) {
@@ -63,45 +72,84 @@ class AssignmentDetailController extends GetxController {
   }
 
   Future<void> submitAssignment() async {
-    if (content.value.isEmpty && selectedFile == null) {
-      Get.snackbar('提示', '请输入作业内容或上传文件');
+    if (submissionType.value == 'content' && content.value.trim().isEmpty) {
+      Get.snackbar('提示', '请输入作业内容');
+      return;
+    } else if (submissionType.value == 'file' && selectedFile == null) {
+      Get.snackbar('提示', '请选择要提交的文件');
       return;
     }
 
     try {
       isSubmitting.value = true;
       
-      final formData = FormData({
-        'assignmentId': assignment.value?.assignmentId,
-        'content': content.value,
-      });
-
-      if (selectedFile != null) {
-        formData.files.add(MapEntry(
-          'file',
-          MultipartFile(
-            selectedFile!.path,
-            filename: selectedFileName.value,
-          ),
-        ));
-      }
-
-      final response = await httpUtil.post(
-        '/student/assignment/submit',
-        data: formData,
-      );
-
-      if (response.code == 200) {
-        Get.back(result: true);
-        Get.snackbar('成功', '作业提交成功');
+      if (submissionType.value == 'file') {
+        await submitFileAssignment();
       } else {
-        Get.snackbar('失败', response.msg);
+        await submitContentAssignment();
       }
     } catch (e) {
       print('提交作业失败: $e');
       Get.snackbar('错误', '提交作业失败，请稍后重试');
     } finally {
       isSubmitting.value = false;
+    }
+  }
+  
+  Future<void> submitFileAssignment() async {
+    if (selectedFile == null) {
+      Get.snackbar('提示', '请选择要提交的文件');
+      return;
+    }
+
+    final formData = FormData({
+      'assignmentId': assignment.value?.assignmentId,
+      'studentId': (await StorageService.instance).getUserId() ?? 0,
+    });
+    
+    formData.files.add(MapEntry(
+      'file',
+      MultipartFile(
+        selectedFile!.path,
+        filename: selectedFileName.value,
+      ),
+    ));
+    
+    final response = await httpUtil.post(
+      '/assignment/submit/file',
+      data: formData,
+    );
+    
+    if (response.code == 200) {
+      Get.back(result: true);
+      Get.snackbar('成功', '作业文件提交成功');
+    } else {
+      Get.snackbar('失败', response.msg);
+    }
+  }
+  
+  Future<void> submitContentAssignment() async {
+    if (content.value.trim().isEmpty) {
+      Get.snackbar('提示', '请输入作业内容');
+      return;
+    }
+    
+    final data = {
+      'assignmentId': assignment.value?.assignmentId,
+      'studentId': (await StorageService.instance).getUserId() ?? 0,
+      'content': content.value,
+    };
+    
+    final response = await httpUtil.post(
+      '/assignment/submit/content',
+      data: data,
+    );
+    
+    if (response.code == 200) {
+      Get.back(result: true);
+      Get.snackbar('成功', '作业内容提交成功');
+    } else {
+      Get.snackbar('失败', response.msg);
     }
   }
 

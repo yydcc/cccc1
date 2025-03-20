@@ -152,16 +152,12 @@ class AssignmentView extends GetView<AssignmentController> {
   }
 
   Widget _buildAssignmentCard(Assignment assignment) {
-    // 计算截止日期是否临近（3天内）
-    bool isDeadlineNear = false;
-    if (assignment.deadline != null && assignment.deadline!.isNotEmpty) {
-      final deadlineDate = DateTime.parse(assignment.deadline!);
-      final now = DateTime.now();
-      final difference = deadlineDate.difference(now).inDays;
-      isDeadlineNear = difference >= 0 && difference <= 3;
-    }
-
-    // 添加渐变背景色
+    final primaryColor = Theme.of(Get.context!).primaryColor;
+    
+    // 使用assignment.isDeadlineNear替代原来的判断逻辑
+    final bool isDeadlineNear = assignment.isDeadlineNear;
+    
+    // 使用assignment.status获取状态
     final gradientColors = _getStatusGradient(assignment.status);
 
     return Container(
@@ -392,7 +388,7 @@ class AssignmentView extends GetView<AssignmentController> {
     );
   }
 
-  // 修改_getStatusGradient方法，使用主题色
+  // 修改_getStatusGradient方法，添加expired状态
   List<Color> _getStatusGradient(String status) {
     final primaryColor = Theme.of(Get.context!).primaryColor;
     
@@ -400,16 +396,19 @@ class AssignmentView extends GetView<AssignmentController> {
       case 'not_started':
         return [Colors.grey.shade400, Colors.grey.shade600];
       case 'in_progress':
-        return [primaryColor.withOpacity(0.7), primaryColor]; // 使用主题色
+        return [primaryColor.withOpacity(0.7), primaryColor];
       case 'submitted':
         return [Colors.green.shade300, Colors.green.shade600];
       case 'graded':
         return [Colors.purple.shade300, Colors.purple.shade600];
+      case 'expired':
+        return [Colors.red.shade300, Colors.red.shade600];
       default:
         return [Colors.grey.shade400, Colors.grey.shade600];
     }
   }
 
+  // 修改_getAssignmentIcon方法，添加expired状态
   IconData _getAssignmentIcon(String status) {
     switch (status) {
       case 'not_started':
@@ -420,6 +419,8 @@ class AssignmentView extends GetView<AssignmentController> {
         return Icons.assignment_turned_in_outlined;
       case 'graded':
         return Icons.grading;
+      case 'expired':
+        return Icons.assignment_late;
       default:
         return Icons.assignment_outlined;
     }

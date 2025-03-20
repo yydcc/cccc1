@@ -10,7 +10,6 @@ class Assignment {
   final String? createTime;
   final bool isSubmitted;
   final int score;
-  final String status; // not_started, in_progress, submitted, graded
   final String? contentUrl; // 附件URL
 
   Assignment({
@@ -21,33 +20,72 @@ class Assignment {
     this.createTime,
     this.isSubmitted = false,
     this.score = 0,
-    this.status = 'not_started',
     this.contentUrl,
   });
 
   factory Assignment.fromJson(Map<String, dynamic> json) {
-    // 打印完整的JSON数据，查看实际结构
-    print('完整的作业数据: $json');
-    
-    // 尝试多种可能的字段名
-    final id = json['assignment_id'] ?? json['id'] ?? json['assignmentId'] ?? 0;
-    print('提取的ID: $id, 类型: ${id.runtimeType}');
-    
     return Assignment(
-      assignmentId: id is int ? id : int.tryParse(id.toString()) ?? 0,
+      assignmentId: json['assignment_id'] ?? json['id'] ?? json['assignmentId'] ?? 0,
       title: json['title']?.toString(),
       description: json['description']?.toString(),
       deadline: json['deadline']?.toString(),
-      createTime: json['create_time'] ?? json['createTime'],
-      isSubmitted: json['is_submitted'] ?? json['isSubmitted'] ?? false,
+      createTime: json['createTime'] ?? json['create_time'],
+      isSubmitted: json['isSubmitted'] ?? json['is_submitted'] ?? false,
       score: json['score'] ?? 0,
-      status: json['status'] ?? 'not_started',
-      contentUrl: json['content_url'] ?? json['contentUrl'],
+      contentUrl: json['contentUrl'] ?? json['content_url'],
     );
   }
 
   String get formattedDeadline {
     return deadline?.isNotEmpty == true ? deadline!.substring(0, 16).replaceAll('T', ' ') : '';
+  }
+
+  String get formattedCreateTime {
+    return createTime?.isNotEmpty == true ? createTime!.substring(0, 16).replaceAll('T', ' ') : '';
+  }
+
+  // 根据当前时间与开始时间和截止时间判断作业状态
+  String get status {
+    final now = DateTime.now();
+    
+    // 如果已批改，返回graded状态
+    if (score > 0) {
+      return 'graded';
+    }
+    
+    // 如果已提交，返回submitted状态
+    if (isSubmitted) {
+      return 'submitted';
+    }
+    
+    // 如果有截止时间，检查是否已过期
+    if (deadline != null && deadline!.isNotEmpty) {
+      try {
+        final deadlineDate = DateTime.parse(deadline!);
+        if (now.isAfter(deadlineDate)) {
+          return 'expired'; // 已过期
+        }
+      } catch (e) {
+        print('解析截止时间出错: $e');
+      }
+    }
+    
+    // 如果有开始时间，检查是否已开始
+    if (createTime != null && createTime!.isNotEmpty) {
+      try {
+        final startDate = DateTime.parse(createTime!);
+        if (now.isBefore(startDate)) {
+          return 'not_started'; // 未开始
+        } else {
+          return 'in_progress'; // 进行中
+        }
+      } catch (e) {
+        print('解析开始时间出错: $e');
+      }
+    }
+    
+    // 默认状态为进行中
+    return 'in_progress';
   }
 
   Color get statusColor {
@@ -60,6 +98,8 @@ class Assignment {
         return Colors.green;
       case 'graded':
         return Colors.orange;
+      case 'expired':
+        return Colors.red;
       default:
         return Colors.grey;
     }
@@ -75,8 +115,30 @@ class Assignment {
         return '已提交';
       case 'graded':
         return '已批改';
+      case 'expired':
+        return '已过期';
       default:
         return '未知';
     }
+  }
+  
+  // 计算剩余时间（天数）
+  int get remainingDays {
+    if (deadline == null || deadline!.isEmpty) return 0;
+    
+    try {
+      final deadlineDate = DateTime.parse(deadline!);
+      final now = DateTime.now();
+      final difference = deadlineDate.difference(now);
+      return difference.inDays;
+    } catch (e) {
+      print('计算剩余天数出错: $e');
+      return 0;
+    }
+  }
+  
+  // 判断是否临近截止（3天内）
+  bool get isDeadlineNear {
+    return remainingDays >= 0 && remainingDays <= 3;
   }
 } 

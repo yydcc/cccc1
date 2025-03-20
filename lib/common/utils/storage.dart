@@ -45,6 +45,12 @@ class StorageService {
   Future<bool> setAvaterUrl(String avatarUrl)async{
     return await _preferences!.setString('avatar', avatarUrl);
   }
+  Future<bool> setUserId(int userId)async{
+    return await _preferences!.setInt('userId', userId);
+  }
+  int? getUserId(){
+    return _preferences!.getInt('userId');
+  }
 
 
 } 

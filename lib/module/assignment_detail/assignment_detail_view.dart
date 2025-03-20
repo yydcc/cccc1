@@ -44,6 +44,7 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
 
     final assignment = controller.assignment.value!;
     final gradientColors = _getStatusGradient(assignment.status);
+    final primaryColor = Theme.of(Get.context!).primaryColor;
 
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
@@ -57,10 +58,12 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
           _buildDescriptionCard(assignment, gradientColors),
           SizedBox(height: 16.h),
           if (assignment.contentUrl != null && assignment.contentUrl!.isNotEmpty)
-            _buildAttachmentCard(assignment, gradientColors),
+            _buildDownloadDocumentCard(assignment, gradientColors),
           SizedBox(height: 16.h),
-          if (!assignment.isSubmitted)
+          if (assignment.status == 'in_progress')
             _buildSubmitSection(gradientColors),
+          if (assignment.status == 'expired' && !assignment.isSubmitted)
+            _buildExpiredNotice(),
         ],
       ),
     );
@@ -172,8 +175,8 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
         children: [
           _buildInfoRow(
             icon: Icons.calendar_today,
-            title: '发布时间',
-            content: assignment.createTime?.substring(0, 16).replaceAll('T', ' ') ?? '',
+            title: '开始时间',
+            content: assignment.formattedCreateTime,
             iconColor: primaryColor,
           ),
           SizedBox(height: 12.h),
@@ -181,7 +184,9 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
             icon: Icons.access_time,
             title: '截止时间',
             content: assignment.formattedDeadline,
-            iconColor: primaryColor,
+            iconColor: assignment.isDeadlineNear && assignment.status != 'submitted' && assignment.status != 'graded'
+                ? Colors.red
+                : primaryColor,
           ),
           if (assignment.status == 'graded') ...[
             SizedBox(height: 12.h),
@@ -297,7 +302,8 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
     );
   }
 
-  Widget _buildAttachmentCard(Assignment assignment, List<Color> gradientColors) {
+  Widget _buildDownloadDocumentCard(Assignment assignment, List<Color> gradientColors) {
+    final primaryColor = Theme.of(Get.context!).primaryColor;
     final String? contentUrl = assignment.contentUrl;
     
     if (contentUrl == null || contentUrl.isEmpty) {
@@ -324,13 +330,13 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
           Row(
             children: [
               Icon(
-                Icons.attach_file,
-                size: 20.sp,
-                color: gradientColors[0],
+                Icons.file_download,
+                size: 24.sp,
+                color: primaryColor,
               ),
               SizedBox(width: 8.w),
               Text(
-                '附件',
+                '作业附件',
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
@@ -339,14 +345,14 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
               ),
             ],
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 16.h),
           Container(
             padding: EdgeInsets.all(12.w),
             decoration: BoxDecoration(
               color: GlobalThemData.backgroundColor,
               borderRadius: BorderRadius.circular(8.r),
               border: Border.all(
-                color: gradientColors[0].withOpacity(0.1),
+                color: primaryColor.withOpacity(0.3),
                 width: 1,
               ),
             ),
@@ -355,31 +361,40 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
                 Icon(
                   _getFileIcon(contentUrl),
                   size: 24.sp,
-                  color: gradientColors[0],
+                  color: primaryColor,
                 ),
-                SizedBox(width: 8.w),
+                SizedBox(width: 12.w),
                 Expanded(
                   child: Text(
                     _getFileName(contentUrl),
                     style: TextStyle(
                       fontSize: 14.sp,
-                      color: GlobalThemData.textPrimaryColor,
+                      color: GlobalThemData.textSecondaryColor,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 SizedBox(width: 8.w),
-                ElevatedButton.icon(
-                  onPressed: controller.downloadAttachment,
-                  icon: Icon(Icons.download, size: 16.sp),
-                  label: Text('下载'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: gradientColors[0],
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.r),
+                Container(
+                  height: 36.h,
+                  child: ElevatedButton(
+                    onPressed: controller.downloadAttachment,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.r),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.download, size: 16.sp,color: Colors.white,),
+                        SizedBox(width: 4.w),
+                        Text('下载'),
+                      ],
                     ),
                   ),
                 ),
@@ -416,7 +431,7 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
               Icon(
                 Icons.edit,
                 size: 20.sp,
-                color: gradientColors[0],
+                color: primaryColor,
               ),
               SizedBox(width: 8.w),
               Text(
@@ -430,75 +445,76 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
             ],
           ),
           SizedBox(height: 16.h),
-          TextField(
-            maxLines: 5,
-            decoration: InputDecoration(
-              hintText: '请输入作业内容...',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.r),
-                borderSide: BorderSide(
-                  color: gradientColors[0].withOpacity(0.3),
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.r),
-                borderSide: BorderSide(
-                  color: gradientColors[0],
-                  width: 2,
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.r),
-                borderSide: BorderSide(
-                  color: gradientColors[0].withOpacity(0.3),
-                ),
-              ),
-            ),
-            onChanged: (value) => controller.content.value = value,
-          ),
-          SizedBox(height: 16.h),
+          
           Container(
-            padding: EdgeInsets.all(12.w),
+            margin: EdgeInsets.only(bottom: 16.h),
             decoration: BoxDecoration(
               color: GlobalThemData.backgroundColor,
               borderRadius: BorderRadius.circular(8.r),
-              border: Border.all(
-                color: gradientColors[0].withOpacity(0.3),
-                width: 1,
-              ),
             ),
-            child: Row(
+            child: Obx(() => Row(
               children: [
                 Expanded(
-                  child: Obx(() => Text(
-                    controller.selectedFileName.value.isEmpty
-                      ? '未选择文件'
-                      : controller.selectedFileName.value,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: GlobalThemData.textSecondaryColor,
+                  child: InkWell(
+                    onTap: () => controller.setSubmissionType('content'),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 12.h),
+                      decoration: BoxDecoration(
+                        color: controller.submissionType.value == 'content'
+                            ? primaryColor
+                            : GlobalThemData.backgroundColor,
+                        borderRadius: BorderRadius.horizontal(left: Radius.circular(8.r)),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '文本提交',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
+                            color: controller.submissionType.value == 'content'
+                                ? Colors.white
+                                : GlobalThemData.textSecondaryColor,
+                          ),
+                        ),
+                      ),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  )),
+                  ),
                 ),
-                SizedBox(width: 8.w),
-                ElevatedButton.icon(
-                  onPressed: controller.pickFile,
-                  icon: Icon(Icons.attach_file, size: 16.sp),
-                  label: Text('选择文件'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.r),
+                Expanded(
+                  child: InkWell(
+                    onTap: () => controller.setSubmissionType('file'),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 12.h),
+                      decoration: BoxDecoration(
+                        color: controller.submissionType.value == 'file'
+                            ? primaryColor
+                            : GlobalThemData.backgroundColor,
+                        borderRadius: BorderRadius.horizontal(right: Radius.circular(8.r)),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '文件提交',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
+                            color: controller.submissionType.value == 'file'
+                                ? Colors.white
+                                : GlobalThemData.textSecondaryColor,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ],
-            ),
+            )),
           ),
+          
+          Obx(() => controller.submissionType.value == 'content'
+              ? _buildContentSubmissionForm(primaryColor)
+              : _buildFileSubmissionForm(primaryColor)
+          ),
+          
           SizedBox(height: 24.h),
           SizedBox(
             width: double.infinity,
@@ -532,6 +548,125 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
     );
   }
 
+  Widget _buildContentSubmissionForm(Color primaryColor) {
+    return TextField(
+      maxLines: 5,
+      decoration: InputDecoration(
+        hintText: '请输入作业内容...',
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.r),
+          borderSide: BorderSide(
+            color: primaryColor.withOpacity(0.3),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.r),
+          borderSide: BorderSide(
+            color: primaryColor,
+            width: 2,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.r),
+          borderSide: BorderSide(
+            color: primaryColor.withOpacity(0.3),
+          ),
+        ),
+      ),
+      onChanged: (value) => controller.content.value = value,
+    );
+  }
+
+  Widget _buildFileSubmissionForm(Color primaryColor) {
+    return Container(
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: GlobalThemData.backgroundColor,
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(
+          color: primaryColor.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Obx(() => Text(
+              controller.selectedFileName.value.isEmpty
+                ? '未选择文件'
+                : controller.selectedFileName.value,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: GlobalThemData.textSecondaryColor,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            )),
+          ),
+          SizedBox(width: 8.w),
+          Container(
+            height: 36.h,
+            child: ElevatedButton(
+              onPressed: controller.pickFile,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.attach_file, size: 16.sp, color: Colors.white),
+                  SizedBox(width: 4.w),
+                  Text('选择文件'),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExpiredNotice() {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.w),
+      margin: EdgeInsets.only(top: 16.h),
+      decoration: BoxDecoration(
+        color: Colors.red.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: Colors.red.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.warning_amber_rounded,
+            color: Colors.red,
+            size: 24.sp,
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Text(
+              '该作业已过截止日期，无法提交',
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: Colors.red,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // 辅助方法
   IconData _getAssignmentIcon(String status) {
     switch (status) {
@@ -543,6 +678,8 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
         return Icons.assignment_turned_in_outlined;
       case 'graded':
         return Icons.grading;
+      case 'expired':
+        return Icons.assignment_late;
       default:
         return Icons.assignment_outlined;
     }
@@ -560,6 +697,8 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
         return [Colors.green.shade300, Colors.green.shade600];
       case 'graded':
         return [Colors.purple.shade300, Colors.purple.shade600];
+      case 'expired':
+        return [Colors.red.shade300, Colors.red.shade600];
       default:
         return [Colors.grey.shade400, Colors.grey.shade600];
     }

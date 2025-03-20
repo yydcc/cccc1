@@ -6,6 +6,7 @@ import '../../common/utils/http.dart';
 import '../../common/utils/storage.dart';
 import '../profile/profile_controller.dart';
 import 'dart:async';
+
 class SignInController extends GetxController {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
@@ -47,7 +48,7 @@ class SignInController extends GetxController {
         await storage.setToken(response.data['token']);
         await storage.setRole(selectedRole.value);
         await storage.setUsername(usernameController.text);
-        
+        await storage.setUserId(response.data['userId']);
         Get.snackbar("登录成功", response.msg);
         
         await Get.offAllNamed(
