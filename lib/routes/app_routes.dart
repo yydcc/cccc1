@@ -4,6 +4,14 @@ abstract class AppRoutes {
   static const SIGN_IN = '/sign_in';
   static const SIGN_UP = '/sign_up';
   static const HOME = '/';
+  static const CLASS_DETAIL = '/class_detail';
+  static const CLASS_HOMEWORK = '/class_homework';
+  static const CLASS_QUIZ = '/class_quiz';
+  static const CLASS_DISCUSSION = '/class_discussion';
+  static const CLASS_MEMBERS = '/class_members';
+  static const CLASS_ANNOUNCEMENTS = '/class_announcements';
+  static const ASSIGNMENT = '/assignment';
+  static const ASSIGNMENT_DETAIL = '/assignment_detail';
 }
 
 

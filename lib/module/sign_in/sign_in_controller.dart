@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../common/utils/http.dart';
 import '../../common/utils/storage.dart';
-import '../home/home_controller.dart';
 import '../profile/profile_controller.dart';
 import 'dart:async';
 class SignInController extends GetxController {

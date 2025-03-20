@@ -8,6 +8,8 @@ import 'package:cccc1/common/utils/http.dart';
 import 'package:cccc1/common/widget/code_input_field.dart';
 import 'dart:async';
 
+import '../../routes/app_pages.dart';
+
 
 class ClassinfoController extends GetxController {
   var joinClassCode = ''.obs;
@@ -260,7 +262,9 @@ class ClassinfoController extends GetxController {
   }
 
   void handleClassTap(ClassInfo classInfo) {
-    // 处理班级点击事件，可以跳转到班级详情页面
-    // Get.toNamed('/class-detail', arguments: classInfo);
+    Get.toNamed(
+      AppRoutes.CLASS_DETAIL,
+      arguments: {'classInfo': classInfo},
+    );
   }
 }
