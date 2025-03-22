@@ -365,7 +365,7 @@ class AssignmentView extends GetView<AssignmentController> {
                                 ),
                                 SizedBox(width: 4.w),
                                 Text(
-                                  '得分: ${assignment.score}',
+                                  '已批改',
                                   style: TextStyle(
                                     fontSize: 14.sp,
                                     fontWeight: FontWeight.w500,

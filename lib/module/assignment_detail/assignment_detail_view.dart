@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../common/theme/color.dart';
 import '../../model/assignment_model.dart';
+import '../../model/submission_model.dart';
 import 'assignment_detail_controller.dart';
 
 class AssignmentDetailView extends GetView<AssignmentDetailController> {
@@ -43,7 +44,11 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
     }
 
     final assignment = controller.assignment.value!;
-    final gradientColors = _getStatusGradient(assignment.status);
+    final submission = controller.submission.value;
+    
+    // 使用controller的方法获取状态
+    final String status = controller.getAssignmentStatus();
+    final gradientColors = _getStatusGradient(status);
     final primaryColor = Theme.of(Get.context!).primaryColor;
 
     return SingleChildScrollView(
@@ -51,114 +56,112 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeaderSection(assignment, gradientColors),
+          _buildHeaderSection(assignment, submission, gradientColors),
           SizedBox(height: 16.h),
-          _buildInfoCard(assignment, gradientColors),
+          _buildInfoCard(assignment, submission, gradientColors),
           SizedBox(height: 16.h),
-          _buildDescriptionCard(assignment, gradientColors),
+          if (submission != null && submission.isGraded)
+            _buildFeedbackCard(submission, gradientColors),
           SizedBox(height: 16.h),
-          if (assignment.contentUrl != null && assignment.contentUrl!.isNotEmpty)
-            _buildDownloadDocumentCard(assignment, gradientColors),
+          if (submission != null)
+            _buildSubmissionCard(submission, gradientColors),
           SizedBox(height: 16.h),
-          if (assignment.status == 'in_progress')
-            _buildSubmitSection(gradientColors),
-          if (assignment.status == 'expired' && !assignment.isSubmitted)
+          if (assignment.status != 'expired' && assignment.status != 'not_started')
+            _buildSubmitSection(gradientColors, isUpdate: controller.isSubmitted),
+          if (assignment.status == 'expired' && !controller.isSubmitted)
             _buildExpiredNotice(),
         ],
       ),
     );
   }
 
-  Widget _buildHeaderSection(Assignment assignment, List<Color> gradientColors) {
+  Widget _buildHeaderSection(Assignment assignment, Submission? submission, List<Color> gradientColors) {
+    final String status = submission != null 
+      ? (submission.isGraded ? 'graded' : 'submitted') 
+      : assignment.status;
+    
     return Container(
+      width: double.infinity,
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            gradientColors[0].withOpacity(0.1),
-            gradientColors[1].withOpacity(0.05),
-          ],
+          colors: gradientColors,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: gradientColors[0].withOpacity(0.2),
-          width: 1,
-        ),
+        boxShadow: [
+          BoxShadow(
+            color: gradientColors[0].withOpacity(0.3),
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
+        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(8.w),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: gradientColors,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(8.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: gradientColors[0].withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  _getAssignmentIcon(assignment.status),
-                  color: Colors.white,
-                  size: 24.sp,
-                ),
-              ),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: Text(
-                  assignment.title ?? '未命名作业',
+          Container(
+            width: 48.w,
+            height: 48.w,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              _getAssignmentIcon(status),
+              color: Colors.white,
+              size: 28.sp,
+            ),
+          ),
+          SizedBox(width: 16.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  assignment.title ?? '',
                   style: TextStyle(
-                    fontSize: 20.sp,
+                    fontSize: 18.sp,
                     fontWeight: FontWeight.bold,
-                    color: GlobalThemData.textPrimaryColor,
-                  ),
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 12.w,
-                  vertical: 6.h,
-                ),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: gradientColors,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20.r),
-                ),
-                child: Text(
-                  assignment.statusText,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w500,
                     color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        offset: Offset(0, 1),
+                        blurRadius: 3.0,
+                        color: Colors.black.withOpacity(0.3),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+                SizedBox(height: 4.h),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Text(
+                    _getStatusText(status),
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildInfoCard(Assignment assignment, List<Color> gradientColors) {
+  Widget _buildInfoCard(Assignment assignment, Submission? submission, List<Color> gradientColors) {
     final primaryColor = Theme.of(Get.context!).primaryColor;
     
     return Container(
+      width: double.infinity,
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -172,7 +175,27 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            children: [
+              Icon(
+                Icons.info_outline,
+                size: 24.sp,
+                color: primaryColor,
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                '作业信息',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                  color: GlobalThemData.textPrimaryColor,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16.h),
           _buildInfoRow(
             icon: Icons.calendar_today,
             title: '开始时间',
@@ -184,18 +207,109 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
             icon: Icons.access_time,
             title: '截止时间',
             content: assignment.formattedDeadline,
-            iconColor: assignment.isDeadlineNear && assignment.status != 'submitted' && assignment.status != 'graded'
+            iconColor: assignment.isDeadlineNear && submission == null
                 ? Colors.red
                 : primaryColor,
           ),
-          if (assignment.status == 'graded') ...[
-            SizedBox(height: 12.h),
-            _buildInfoRow(
-              icon: Icons.score,
-              title: '得分',
-              content: '${assignment.score}',
-              contentColor: Colors.orange,
-              iconColor: Colors.orange,
+          
+          if (assignment.description != null && assignment.description!.isNotEmpty) ...[
+            SizedBox(height: 16.h),
+            Text(
+              '作业描述:',
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.bold,
+                color: GlobalThemData.textPrimaryColor,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: GlobalThemData.backgroundColor,
+                borderRadius: BorderRadius.circular(8.r),
+                border: Border.all(
+                  color: gradientColors[0].withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                assignment.description ?? '暂无描述',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: GlobalThemData.textPrimaryColor,
+                  height: 1.5,
+                ),
+              ),
+            ),
+          ],
+          
+          if (assignment.contentUrl != null && assignment.contentUrl!.isNotEmpty) ...[
+            SizedBox(height: 16.h),
+            Text(
+              '作业附件:',
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.bold,
+                color: GlobalThemData.textPrimaryColor,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Container(
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: GlobalThemData.backgroundColor,
+                borderRadius: BorderRadius.circular(8.r),
+                border: Border.all(
+                  color: primaryColor.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    _getFileIcon(assignment.contentUrl ?? ''),
+                    size: 24.sp,
+                    color: primaryColor,
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Text(
+                      assignment.attachmentFileName ?? '',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: GlobalThemData.textSecondaryColor,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  Container(
+                    height: 36.h,
+                    child: ElevatedButton(
+                      onPressed: controller.downloadAttachment,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.r),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.download, size: 16.sp, color: Colors.white),
+                          SizedBox(width: 4.w),
+                          Text('下载'),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ],
@@ -241,172 +355,7 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
     );
   }
 
-  Widget _buildDescriptionCard(Assignment assignment, List<Color> gradientColors) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.description,
-                size: 20.sp,
-                color: gradientColors[0],
-              ),
-              SizedBox(width: 8.w),
-              Text(
-                '作业说明',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.bold,
-                  color: GlobalThemData.textPrimaryColor,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 12.h),
-          Container(
-            padding: EdgeInsets.all(12.w),
-            decoration: BoxDecoration(
-              color: GlobalThemData.backgroundColor,
-              borderRadius: BorderRadius.circular(8.r),
-              border: Border.all(
-                color: gradientColors[0].withOpacity(0.1),
-                width: 1,
-              ),
-            ),
-            child: Text(
-              assignment.description ?? '无作业说明',
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: GlobalThemData.textPrimaryColor,
-                height: 1.5,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDownloadDocumentCard(Assignment assignment, List<Color> gradientColors) {
-    final primaryColor = Theme.of(Get.context!).primaryColor;
-    final String? contentUrl = assignment.contentUrl;
-    
-    if (contentUrl == null || contentUrl.isEmpty) {
-      return SizedBox.shrink();
-    }
-    
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.file_download,
-                size: 24.sp,
-                color: primaryColor,
-              ),
-              SizedBox(width: 8.w),
-              Text(
-                '作业附件',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.bold,
-                  color: GlobalThemData.textPrimaryColor,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 16.h),
-          Container(
-            padding: EdgeInsets.all(12.w),
-            decoration: BoxDecoration(
-              color: GlobalThemData.backgroundColor,
-              borderRadius: BorderRadius.circular(8.r),
-              border: Border.all(
-                color: primaryColor.withOpacity(0.3),
-                width: 1,
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  _getFileIcon(contentUrl),
-                  size: 24.sp,
-                  color: primaryColor,
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: Text(
-                    _getFileName(contentUrl),
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: GlobalThemData.textSecondaryColor,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                SizedBox(width: 8.w),
-                Container(
-                  height: 36.h,
-                  child: ElevatedButton(
-                    onPressed: controller.downloadAttachment,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.r),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.download, size: 16.sp,color: Colors.white,),
-                        SizedBox(width: 4.w),
-                        Text('下载'),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSubmitSection(List<Color> gradientColors) {
+  Widget _buildSubmitSection(List<Color> gradientColors, {bool isUpdate = false}) {
     final primaryColor = Theme.of(Get.context!).primaryColor;
     
     return Container(
@@ -435,7 +384,7 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
               ),
               SizedBox(width: 8.w),
               Text(
-                '提交作业',
+                isUpdate ? '更新提交' : '提交作业',
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
@@ -540,7 +489,7 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
                   )
-                : Text('提交作业'),
+                : Text(isUpdate ? '更新提交' : '提交作业'),
             )),
           ),
         ],
@@ -667,6 +616,225 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
     );
   }
 
+  Widget _buildSubmissionCard(Submission submission, List<Color> gradientColors) {
+    final primaryColor = Theme.of(Get.context!).primaryColor;
+    
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.assignment_turned_in,
+                size: 24.sp,
+                color: GlobalThemData.textPrimaryColor,
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                '提交记录',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                  color: GlobalThemData.textPrimaryColor,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16.h),
+          _buildInfoRow(
+            icon: Icons.calendar_today,
+            title: '提交时间',
+            content: submission.formattedSubmitTime,
+            iconColor: primaryColor,
+          ),
+          if (submission.hasFile) ...[
+            SizedBox(height: 12.h),
+            Container(
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: GlobalThemData.backgroundColor,
+                borderRadius: BorderRadius.circular(8.r),
+                border: Border.all(
+                  color: primaryColor.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    _getFileIcon(submission.filePath!),
+                    size: 24.sp,
+                    color: primaryColor,
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Text(
+                      submission.fileName ?? '',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: GlobalThemData.textSecondaryColor,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  Container(
+                    height: 36.h,
+                    child: ElevatedButton(
+                      onPressed: controller.downloadSubmissionFile,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.r),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.download, size: 16.sp,color: Colors.white),
+                          SizedBox(width: 4.w),
+                          Text('下载'),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          if (submission.content != null && submission.content!.isNotEmpty) ...[
+            SizedBox(height: 12.h),
+            Text(
+              '提交内容:',
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.bold,
+                color: GlobalThemData.textPrimaryColor,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: GlobalThemData.backgroundColor,
+                borderRadius: BorderRadius.circular(8.r),
+                border: Border.all(
+                  color: primaryColor.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                submission.content!,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: GlobalThemData.textSecondaryColor,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeedbackCard(Submission submission, List<Color> gradientColors) {
+    final primaryColor = Theme.of(Get.context!).primaryColor;
+    
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.comment,
+                size: 24.sp,
+                color: Colors.orange,
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                '教师评语',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                  color: GlobalThemData.textPrimaryColor,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16.h),
+          _buildInfoRow(
+            icon: Icons.score,
+            title: '得分',
+            content: '${submission.score}',
+            contentColor: Colors.orange,
+            iconColor: Colors.orange,
+          ),
+          SizedBox(height: 12.h),
+          Text(
+            '评语:',
+            style: TextStyle(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.bold,
+              color: GlobalThemData.textPrimaryColor,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(12.w),
+            decoration: BoxDecoration(
+              color: GlobalThemData.backgroundColor,
+              borderRadius: BorderRadius.circular(8.r),
+              border: Border.all(
+                color: Colors.orange.withOpacity(0.3),
+                width: 1,
+              ),
+            ),
+            child: Text(
+              submission.feedback ?? '暂无评语',
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: GlobalThemData.textSecondaryColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // 辅助方法
   IconData _getAssignmentIcon(String status) {
     switch (status) {
@@ -685,6 +853,23 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
     }
   }
 
+  String _getStatusText(String status) {
+    switch (status) {
+      case 'not_started':
+        return '未开始';
+      case 'in_progress':
+        return '进行中';
+      case 'submitted':
+        return '待批改';
+      case 'graded':
+        return '已批改';
+      case 'expired':
+        return '已过期';
+      default:
+        return '未知';
+    }
+  }
+
   List<Color> _getStatusGradient(String status) {
     final primaryColor = Theme.of(Get.context!).primaryColor;
     
@@ -694,9 +879,9 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
       case 'in_progress':
         return [primaryColor.withOpacity(0.7), primaryColor];
       case 'submitted':
-        return [Colors.green.shade300, Colors.green.shade600];
+        return [Colors.orange.shade300, Colors.orange.shade600];
       case 'graded':
-        return [Colors.purple.shade300, Colors.purple.shade600];
+        return [Colors.green.shade300, Colors.green.shade600];
       case 'expired':
         return [Colors.red.shade300, Colors.red.shade600];
       default:

@@ -8,8 +8,6 @@ class Assignment {
   final String? description;
   final String? deadline;
   final String? createTime;
-  final bool isSubmitted;
-  final int score;
   final String? contentUrl; // 附件URL
 
   Assignment({
@@ -18,8 +16,6 @@ class Assignment {
     this.description,
     this.deadline,
     this.createTime,
-    this.isSubmitted = false,
-    this.score = 0,
     this.contentUrl,
   });
 
@@ -29,10 +25,8 @@ class Assignment {
       title: json['title']?.toString(),
       description: json['description']?.toString(),
       deadline: json['deadline']?.toString(),
-      createTime: json['createTime'] ?? json['create_time'],
-      isSubmitted: json['isSubmitted'] ?? json['is_submitted'] ?? false,
-      score: json['score'] ?? 0,
-      contentUrl: json['contentUrl'] ?? json['content_url'],
+      createTime: json['createTime'] ?? '',
+      contentUrl: json['contentUrl'] ?? '',
     );
   }
 
@@ -47,16 +41,6 @@ class Assignment {
   // 根据当前时间与开始时间和截止时间判断作业状态
   String get status {
     final now = DateTime.now();
-    
-    // 如果已批改，返回graded状态
-    if (score > 0) {
-      return 'graded';
-    }
-    
-    // 如果已提交，返回submitted状态
-    if (isSubmitted) {
-      return 'submitted';
-    }
     
     // 如果有截止时间，检查是否已过期
     if (deadline != null && deadline!.isNotEmpty) {
@@ -94,10 +78,6 @@ class Assignment {
         return Colors.grey;
       case 'in_progress':
         return Colors.blue;
-      case 'submitted':
-        return Colors.green;
-      case 'graded':
-        return Colors.orange;
       case 'expired':
         return Colors.red;
       default:
@@ -111,10 +91,6 @@ class Assignment {
         return '未开始';
       case 'in_progress':
         return '进行中';
-      case 'submitted':
-        return '已提交';
-      case 'graded':
-        return '已批改';
       case 'expired':
         return '已过期';
       default:
@@ -140,5 +116,14 @@ class Assignment {
   // 判断是否临近截止（3天内）
   bool get isDeadlineNear {
     return remainingDays >= 0 && remainingDays <= 3;
+  }
+
+  // 获取附件文件名
+  String? get attachmentFileName {
+    if (contentUrl == null || contentUrl!.isEmpty) return '';
+    
+    // 从URL中提取文件名
+    final parts = contentUrl!.split('/');
+    return parts.isNotEmpty ? parts.last : '';
   }
 } 
