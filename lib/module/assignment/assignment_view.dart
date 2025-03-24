@@ -51,9 +51,9 @@ class AssignmentView extends GetView<AssignmentController> {
         ),
         onRefresh: controller.onRefresh,
         onLoad: controller.onLoadMore,
-        child: Obx(() => controller.isLoading.value && controller.assignments.isEmpty
+        child: Obx(() => controller.isLoading.value && controller.filteredAssignments.isEmpty
           ? _buildLoadingView()
-          : controller.assignments.isEmpty
+          : controller.filteredAssignments.isEmpty
               ? _buildEmptyView()
               : _buildAssignmentList(),
         ),
@@ -106,17 +106,21 @@ class AssignmentView extends GetView<AssignmentController> {
             ),
           ),
           SizedBox(height: 24.h),
-          Text(
-            '暂无作业',
+          Obx(() => Text(
+            controller.filterStatus.value == 'all' 
+                ? '暂无作业' 
+                : '没有${_getFilterStatusText(controller.filterStatus.value)}的作业',
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.w500,
               color: GlobalThemData.textPrimaryColor,
             ),
-          ),
+          )),
           SizedBox(height: 8.h),
           Text(
-            '老师还没有布置作业哦',
+            controller.filterStatus.value == 'all' 
+                ? '老师还没有布置作业哦' 
+                : '尝试切换筛选条件查看其他作业',
             style: TextStyle(
               fontSize: 14.sp,
               color: GlobalThemData.textSecondaryColor,
@@ -143,9 +147,9 @@ class AssignmentView extends GetView<AssignmentController> {
   Widget _buildAssignmentList() {
     return ListView.builder(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      itemCount: controller.assignments.length,
+      itemCount: controller.filteredAssignments.length,
       itemBuilder: (context, index) {
-        final assignment = controller.assignments[index];
+        final assignment = controller.filteredAssignments[index];
         return _buildAssignmentCard(assignment);
       },
     );
@@ -426,6 +430,20 @@ class AssignmentView extends GetView<AssignmentController> {
     }
   }
 
+  // 获取筛选状态的显示文本
+  String _getFilterStatusText(String status) {
+    switch (status) {
+      case 'in_progress':
+        return '进行中';
+      case 'expired':
+        return '已过期';
+      case 'not_started':
+        return '未开始';
+      default:
+        return '全部';
+    }
+  }
+
   void _showFilterDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -437,32 +455,40 @@ class AssignmentView extends GetView<AssignmentController> {
             ListTile(
               leading: Icon(Icons.filter_list),
               title: Text('全部作业'),
+              selected: controller.filterStatus.value == 'all',
+              selectedColor: Theme.of(context).primaryColor,
               onTap: () {
-                // 筛选全部作业
+                controller.setFilter('all');
                 Get.back();
               },
             ),
             ListTile(
-              leading: Icon(Icons.pending_actions),
-              title: Text('未完成'),
+              leading: Icon(Icons.edit_note),
+              title: Text('进行中'),
+              selected: controller.filterStatus.value == 'in_progress',
+              selectedColor: Theme.of(context).primaryColor,
               onTap: () {
-                // 筛选未完成作业
+                controller.setFilter('in_progress');
                 Get.back();
               },
             ),
             ListTile(
-              leading: Icon(Icons.done_all),
-              title: Text('已完成'),
+              leading: Icon(Icons.assignment_late),
+              title: Text('已过期'),
+              selected: controller.filterStatus.value == 'expired',
+              selectedColor: Theme.of(context).primaryColor,
               onTap: () {
-                // 筛选已完成作业
+                controller.setFilter('expired');
                 Get.back();
               },
             ),
             ListTile(
-              leading: Icon(Icons.grading),
-              title: Text('已批改'),
+              leading: Icon(Icons.assignment_outlined),
+              title: Text('未开始'),
+              selected: controller.filterStatus.value == 'not_started',
+              selectedColor: Theme.of(context).primaryColor,
               onTap: () {
-                // 筛选已批改作业
+                controller.setFilter('not_started');
                 Get.back();
               },
             ),

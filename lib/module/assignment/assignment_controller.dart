@@ -8,11 +8,14 @@ import '../../routes/app_pages.dart';
 class AssignmentController extends GetxController {
   final HttpUtil httpUtil = HttpUtil();
   final RxList<Assignment> assignments = <Assignment>[].obs;
+  final RxList<Assignment> filteredAssignments = <Assignment>[].obs;
   final RxBool isLoading = true.obs;
   final refreshController = EasyRefreshController(
     controlFinishRefresh: true,
     controlFinishLoad: true,
   );
+  
+  final RxString filterStatus = 'all'.obs;
   
   int currentPage = 1;
   final int pageSize = 10;
@@ -22,11 +25,27 @@ class AssignmentController extends GetxController {
   AssignmentController({required this.classId});
 
   @override
-  void onInit() async{
+  void onInit() async {
     super.onInit();
     await loadAssignments();
+    applyFilter();
     print("以下是获取的作业");
     print(assignments);
+  }
+
+  void setFilter(String status) {
+    filterStatus.value = status;
+    applyFilter();
+  }
+  
+  void applyFilter() {
+    if (filterStatus.value == 'all') {
+      filteredAssignments.value = assignments;
+    } else {
+      filteredAssignments.value = assignments.where(
+        (assignment) => assignment.status == filterStatus.value
+      ).toList();
+    }
   }
 
   Future<void> onRefresh() async {
@@ -34,6 +53,7 @@ class AssignmentController extends GetxController {
       currentPage = 1;
       hasMore = true;
       await loadAssignments();
+      applyFilter();
       refreshController.finishRefresh(IndicatorResult.success);
       refreshController.resetFooter();
     } catch (e) {
@@ -50,6 +70,7 @@ class AssignmentController extends GetxController {
     try {
       currentPage++;
       await loadAssignments(isLoadMore: true);
+      applyFilter();
       refreshController.finishLoad(
         hasMore ? IndicatorResult.success : IndicatorResult.noMore
       );
