@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import '../../common/utils/http.dart';
 import '../../common/utils/storage.dart';
+import 'package:dio/dio.dart' as dio;
 
 class CreateAssignmentController extends GetxController {
   final HttpUtil httpUtil = HttpUtil();
@@ -13,6 +14,10 @@ class CreateAssignmentController extends GetxController {
   final RxBool isSubmitting = false.obs;
   final RxString deadlineDate = ''.obs;
   final RxString deadlineTime = ''.obs;
+  final startTimeController = TextEditingController();
+  final Rx<DateTime?> selectedStartTime = Rx<DateTime?>(DateTime.now());
+  final deadlineController = TextEditingController();
+  final Rx<DateTime?> selectedDeadline = Rx<DateTime?>(null);
   
   final String classId;
   
@@ -39,27 +44,81 @@ class CreateAssignmentController extends GetxController {
     }
   }
   
-  Future<void> selectDeadlineDate() async {
+  void selectDeadline() async {
+    final DateTime now = DateTime.now();
+    final DateTime initialDate = selectedDeadline.value ?? 
+        (selectedStartTime.value?.add(const Duration(days: 7)) ?? now.add(const Duration(days: 7)));
+    
     final DateTime? picked = await showDatePicker(
       context: Get.context!,
-      initialDate: DateTime.now().add(Duration(days: 7)),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(Duration(days: 365)),
+      initialDate: initialDate,
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 365)),
     );
     
     if (picked != null) {
-      deadlineDate.value = '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: Get.context!,
+        initialTime: TimeOfDay.now(),
+      );
+      
+      if (pickedTime != null) {
+        final DateTime combinedDateTime = DateTime(
+          picked.year,
+          picked.month,
+          picked.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+        
+        if (selectedStartTime.value != null && 
+            combinedDateTime.isBefore(selectedStartTime.value!)) {
+          Get.snackbar('错误', '截止时间不能早于开始时间');
+          return;
+        }
+        
+        selectedDeadline.value = combinedDateTime;
+        deadlineController.text = _formatDateTime(combinedDateTime);
+        
+        deadlineDate.value = '${picked.year}-${_twoDigits(picked.month)}-${_twoDigits(picked.day)}';
+        deadlineTime.value = '${_twoDigits(pickedTime.hour)}:${_twoDigits(pickedTime.minute)}';
+      }
     }
   }
   
-  Future<void> selectDeadlineTime() async {
-    final TimeOfDay? picked = await showTimePicker(
+  void selectStartTime() async {
+    final DateTime now = DateTime.now();
+    
+    final DateTime? picked = await showDatePicker(
       context: Get.context!,
-      initialTime: TimeOfDay.now(),
+      initialDate: selectedStartTime.value ?? now,
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 365)),
     );
     
     if (picked != null) {
-      deadlineTime.value = '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: Get.context!,
+        initialTime: TimeOfDay.now(),
+      );
+      
+      if (pickedTime != null) {
+        final DateTime combinedDateTime = DateTime(
+          picked.year,
+          picked.month,
+          picked.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+        
+        if (combinedDateTime.isBefore(now)) {
+          Get.snackbar('错误', '开始时间不能早于当前时间');
+          return;
+        }
+        
+        selectedStartTime.value = combinedDateTime;
+        startTimeController.text = _formatDateTime(combinedDateTime);
+      }
     }
   }
   
@@ -69,8 +128,28 @@ class CreateAssignmentController extends GetxController {
       return;
     }
     
-    if (deadlineDate.value.isEmpty || deadlineTime.value.isEmpty) {
-      Get.snackbar('错误', '请设置截止日期和时间');
+    if (descriptionController.text.isEmpty) {
+      Get.snackbar('错误', '请输入作业描述');
+      return;
+    }
+    
+    if (selectedStartTime.value == null) {
+      Get.snackbar('错误', '请设置开始时间');
+      return;
+    }
+    
+    if (selectedDeadline.value == null) {
+      Get.snackbar('错误', '请设置截止时间');
+      return;
+    }
+    
+    if (selectedStartTime.value!.isBefore(DateTime.now())) {
+      Get.snackbar('错误', '开始时间不能早于当前时间');
+      return;
+    }
+    
+    if (selectedDeadline.value!.isBefore(selectedStartTime.value!)) {
+      Get.snackbar('错误', '截止时间不能早于开始时间');
       return;
     }
     
@@ -80,19 +159,28 @@ class CreateAssignmentController extends GetxController {
       final storage = await StorageService.instance;
       final teacherId = storage.getUserId();
       
-      // 构建表单数据
-      final formData = {
+      final formData = dio.FormData.fromMap({
         'title': titleController.text,
         'description': descriptionController.text,
         'classId': classId,
         'teacherId': teacherId,
-        'deadline': '${deadlineDate.value}T${deadlineTime.value}:00',
-      };
+        'deadline': _formatDateTimeForApi(selectedDeadline.value!),
+        'createTime': _formatDateTimeForApi(selectedStartTime.value!)
+      });
       
-      // 如果有附件，添加到表单
       if (selectedFile.value.isNotEmpty) {
-        // 这里需要根据后端API的要求处理文件上传
-        // 可能需要使用MultipartRequest或其他方式
+        final file = File(selectedFile.value);
+        final fileName = file.path.split('/').last;
+        
+        formData.files.add(
+          MapEntry(
+            'file',
+            await dio.MultipartFile.fromFile(
+              file.path,
+              filename: fileName,
+            ),
+          ),
+        );
       }
       
       final response = await httpUtil.post(
@@ -112,5 +200,18 @@ class CreateAssignmentController extends GetxController {
     } finally {
       isSubmitting.value = false;
     }
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    return '${dateTime.year}-${_twoDigits(dateTime.month)}-${_twoDigits(dateTime.day)} ${_twoDigits(dateTime.hour)}:${_twoDigits(dateTime.minute)}';
+  }
+
+  String _formatDateTimeForApi(DateTime dateTime) {
+    return '${dateTime.year}-${_twoDigits(dateTime.month)}-${_twoDigits(dateTime.day)} ${_twoDigits(dateTime.hour)}:${_twoDigits(dateTime.minute)}:00';
+  }
+
+  String _twoDigits(int n) {
+    if (n >= 10) return '$n';
+    return '0$n';
   }
 } 

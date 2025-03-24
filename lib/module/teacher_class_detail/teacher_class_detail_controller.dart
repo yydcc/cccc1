@@ -65,11 +65,14 @@ class TeacherClassDetailController extends GetxController {
   }
   
   void goToAssignmentList() {
-    if (classInfo.value == null) return;
+    if (classInfo.value == null) {
+      Get.snackbar('错误', '班级信息不存在');
+      return;
+    }
     
     Get.toNamed(
-      AppRoutes.ASSIGNMENT,
-      arguments: {'classId': classInfo.value!.classId.toString()}
+      AppRoutes.TEACHER_ASSIGNMENT,
+      arguments: {'classId': classInfo.value!.classId}
     );
   }
   

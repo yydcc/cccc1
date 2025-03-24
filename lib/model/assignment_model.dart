@@ -9,6 +9,9 @@ class Assignment {
   final String? deadline;
   final String? createTime;
   final String? contentUrl; // 附件URL
+  int? submittedCount;
+  int? totalStudents;
+  int? gradedCount;
 
   Assignment({
     this.assignmentId,
@@ -17,6 +20,9 @@ class Assignment {
     this.deadline,
     this.createTime,
     this.contentUrl,
+    this.submittedCount,
+    this.totalStudents,
+    this.gradedCount,
   });
 
   factory Assignment.fromJson(Map<String, dynamic> json) {

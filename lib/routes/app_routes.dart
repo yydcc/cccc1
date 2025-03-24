@@ -17,6 +17,10 @@ abstract class AppRoutes {
   static const PENDING_GRADING = '/pending_grading';
   static const CREATE_CLASS = '/create-class';
   static const JOIN_CLASS = '/join-class';
+  static const TEACHER_ASSIGNMENT = '/teacher_assignment';
+  static const TEACHER_ASSIGNMENT_DETAIL = '/teacher_assignment_detail';
+  static const GRADE_SUBMISSION = '/grade_submission';
+  static const EDIT_ASSIGNMENT = '/edit_assignment';
 }
 
 

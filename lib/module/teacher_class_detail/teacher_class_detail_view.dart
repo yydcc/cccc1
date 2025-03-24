@@ -388,7 +388,7 @@ class TeacherClassDetailView extends GetView<TeacherClassDetailController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '教学管理',
+          '班级管理',
           style: TextStyle(
             fontSize: 16.sp,
             fontWeight: FontWeight.bold,
@@ -406,35 +406,35 @@ class TeacherClassDetailView extends GetView<TeacherClassDetailController> {
                 onTap: controller.goToAssignmentList,
               ),
             ),
-            SizedBox(width: 16.w),
+            SizedBox(width: 12.w),
             Expanded(
               child: _buildFunctionCard(
-                icon: Icons.add_task,
-                title: '发布作业',
+                icon: Icons.people,
+                title: '学生管理',
                 color: Colors.green,
-                onTap: controller.goToCreateAssignment,
+                onTap: controller.goToClassMembers,
               ),
             ),
           ],
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: 12.h),
         Row(
           children: [
             Expanded(
               child: _buildFunctionCard(
-                icon: Icons.people,
-                title: '班级成员',
-                color: Colors.purple,
-                onTap: controller.goToClassMembers,
+                icon: Icons.announcement,
+                title: '班级公告',
+                color: Colors.orange,
+                onTap: controller.goToAnnouncements,
               ),
             ),
-            SizedBox(width: 16.w),
+            SizedBox(width: 12.w),
             Expanded(
               child: _buildFunctionCard(
-                icon: Icons.grading,
-                title: '批改作业',
-                color: Colors.orange,
-                onTap: controller.goToPendingGrading,
+                icon: Icons.analytics,
+                title: '数据统计',
+                color: Colors.purple,
+                onTap: controller.showMoreOptions,
               ),
             ),
           ],

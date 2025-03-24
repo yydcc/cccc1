@@ -7,8 +7,9 @@ class Submission {
   final double score;
   final String? feedback;
   final String? content;
-
+  final String? username;
   Submission({
+    this.username,
     this.submissionId,
     this.assignmentId,
     this.studentId,
@@ -21,6 +22,7 @@ class Submission {
 
   factory Submission.fromJson(Map<String, dynamic> json) {
     return Submission(
+      username: json['username']??'',
       submissionId: json['submissionId'] ?? 0,
       assignmentId: json['assignmentId'] ?? 0,
       studentId: json['studentId'] ?? 0,

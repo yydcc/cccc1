@@ -25,6 +25,47 @@ class CreateAssignmentView extends GetView<CreateAssignmentController> {
             SizedBox(height: 16.h),
             _buildDescriptionField(),
             SizedBox(height: 16.h),
+            Text(
+              '开始时间',
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.bold,
+                color: GlobalThemData.textPrimaryColor,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            TextFormField(
+              controller: controller.startTimeController,
+              decoration: InputDecoration(
+                hintText: '选择作业开始时间',
+                prefixIcon: const Icon(Icons.calendar_today),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16.w,
+                  vertical: 12.h,
+                ),
+              ),
+              readOnly: true,
+              onTap: controller.selectStartTime,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return '请选择开始时间';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              '截止时间',
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.bold,
+                color: GlobalThemData.textPrimaryColor,
+              ),
+            ),
+            SizedBox(height: 8.h),
             _buildDeadlineSelector(),
             SizedBox(height: 16.h),
             _buildAttachmentSelector(),
@@ -90,7 +131,7 @@ class CreateAssignmentView extends GetView<CreateAssignmentController> {
           controller: controller.descriptionController,
           maxLines: 5,
           decoration: InputDecoration(
-            hintText: '请输入作业描述（选填）',
+            hintText: '请输入作业描述',
             filled: true,
             fillColor: Colors.white,
             border: OutlineInputBorder(
@@ -112,92 +153,27 @@ class CreateAssignmentView extends GetView<CreateAssignmentController> {
   }
   
   Widget _buildDeadlineSelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '截止日期',
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.bold,
-            color: GlobalThemData.textPrimaryColor,
-          ),
+    return TextFormField(
+      controller: controller.deadlineController,
+      decoration: InputDecoration(
+        hintText: '选择作业截止时间',
+        prefixIcon: const Icon(Icons.event),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.r),
         ),
-        SizedBox(height: 8.h),
-        Row(
-          children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: controller.selectDeadlineDate,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8.r),
-                    border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  child: Obx(() => Row(
-                    children: [
-                      Icon(
-                        Icons.calendar_today,
-                        size: 20.sp,
-                        color: GlobalThemData.textSecondaryColor,
-                      ),
-                      SizedBox(width: 8.w),
-                      Text(
-                        controller.deadlineDate.value.isEmpty
-                            ? '选择日期'
-                            : controller.deadlineDate.value,
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          color: controller.deadlineDate.value.isEmpty
-                              ? GlobalThemData.textSecondaryColor
-                              : GlobalThemData.textPrimaryColor,
-                        ),
-                      ),
-                    ],
-                  )),
-                ),
-              ),
-            ),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: GestureDetector(
-                onTap: controller.selectDeadlineTime,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8.r),
-                    border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  child: Obx(() => Row(
-                    children: [
-                      Icon(
-                        Icons.access_time,
-                        size: 20.sp,
-                        color: GlobalThemData.textSecondaryColor,
-                      ),
-                      SizedBox(width: 8.w),
-                      Text(
-                        controller.deadlineTime.value.isEmpty
-                            ? '选择时间'
-                            : controller.deadlineTime.value,
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          color: controller.deadlineTime.value.isEmpty
-                              ? GlobalThemData.textSecondaryColor
-                              : GlobalThemData.textPrimaryColor,
-                        ),
-                      ),
-                    ],
-                  )),
-                ),
-              ),
-            ),
-          ],
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 16.w,
+          vertical: 12.h,
         ),
-      ],
+      ),
+      readOnly: true,
+      onTap: controller.selectDeadline,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return '请选择截止时间';
+        }
+        return null;
+      },
     );
   }
   

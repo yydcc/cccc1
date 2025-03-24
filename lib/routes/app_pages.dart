@@ -24,6 +24,12 @@ import '../module/teacher_class_detail/teacher_class_detail_binding.dart';
 import '../module/teacher_class_detail/teacher_class_detail_view.dart';
 import '../module/create_assignment/create_assignment_binding.dart';
 import '../module/create_assignment/create_assignment_view.dart';
+import '../module/teacher_assignment/teacher_assignment_binding.dart';
+import '../module/teacher_assignment/teacher_assignment_view.dart';
+import '../module/teacher_assignment_detail/teacher_assignment_detail_binding.dart';
+import '../module/teacher_assignment_detail/teacher_assignment_detail_view.dart';
+import '../module/grade_submission/grade_submission_binding.dart';
+import '../module/grade_submission/grade_submission_view.dart';
 
 part 'app_routes.dart';
 
@@ -101,6 +107,21 @@ class AppPages {
       name: AppRoutes.CREATE_ASSIGNMENT,
       page: () => CreateAssignmentView(),
       binding: CreateAssignmentBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.TEACHER_ASSIGNMENT,
+      page: () => TeacherAssignmentView(),
+      binding: TeacherAssignmentBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.TEACHER_ASSIGNMENT_DETAIL,
+      page: () => TeacherAssignmentDetailView(),
+      binding: TeacherAssignmentDetailBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.GRADE_SUBMISSION,
+      page: () => const GradeSubmissionView(),
+      binding: GradeSubmissionBinding(),
     ),
   ];
 }
