@@ -12,6 +12,11 @@ abstract class AppRoutes {
   static const CLASS_ANNOUNCEMENTS = '/class_announcements';
   static const ASSIGNMENT = '/assignment';
   static const ASSIGNMENT_DETAIL = '/assignment_detail';
+  static const TEACHER_CLASS_DETAIL = '/teacher_class_detail';
+  static const CREATE_ASSIGNMENT = '/create_assignment';
+  static const PENDING_GRADING = '/pending_grading';
+  static const CREATE_CLASS = '/create-class';
+  static const JOIN_CLASS = '/join-class';
 }
 
 

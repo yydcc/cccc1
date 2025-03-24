@@ -4,6 +4,6 @@ import 'teacher_classinfo_controller.dart';
 class TeacherClassinfoBinding implements Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<TeacherClassinfoController>(() => TeacherClassinfoController());
+    Get.lazyPut<TeacherClassInfoController>(() => TeacherClassInfoController());
   }
 } 

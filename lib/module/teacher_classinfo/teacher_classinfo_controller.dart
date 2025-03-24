@@ -1,4 +1,5 @@
 import 'package:cccc1/common/utils/storage.dart';
+import 'package:cccc1/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -9,11 +10,12 @@ import 'dart:async';
 
 import '../../model/classinfo_model.dart';
 
-
-
-class TeacherClassinfoController extends GetxController {
+class TeacherClassInfoController extends GetxController {
   final HttpUtil httpUtil = HttpUtil();
   final RxList<ClassInfo> classList = <ClassInfo>[].obs;
+  final RxBool isLoading = true.obs;
+  final RxBool hasError = false.obs;
+  final RxString errorMessage = ''.obs;
   final TextEditingController classNameController = TextEditingController();
   final TextEditingController teacherNicknameController = TextEditingController();
   final refreshController = EasyRefreshController(
@@ -28,19 +30,94 @@ class TeacherClassinfoController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    loadClasses();
+    fetchClassList();
+  }
+
+  Future<void> fetchClassList({bool isLoadMore = false}) async {
+    try {
+      if (!isLoadMore) {
+        isLoading.value = true;
+      }
+      hasError.value = false;
+      
+      final storage = await StorageService.instance;
+      final username = storage.getUsername();
+      
+      if (username == null || username.isEmpty) {
+        hasError.value = true;
+        errorMessage.value = '用户名不存在，请重新登录';
+        return;
+      }
+      
+      final response = await httpUtil.post(
+        '/teacher/get_class',
+        data: {
+          'username': username,
+          'page': currentPage,
+          'size': pageSize,
+        },
+      );
+      
+      if (response.code == 200 && response.data != null) {
+        try {
+          final data = response.data;
+          final List<dynamic> records = data['records'] as List? ?? [];
+          
+          final List<ClassInfo> newClasses = [];
+          
+          for (var item in records) {
+            try {
+              final classInfo = ClassInfo(
+                teacherId: item['teacherId'] ?? 0,
+                classId: item['classId'] ?? 0,
+                className: item['className'] ?? '',
+                teacherNickname: item['teacherNickname'] ?? '',
+                joinedAt: item['joinedAt'] ?? '',
+                courseCode: item['courseCode'] ?? '',
+                createAt: item['createAt'] ?? '',
+                studentCount: item['studentCount'] ?? 0,
+                assignmentCount: item['assignmentCount'] ?? 0,
+              );
+              newClasses.add(classInfo);
+            } catch (e) {
+              print('解析班级数据失败: $e');
+              // 继续处理下一个班级
+            }
+          }
+          
+          if (isLoadMore) {
+            classList.addAll(newClasses);
+          } else {
+            classList.value = newClasses;
+          }
+          
+          final int totalPages = data['pages'] ?? 1;
+          hasMore = currentPage < totalPages;
+          
+          hasError.value = false;
+        } catch (e) {
+          print('解析班级列表数据失败: $e');
+          hasError.value = true;
+          errorMessage.value = '解析班级数据失败';
+        }
+      } else {
+        hasError.value = true;
+        errorMessage.value = response.msg ?? '获取班级列表失败';
+      }
+    } catch (e) {
+      print('加载班级列表失败: $e');
+      hasError.value = true;
+      errorMessage.value = '网络错误，请检查网络连接';
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> onRefresh() async {
     try {
       currentPage = 1;
       hasMore = true;
-      await loadClasses().timeout(
-        Duration(seconds: 3),
-        onTimeout: () {
-          throw TimeoutException('请求超时');
-        },
-      );
+      await fetchClassList();
       refreshController.finishRefresh(IndicatorResult.success);
       refreshController.resetFooter();
     } catch (e) {
@@ -57,12 +134,7 @@ class TeacherClassinfoController extends GetxController {
     
     try {
       currentPage++;
-      await loadClasses(isLoadMore: true).timeout(
-        Duration(seconds: 3),
-        onTimeout: () {
-          throw TimeoutException('请求超时');
-        },
-      );
+      await fetchClassList(isLoadMore: true);
       refreshController.finishLoad(
         hasMore ? IndicatorResult.success : IndicatorResult.noMore
       );
@@ -70,51 +142,6 @@ class TeacherClassinfoController extends GetxController {
       currentPage--; // 加载失败，恢复页码
       refreshController.finishLoad(IndicatorResult.fail);
       Get.snackbar('提示', '加载失败，请检查网络');
-    }
-  }
-
-  Future<void> loadClasses({bool isLoadMore = false}) async {
-    final storage = await StorageService.instance;
-    final username = storage.getUsername() ?? '';
-    try {
-      final response = await httpUtil.post(
-        '/teacher/get_class',
-        data: {
-          'username': username,
-          'page': currentPage,
-          'size': pageSize,
-        },
-      );
-      
-      if (response.code == 200) {
-        final data = response.data;
-        final List<ClassInfo> newClasses = (data['records'] as List? ?? [])
-            .map((item) => ClassInfo(
-                  teacherId: item['teacherId'] ?? 0,
-                  classId: item['classId'] ?? 0,
-                  className: item['className'] ?? '',
-                  teacherNickname: item['teacherNickname'] ?? '',
-                  joinedAt: item['joinedAt'] ?? '',
-                  courseCode: item['courseCode'] ?? '',
-                  createAt: item['createAt'] ?? '',
-                  studentCount: item['studentCount'] ?? 0,
-                ))
-            .toList();
-
-        if (isLoadMore) {
-          final List<ClassInfo> updatedList = [...classList, ...newClasses];
-          classList.value = updatedList;
-        } else {
-          classList.value = newClasses;
-        }
-        
-        final int totalPages = data['pages'] ?? 1;
-        hasMore = currentPage < totalPages;
-      }
-    } catch (e) {
-      print('Load classes error: $e');
-      Get.snackbar('错误', '获取班级列表失败');
-      rethrow;
     }
   }
 
@@ -220,7 +247,7 @@ class TeacherClassinfoController extends GetxController {
         classNameController.clear();
         teacherNicknameController.clear();
         Get.snackbar('成功', '班级创建成功');
-        loadClasses();  // 重新加载班级列表
+        fetchClassList();  // 重新加载班级列表
       } else {
         Get.snackbar('创建失败', response.msg);
       }
@@ -230,9 +257,32 @@ class TeacherClassinfoController extends GetxController {
     }
   }
 
-  void handleClassTap(ClassInfo classInfo) {
-    // 处理班级点击事件，可以跳转到班级详情页面
-    // Get.toNamed('/class-detail', arguments: classInfo);
+  void goToClassDetail(ClassInfo classInfo) {
+    if (classInfo.classId == null) {
+      Get.snackbar('错误', '班级ID不存在');
+      return;
+    }
+    
+    Get.toNamed(
+      AppRoutes.TEACHER_CLASS_DETAIL,
+      arguments: {'classInfo': classInfo}
+    );
+  }
+
+  void goToCreateClass() {
+    Get.toNamed(AppRoutes.CREATE_CLASS)?.then((value) {
+      if (value == true) {
+        fetchClassList();
+      }
+    });
+  }
+
+  void goToJoinClass() {
+    Get.toNamed(AppRoutes.JOIN_CLASS)?.then((value) {
+      if (value == true) {
+        fetchClassList();
+      }
+    });
   }
 
   @override

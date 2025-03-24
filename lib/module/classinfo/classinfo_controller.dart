@@ -257,9 +257,7 @@ class ClassinfoController extends GetxController {
     }
   }
 
-  Future<void> goToClassDetail(int classId) async {
-    Get.toNamed('/class_detail', arguments: {'classId': classId});
-  }
+
 
   void handleClassTap(ClassInfo classInfo) {
     Get.toNamed(

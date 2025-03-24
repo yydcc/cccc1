@@ -153,7 +153,7 @@ class ClassinfoView extends StatelessWidget {
 
         final role = snapshot.data!.getRole();
         if (role == 'teacher') {
-          return TeacherClassinfoView();
+          return TeacherClassInfoView();
         } else {
           return GetBuilder<ClassinfoController>(
             builder: (controller) => Scaffold(

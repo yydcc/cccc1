@@ -20,6 +20,11 @@ import '../module/assignment/assignment_binding.dart';
 import '../module/assignment/assignment_view.dart';
 import '../module/assignment_detail/assignment_detail_binding.dart';
 import '../module/assignment_detail/assignment_detail_view.dart';
+import '../module/teacher_class_detail/teacher_class_detail_binding.dart';
+import '../module/teacher_class_detail/teacher_class_detail_view.dart';
+import '../module/create_assignment/create_assignment_binding.dart';
+import '../module/create_assignment/create_assignment_view.dart';
+
 part 'app_routes.dart';
 
 class AppPages {
@@ -86,6 +91,16 @@ class AppPages {
       binding: AssignmentDetailBinding(),
       transition: Transition.fadeIn,
       transitionDuration: const Duration(milliseconds: 200),
+    ),
+    GetPage(
+      name: AppRoutes.TEACHER_CLASS_DETAIL,
+      page: () => TeacherClassDetailView(),
+      binding: TeacherClassDetailBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.CREATE_ASSIGNMENT,
+      page: () => CreateAssignmentView(),
+      binding: CreateAssignmentBinding(),
     ),
   ];
 }

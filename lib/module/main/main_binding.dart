@@ -14,7 +14,7 @@ class MainBinding implements Bindings {
     Get.lazyPut<HomeController>(() => HomeController());
     Get.lazyPut<ScheduleController>(() => ScheduleController());
     Get.lazyPut<ClassinfoController>(() => ClassinfoController());
-    Get.lazyPut<TeacherClassinfoController>(() => TeacherClassinfoController());
+    Get.lazyPut<TeacherClassInfoController>(() => TeacherClassInfoController());
     Get.lazyPut<ProfileController>(() => ProfileController());
   }
 } 
