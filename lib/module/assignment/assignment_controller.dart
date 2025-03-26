@@ -10,6 +10,7 @@ class AssignmentController extends GetxController {
   final RxList<Assignment> assignments = <Assignment>[].obs;
   final RxList<Assignment> filteredAssignments = <Assignment>[].obs;
   final RxBool isLoading = true.obs;
+  final RxBool isManualRefreshing = false.obs;
   final refreshController = EasyRefreshController(
     controlFinishRefresh: true,
     controlFinishLoad: true,
@@ -48,6 +49,15 @@ class AssignmentController extends GetxController {
     }
   }
 
+  Future<void> manualRefresh() async {
+    try {
+      isManualRefreshing.value = true;
+      await onRefresh();
+    } finally {
+      isManualRefreshing.value = false;
+    }
+  }
+
   Future<void> onRefresh() async {
     try {
       currentPage = 1;
@@ -57,6 +67,7 @@ class AssignmentController extends GetxController {
       refreshController.finishRefresh(IndicatorResult.success);
       refreshController.resetFooter();
     } catch (e) {
+      print('刷新失败: $e');
       refreshController.finishRefresh(IndicatorResult.fail);
     }
   }
@@ -75,6 +86,7 @@ class AssignmentController extends GetxController {
         hasMore ? IndicatorResult.success : IndicatorResult.noMore
       );
     } catch (e) {
+      print('加载更多失败: $e');
       currentPage--;
       refreshController.finishLoad(IndicatorResult.fail);
     }
@@ -83,6 +95,7 @@ class AssignmentController extends GetxController {
   Future<void> loadAssignments({bool isLoadMore = false}) async {
     try {
       isLoading.value = true;
+      
       final response = await httpUtil.get(
         '/assignment/list',
         queryParameters: {
@@ -90,23 +103,59 @@ class AssignmentController extends GetxController {
           'page': currentPage,
           'size': pageSize
         }
-      );
+      ).catchError((error) {
+        print('网络请求错误: $error');
+        throw error;
+      });
       
       if (response.code == 200) {
         final data = response.data;
-        final List<dynamic> records = data['records'] ?? [];
         
-        if (isLoadMore) {
-          assignments.addAll(records.map((item) => Assignment.fromJson(item)).toList());
-        } else {
-          assignments.value = records.map((item) => Assignment.fromJson(item)).toList();
+        if (data == null) {
+          print('返回数据为空');
+          if (!isLoadMore) {
+            assignments.clear();
+          }
+          hasMore = false;
+          return;
         }
         
-        hasMore = currentPage < (data['pages'] ?? 1);
+        final List<dynamic> records = data['records'] ?? [];
+        final int totalPages = data['pages'] ?? 1;
+        
+        final List<Assignment> newAssignments = [];
+        for (var item in records) {
+          try {
+            newAssignments.add(Assignment.fromJson(item));
+          } catch (e) {
+            print('解析作业数据错误: $e');
+            // 继续处理下一条数据
+          }
+        }
+        
+        if (isLoadMore) {
+          assignments.addAll(newAssignments);
+        } else {
+          assignments.value = newAssignments;
+        }
+        
+        hasMore = currentPage < totalPages;
+      } else {
+        print('API返回错误: ${response.msg}');
+        if (!isLoadMore) {
+          // 如果不是加载更多，则清空列表
+          assignments.clear();
+        }
+        hasMore = false;
       }
     } catch (e) {
       print('加载作业列表失败: $e');
-      Get.snackbar('错误', '获取作业列表失败');
+      if (!isLoadMore) {
+        // 如果不是加载更多，则清空列表
+        assignments.clear();
+      }
+      hasMore = false;
+      // 不在这里显示snackbar，避免多次弹出
     } finally {
       isLoading.value = false;
     }
@@ -118,11 +167,14 @@ class AssignmentController extends GetxController {
       return;
     }
     
-    print('跳转到作业详情页，作业ID: $assignmentId');
     Get.toNamed(
       AppRoutes.ASSIGNMENT_DETAIL,
       arguments: {'assignmentId': assignmentId}
-    );
+    )?.then((value) {
+      if (value == true) {
+        onRefresh(); // 使用onRefresh而不是直接调用loadAssignments
+      }
+    });
   }
 
   @override

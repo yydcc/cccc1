@@ -12,6 +12,8 @@ class GradeSubmissionController extends GetxController {
   final Rx<Submission?> submission = Rx<Submission?>(null);
   final RxBool isLoading = true.obs;
   final RxBool isSubmitting = false.obs;
+  final RxBool isAutoGrading = false.obs;
+  final RxString autoGradingStatus = ''.obs; // 添加自动批改状态信息
   
   final scoreController = TextEditingController();
   final feedbackController = TextEditingController();
@@ -58,6 +60,55 @@ class GradeSubmissionController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+  
+  // 异步自动批改方法
+  void autoGradeSubmission() {
+    if (isAutoGrading.value) return;
+    
+    isAutoGrading.value = true;
+    autoGradingStatus.value = '正在启动AI批改...';
+    
+    // 使用Future.delayed避免UI阻塞
+    Future.delayed(Duration.zero, () async {
+      try {
+        autoGradingStatus.value = '正在分析提交内容...';
+        await Future.delayed(const Duration(milliseconds: 500)); // 添加小延迟以显示状态变化
+        
+        final response = await httpUtil.post(
+          '/assignment/grade/auto',
+          queryParameters: {
+            'submissionId': submissionId,
+          },
+        ).timeout(const Duration(seconds: 30)); // 添加超时处理
+        
+        if (response.code == 200 && response.data != null) {
+          autoGradingStatus.value = '批改完成，正在更新...';
+          await Future.delayed(const Duration(milliseconds: 500));
+          
+          // 更新提交信息
+          submission.value = Submission.fromJson(response.data);
+          
+          // 更新表单
+          scoreController.text = submission.value!.score.toString();
+          feedbackController.text = submission.value!.feedback ?? '';
+          
+          Get.snackbar('成功', 'AI自动批改完成');
+        } else {
+          Get.snackbar('错误', 'AI自动批改失败: ${response.msg}');
+        }
+      } catch (e) {
+        print('AI自动批改出错: $e');
+        if (e is dio.DioException && e.type == dio.DioExceptionType.connectionTimeout) {
+          Get.snackbar('错误', 'AI自动批改超时，请稍后重试');
+        } else {
+          Get.snackbar('错误', 'AI自动批改失败，请稍后重试');
+        }
+      } finally {
+        isAutoGrading.value = false;
+        autoGradingStatus.value = '';
+      }
+    });
   }
   
   Future<void> submitGrade() async {

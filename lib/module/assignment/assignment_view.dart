@@ -7,6 +7,8 @@ import 'package:easy_refresh/easy_refresh.dart';
 import '../../model/assignment_model.dart';
 
 class AssignmentView extends GetView<AssignmentController> {
+  const AssignmentView({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(Get.context!).primaryColor;
@@ -18,44 +20,189 @@ class AssignmentView extends GetView<AssignmentController> {
         centerTitle: true,
         elevation: 0,
         backgroundColor: primaryColor,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.filter_list),
-            onPressed: () {
-              // 添加筛选功能
-              _showFilterDialog(context);
-            },
+      ),
+      body: Column(
+        children: [
+          _buildFilterTabs(),
+          Expanded(
+            child: Obx(() {
+              if (controller.isLoading.value && controller.assignments.isEmpty) {
+                return _buildLoadingView();
+              } else if (controller.filteredAssignments.isEmpty) {
+                return _buildEmptyView();
+              } else {
+                return _buildAssignmentList();
+              }
+            }),
           ),
         ],
       ),
-      body: EasyRefresh(
-        controller: controller.refreshController,
-        header: const ClassicHeader(
-          processedDuration: Duration(milliseconds: 0),
-          dragText: '下拉刷新',
-          armedText: '释放刷新',
-          processingText: '刷新中...',
-          processedText: '刷新成功',
-          failedText: '刷新失败',
-          readyText: '准备刷新',
+    );
+  }
+
+  Widget _buildFilterTabs() {
+    return Container(
+      height: 50.h,
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          _buildFilterTab('全部', 'all'),
+          SizedBox(width: 16.w),
+          _buildFilterTab('未开始', 'not_started'),
+          SizedBox(width: 16.w),
+          _buildFilterTab('进行中', 'in_progress'),
+          SizedBox(width: 16.w),
+          _buildFilterTab('已过期', 'expired'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterTab(String title, String status) {
+    return Obx(() => GestureDetector(
+      onTap: () => controller.setFilter(status),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+        decoration: BoxDecoration(
+          color: controller.filterStatus.value == status
+              ? Theme.of(Get.context!).primaryColor
+              : Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(16.r),
         ),
-        footer: const ClassicFooter(
-          processedDuration: Duration(milliseconds: 0),
-          dragText: '上拉加载',
-          armedText: '释放加载',
-          processingText: '加载中...',
-          processedText: '加载成功',
-          failedText: '加载失败',
-          readyText: '准备加载',
-          noMoreText: '没有更多数据',
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w500,
+            color: controller.filterStatus.value == status
+                ? Colors.white
+                : Colors.grey.shade700,
+          ),
         ),
-        onRefresh: controller.onRefresh,
-        onLoad: controller.onLoadMore,
-        child: Obx(() => controller.isLoading.value && controller.filteredAssignments.isEmpty
-          ? _buildLoadingView()
-          : controller.filteredAssignments.isEmpty
-              ? _buildEmptyView()
-              : _buildAssignmentList(),
+      ),
+    ));
+  }
+
+  Widget _buildAssignmentList() {
+    return EasyRefresh(
+      controller: controller.refreshController,
+      header: const ClassicHeader(
+        processedDuration: Duration(milliseconds: 0),
+        dragText: '下拉刷新',
+        armedText: '释放刷新',
+        processingText: '刷新中...',
+        processedText: '刷新成功',
+        failedText: '刷新失败',
+        readyText: '准备刷新',
+      ),
+      footer: const ClassicFooter(
+        processedDuration: Duration(milliseconds: 0),
+        dragText: '上拉加载',
+        armedText: '释放加载',
+        processingText: '加载中...',
+        processedText: '加载成功',
+        failedText: '加载失败',
+        readyText: '准备加载',
+        noMoreText: '没有更多数据',
+      ),
+      onRefresh: controller.onRefresh,
+      onLoad: controller.onLoadMore,
+      child: ListView.builder(
+        padding: EdgeInsets.all(16.w),
+        itemCount: controller.filteredAssignments.length,
+        itemBuilder: (context, index) {
+          final assignment = controller.filteredAssignments[index];
+          return _buildAssignmentItem(assignment);
+        },
+      ),
+    );
+  }
+
+  Widget _buildAssignmentItem(Assignment assignment) {
+    return Card(
+      margin: EdgeInsets.only(bottom: 16.h),
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      child: InkWell(
+        onTap: () => controller.goToAssignmentDetail(assignment.assignmentId),
+        borderRadius: BorderRadius.circular(12.r),
+        child: Padding(
+          padding: EdgeInsets.all(16.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      assignment.title ?? '无标题',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                        color: GlobalThemData.textPrimaryColor,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8.w,
+                      vertical: 2.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: assignment.statusColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(4.r),
+                    ),
+                    child: Text(
+                      assignment.statusText,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: assignment.statusColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 8.h),
+              Text(
+                assignment.description ?? '无描述',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: GlobalThemData.textSecondaryColor,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: 12.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '截止日期: ${assignment.formattedDeadline}',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: assignment.isDeadlineNear && assignment.status == 'in_progress'
+                          ? Colors.orange
+                          : GlobalThemData.textSecondaryColor,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -92,413 +239,72 @@ class AssignmentView extends GetView<AssignmentController> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            width: 120.w,
-            height: 120.w,
-            decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.assignment_outlined,
-              size: 60.sp,
-              color: Theme.of(Get.context!).primaryColor.withOpacity(0.5),
-            ),
+          Icon(
+            Icons.assignment_outlined,
+            size: 60.sp,
+            color: Colors.grey.shade400,
           ),
-          SizedBox(height: 24.h),
-          Obx(() => Text(
-            controller.filterStatus.value == 'all' 
-                ? '暂无作业' 
-                : '没有${_getFilterStatusText(controller.filterStatus.value)}的作业',
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w500,
-              color: GlobalThemData.textPrimaryColor,
-            ),
-          )),
-          SizedBox(height: 8.h),
+          SizedBox(height: 16.h),
           Text(
-            controller.filterStatus.value == 'all' 
-                ? '老师还没有布置作业哦' 
-                : '尝试切换筛选条件查看其他作业',
+            '暂无作业',
             style: TextStyle(
-              fontSize: 14.sp,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
               color: GlobalThemData.textSecondaryColor,
             ),
           ),
-          SizedBox(height: 32.h),
-          ElevatedButton(
-            onPressed: controller.onRefresh,
+          SizedBox(height: 8.h),
+          Text(
+            '老师还没有布置作业',
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: GlobalThemData.textTertiaryColor,
+            ),
+          ),
+          SizedBox(height: 24.h),
+          Obx(() => ElevatedButton(
+            onPressed: controller.isManualRefreshing.value 
+                ? null 
+                : controller.manualRefresh,
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(Get.context!).primaryColor,
               foregroundColor: Colors.white,
               padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.r),
+                borderRadius: BorderRadius.circular(8.r),
               ),
+              disabledBackgroundColor: Theme.of(Get.context!).primaryColor.withOpacity(0.6),
             ),
-            child: Text('刷新'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAssignmentList() {
-    return ListView.builder(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      itemCount: controller.filteredAssignments.length,
-      itemBuilder: (context, index) {
-        final assignment = controller.filteredAssignments[index];
-        return _buildAssignmentCard(assignment);
-      },
-    );
-  }
-
-  Widget _buildAssignmentCard(Assignment assignment) {
-    final primaryColor = Theme.of(Get.context!).primaryColor;
-    
-    // 使用assignment.isDeadlineNear替代原来的判断逻辑
-    final bool isDeadlineNear = assignment.isDeadlineNear;
-    
-    // 使用assignment.status获取状态
-    final gradientColors = _getStatusGradient(assignment.status);
-
-    return Container(
-      margin: EdgeInsets.only(bottom: 16.h),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            print('作业标题: ${assignment.title}');
-            print('作业ID原始值: ${assignment.assignmentId}');
-            print('作业完整数据: $assignment');
-            
-            final id = assignment.assignmentId;
-            if (id == null || id == 0) {
-              Get.snackbar('提示', '无法获取作业ID，请联系管理员');
-              return;
-            }
-            
-            print('点击作业卡片，ID: $id');
-            controller.goToAssignmentDetail(id);
-          },
-          borderRadius: BorderRadius.circular(12.r),
-          child: Column(
-            children: [
-              // 添加顶部状态条
-              Container(
-                height: 6.h,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: gradientColors,
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(12.r),
-                    topRight: Radius.circular(12.r),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(16.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 40.w,
-                          height: 40.w,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: gradientColors,
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: gradientColors[0].withOpacity(0.3),
-                                blurRadius: 8,
-                                offset: Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            _getAssignmentIcon(assignment.status),
-                            color: Colors.white,
-                            size: 20.sp,
-                          ),
+            child: controller.isManualRefreshing.value
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 16.w,
+                        height: 16.w,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.w,
+                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
-                        SizedBox(width: 12.w),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                assignment.title ?? '未命名作业',
-                                style: TextStyle(
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.bold,
-                                  color: GlobalThemData.textPrimaryColor,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              SizedBox(height: 4.h),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.access_time,
-                                    size: 14.sp,
-                                    color: isDeadlineNear && assignment.status != 'submitted' && assignment.status != 'graded'
-                                        ? Colors.red
-                                        : GlobalThemData.textSecondaryColor,
-                                  ),
-                                  SizedBox(width: 4.w),
-                                  Text(
-                                    '截止: ${assignment.formattedDeadline}',
-                                    style: TextStyle(
-                                      fontSize: 12.sp,
-                                      color: isDeadlineNear && assignment.status != 'submitted' && assignment.status != 'graded'
-                                          ? Colors.red
-                                          : GlobalThemData.textSecondaryColor,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        '刷新中...',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.bold,
                         ),
-                        // 使用渐变背景的状态标签
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 10.w,
-                            vertical: 4.h,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                gradientColors[0].withOpacity(0.7),
-                                gradientColors[1].withOpacity(0.7),
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(20.r),
-                          ),
-                          child: Text(
-                            assignment.statusText,
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
+                    ],
+                  )
+                : Text(
+                    '刷新',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold,
                     ),
-                    if (assignment.description != null && assignment.description!.isNotEmpty) ...[
-                      SizedBox(height: 12.h),
-                      Container(
-                        padding: EdgeInsets.all(12.w),
-                        decoration: BoxDecoration(
-                          color: GlobalThemData.backgroundColor,
-                          borderRadius: BorderRadius.circular(8.r),
-                          border: Border.all(
-                            color: gradientColors[0].withOpacity(0.1),
-                            width: 1,
-                          ),
-                        ),
-                        child: Text(
-                          assignment.description!,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color: GlobalThemData.textSecondaryColor,
-                            height: 1.4,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                    if (assignment.status == 'graded') ...[
-                      SizedBox(height: 12.h),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 12.w,
-                              vertical: 6.h,
-                            ),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Colors.orange, Colors.amber],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(16.r),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.orange.withOpacity(0.3),
-                                  blurRadius: 8,
-                                  offset: Offset(0, 3),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.star,
-                                  color: Colors.white,
-                                  size: 16.sp,
-                                ),
-                                SizedBox(width: 4.w),
-                                Text(
-                                  '已批改',
-                                  style: TextStyle(
-                                    fontSize: 14.sp,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // 修改_getStatusGradient方法，添加expired状态
-  List<Color> _getStatusGradient(String status) {
-    final primaryColor = Theme.of(Get.context!).primaryColor;
-    
-    switch (status) {
-      case 'not_started':
-        return [Colors.grey.shade400, Colors.grey.shade600];
-      case 'in_progress':
-        return [primaryColor.withOpacity(0.7), primaryColor];
-      case 'submitted':
-        return [Colors.green.shade300, Colors.green.shade600];
-      case 'graded':
-        return [Colors.purple.shade300, Colors.purple.shade600];
-      case 'expired':
-        return [Colors.red.shade300, Colors.red.shade600];
-      default:
-        return [Colors.grey.shade400, Colors.grey.shade600];
-    }
-  }
-
-  // 修改_getAssignmentIcon方法，添加expired状态
-  IconData _getAssignmentIcon(String status) {
-    switch (status) {
-      case 'not_started':
-        return Icons.assignment_outlined;
-      case 'in_progress':
-        return Icons.edit_note;
-      case 'submitted':
-        return Icons.assignment_turned_in_outlined;
-      case 'graded':
-        return Icons.grading;
-      case 'expired':
-        return Icons.assignment_late;
-      default:
-        return Icons.assignment_outlined;
-    }
-  }
-
-  // 获取筛选状态的显示文本
-  String _getFilterStatusText(String status) {
-    switch (status) {
-      case 'in_progress':
-        return '进行中';
-      case 'expired':
-        return '已过期';
-      case 'not_started':
-        return '未开始';
-      default:
-        return '全部';
-    }
-  }
-
-  void _showFilterDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('筛选作业'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(Icons.filter_list),
-              title: Text('全部作业'),
-              selected: controller.filterStatus.value == 'all',
-              selectedColor: Theme.of(context).primaryColor,
-              onTap: () {
-                controller.setFilter('all');
-                Get.back();
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.edit_note),
-              title: Text('进行中'),
-              selected: controller.filterStatus.value == 'in_progress',
-              selectedColor: Theme.of(context).primaryColor,
-              onTap: () {
-                controller.setFilter('in_progress');
-                Get.back();
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.assignment_late),
-              title: Text('已过期'),
-              selected: controller.filterStatus.value == 'expired',
-              selectedColor: Theme.of(context).primaryColor,
-              onTap: () {
-                controller.setFilter('expired');
-                Get.back();
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.assignment_outlined),
-              title: Text('未开始'),
-              selected: controller.filterStatus.value == 'not_started',
-              selectedColor: Theme.of(context).primaryColor,
-              onTap: () {
-                controller.setFilter('not_started');
-                Get.back();
-              },
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: Text('取消'),
-          ),
+                  ),
+          )),
         ],
       ),
     );

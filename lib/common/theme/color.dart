@@ -12,6 +12,7 @@ class GlobalThemData {
   static const Color backgroundColor = Color(0xFFF5F5F5); // 背景色
   static const Color textPrimaryColor = Color(0xFF333333); // 主文本色
   static const Color textSecondaryColor = Color(0xFF666666); // 次要文本色
+  static const Color textTertiaryColor = Color(0xFF999999);  // 添加这一行
   static const Color dividerColor = Color(0xFFEEEEEE);  // 分割线颜色
 
   static final Color _lightFocusColor = Colors.black.withOpacity(0.12);

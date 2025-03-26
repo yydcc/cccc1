@@ -15,14 +15,6 @@ class GradeSubmissionView extends GetView<GradeSubmissionController> {
         title: const Text('批改作业'),
         centerTitle: true,
         elevation: 0,
-        actions: [
-          if (controller.submission.value?.hasFile == true)
-            IconButton(
-              icon: const Icon(Icons.download),
-              onPressed: controller.downloadSubmissionFile,
-              tooltip: '下载附件',
-            ),
-        ],
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -30,22 +22,95 @@ class GradeSubmissionView extends GetView<GradeSubmissionController> {
         } else if (controller.submission.value == null) {
           return _buildErrorView();
         } else {
-          return SingleChildScrollView(
-            padding: EdgeInsets.all(16.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSubmissionInfo(),
-                SizedBox(height: 16.h),
-                _buildSubmissionContent(),
-                SizedBox(height: 24.h),
-                _buildGradingForm(),
-                SizedBox(height: 24.h),
-                _buildSubmitButton(),
-              ],
-            ),
-          );
+          return _buildGradeForm();
         }
+      }),
+      bottomNavigationBar: Obx(() {
+        if (controller.isLoading.value) {
+          return const SizedBox.shrink();
+        }
+        return Container(
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, -5),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              // AI自动批改按钮
+              Expanded(
+                flex: 1,
+                child: ElevatedButton.icon(
+                  onPressed: controller.isAutoGrading.value ? null : controller.autoGradeSubmission,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    disabledBackgroundColor: Colors.deepPurple.withOpacity(0.6),
+                  ),
+                  icon: controller.isAutoGrading.value
+                      ? SizedBox(
+                          width: 16.w,
+                          height: 16.w,
+                          child: const CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : Icon(Icons.auto_awesome, size: 18.sp),
+                  label: Text(
+                    'AI批改',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 12.w),
+              // 提交批改按钮
+              Expanded(
+                flex: 2,
+                child: ElevatedButton(
+                  onPressed: controller.isSubmitting.value ? null : controller.submitGrade,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                  ),
+                  child: controller.isSubmitting.value
+                      ? SizedBox(
+                          width: 20.w,
+                          height: 20.w,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.w,
+                            valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : Text(
+                          controller.submission.value!.isGraded ? '更新批改' : '提交批改',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                ),
+              ),
+            ],
+          ),
+        );
       }),
     );
   }
@@ -121,244 +186,380 @@ class GradeSubmissionView extends GetView<GradeSubmissionController> {
     );
   }
 
-  Widget _buildSubmissionInfo() {
+  Widget _buildGradeForm() {
     final submission = controller.submission.value!;
     
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          padding: EdgeInsets.all(16.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 8.w,
-                  vertical: 4.h,
+              // 学生信息卡片
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
-                decoration: BoxDecoration(
-                  color: submission.isGraded
-                      ? Colors.green.withOpacity(0.1)
-                      : Colors.orange.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(4.r),
-                ),
-                child: Text(
-                  submission.isGraded ? '已批改' : '待批改',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: submission.isGraded ? Colors.green : Colors.orange,
+                child: Padding(
+                  padding: EdgeInsets.all(16.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.person,
+                            size: 20.sp,
+                            color: Theme.of(Get.context!).primaryColor,
+                          ),
+                          SizedBox(width: 8.w),
+                          Text(
+                            '学生信息',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.bold,
+                              color: GlobalThemData.textPrimaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 16.h),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '学生姓名',
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    color: GlobalThemData.textSecondaryColor,
+                                  ),
+                                ),
+                                SizedBox(height: 4.h),
+                                Text(
+                                  submission.username ?? '未知',
+                                  style: TextStyle(
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color: GlobalThemData.textPrimaryColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '提交时间',
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    color: GlobalThemData.textSecondaryColor,
+                                  ),
+                                ),
+                                SizedBox(height: 4.h),
+                                Text(
+                                  submission.formattedSubmitTime,
+                                  style: TextStyle(
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color: GlobalThemData.textPrimaryColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
-              const Spacer(),
-              Text(
-                '提交时间: ${submission.formattedSubmitTime}',
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  color: GlobalThemData.textSecondaryColor,
+              
+              SizedBox(height: 16.h),
+              
+              // 提交内容卡片
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(16.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.description,
+                            size: 20.sp,
+                            color: Theme.of(Get.context!).primaryColor,
+                          ),
+                          SizedBox(width: 8.w),
+                          Text(
+                            '提交内容',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.bold,
+                              color: GlobalThemData.textPrimaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 16.h),
+                      if (submission.content != null && submission.content!.isNotEmpty) ...[
+                        Container(
+                          padding: EdgeInsets.all(12.w),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(8.r),
+                            border: Border.all(color: Colors.grey.shade200),
+                          ),
+                          child: SelectableText(
+                            submission.content!,
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: GlobalThemData.textPrimaryColor,
+                              height: 1.5,
+                            ),
+                          ),
+                        ),
+                      ] else ...[
+                        Container(
+                          padding: EdgeInsets.all(12.w),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(8.r),
+                            border: Border.all(color: Colors.grey.shade200),
+                          ),
+                          child: Text(
+                            '无文本内容',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: GlobalThemData.textSecondaryColor,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
+                      ],
+                      if (submission.hasFile) ...[
+                        SizedBox(height: 16.h),
+                        Text(
+                          '附件',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.bold,
+                            color: GlobalThemData.textPrimaryColor,
+                          ),
+                        ),
+                        SizedBox(height: 8.h),
+                        InkWell(
+                          onTap: controller.downloadSubmissionFile,
+                          borderRadius: BorderRadius.circular(8.r),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16.w,
+                              vertical: 12.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8.r),
+                              border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.attach_file,
+                                  size: 20.sp,
+                                  color: Colors.blue,
+                                ),
+                                SizedBox(width: 12.w),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        submission.fileName ?? '附件',
+                                        style: TextStyle(
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.bold,
+                                          color: GlobalThemData.textPrimaryColor,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.download,
+                                  size: 20.sp,
+                                  color: Colors.blue,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ),
+              
+              SizedBox(height: 16.h),
+              
+              // 批改表单卡片
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(16.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.grading,
+                            size: 20.sp,
+                            color: Theme.of(Get.context!).primaryColor,
+                          ),
+                          SizedBox(width: 8.w),
+                          Text(
+                            '批改评分',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.bold,
+                              color: GlobalThemData.textPrimaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 16.h),
+                      Text(
+                        '分数',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.bold,
+                          color: GlobalThemData.textPrimaryColor,
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      TextField(
+                        controller: controller.scoreController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          hintText: '输入0-100之间的分数',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 12.h,
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                        ),
+                      ),
+                      SizedBox(height: 16.h),
+                      Text(
+                        '评语',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.bold,
+                          color: GlobalThemData.textPrimaryColor,
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      TextField(
+                        controller: controller.feedbackController,
+                        maxLines: 5,
+                        decoration: InputDecoration(
+                          hintText: '输入评语',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 12.h,
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              // 底部空间，避免内容被底部导航栏遮挡
+              SizedBox(height: 80.h),
             ],
           ),
-          SizedBox(height: 12.h),
-          Text(
-            '学生: ${submission.username ?? '未知学生'}',
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.bold,
-              color: GlobalThemData.textPrimaryColor,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          if (submission.hasFile) ...[
-            Row(
-              children: [
-                Icon(
-                  Icons.attach_file,
-                  size: 16.sp,
-                  color: GlobalThemData.textSecondaryColor,
-                ),
-                SizedBox(width: 4.w),
-                Expanded(
-                  child: Text(
-                    '附件: ${submission.fileName ?? '未知文件'}',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: GlobalThemData.textSecondaryColor,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                TextButton(
-                  onPressed: controller.downloadSubmissionFile,
-                  child: Text(
-                    '下载',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: Theme.of(Get.context!).primaryColor,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSubmissionContent() {
-    final submission = controller.submission.value!;
-    
-    if (submission.content == null || submission.content!.isEmpty) {
-      return Container();
-    }
-    
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '提交内容',
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.bold,
-              color: GlobalThemData.textPrimaryColor,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            submission.content!,
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: GlobalThemData.textPrimaryColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGradingForm() {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '批改评分',
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.bold,
-              color: GlobalThemData.textPrimaryColor,
-            ),
-          ),
-          SizedBox(height: 16.h),
-          TextField(
-            controller: controller.scoreController,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              labelText: '分数 (0-100)',
-              hintText: '请输入分数',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              prefixIcon: const Icon(Icons.score),
-            ),
-          ),
-          SizedBox(height: 16.h),
-          Text(
-            '批改反馈',
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.bold,
-              color: GlobalThemData.textPrimaryColor,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          TextField(
-            controller: controller.feedbackController,
-            maxLines: 5,
-            decoration: InputDecoration(
-              hintText: '请输入批改反馈',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSubmitButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: Obx(() => ElevatedButton(
-        onPressed: controller.isSubmitting.value
-            ? null
-            : controller.submitGrade,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(Get.context!).primaryColor,
-          foregroundColor: Colors.white,
-          padding: EdgeInsets.symmetric(vertical: 16.h),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-          disabledBackgroundColor: Colors.grey.shade300,
         ),
-        child: controller.isSubmitting.value
-            ? SizedBox(
-                width: 20.w,
-                height: 20.w,
-                child: const CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : Text(
-                controller.submission.value!.isGraded ? '更新批改' : '提交批改',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.bold,
+        
+        // AI自动批改状态覆盖层
+        Obx(() {
+          if (controller.isAutoGrading.value && controller.autoGradingStatus.value.isNotEmpty) {
+            return Positioned.fill(
+              child: Container(
+                color: Colors.black.withOpacity(0.7),
+                child: Center(
+                  child: Container(
+                    padding: EdgeInsets.all(24.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          width: 50.w,
+                          height: 50.w,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 3.w,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurple),
+                          ),
+                        ),
+                        SizedBox(height: 24.h),
+                        Text(
+                          'AI自动批改',
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.bold,
+                            color: GlobalThemData.textPrimaryColor,
+                          ),
+                        ),
+                        SizedBox(height: 8.h),
+                        Text(
+                          controller.autoGradingStatus.value,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: GlobalThemData.textSecondaryColor,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-      )),
+            );
+          }
+          return const SizedBox.shrink();
+        }),
+      ],
     );
   }
 } 
