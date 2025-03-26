@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         builder: (_, child) {
           return Obx(() => GetMaterialApp(
             debugShowCheckedModeBanner: false,
-            title: 'Flutter Demo',
+            title: 'Flutter demo',
             theme: GlobalThemData.currentTheme.value,
             initialRoute: isLogined?AppRoutes.HOME:AppPages.INITIAL,
             getPages: AppPages.routes,

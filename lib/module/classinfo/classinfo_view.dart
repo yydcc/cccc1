@@ -163,6 +163,7 @@ class ClassinfoView extends StatelessWidget {
                 centerTitle: true,
               ),
               floatingActionButton: FloatingActionButton(
+                heroTag: "join-class",
                 onPressed: () => controller.showJoinClassDialog(),
                 backgroundColor: Theme.of(context).primaryColor,
                 child: Icon(Icons.add, color: Colors.white),

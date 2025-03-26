@@ -30,6 +30,8 @@ import '../module/teacher_assignment_detail/teacher_assignment_detail_binding.da
 import '../module/teacher_assignment_detail/teacher_assignment_detail_view.dart';
 import '../module/grade_submission/grade_submission_binding.dart';
 import '../module/grade_submission/grade_submission_view.dart';
+import '../module/ai_chat/ai_chat_binding.dart';
+import '../module/ai_chat/ai_chat_view.dart';
 
 part 'app_routes.dart';
 
@@ -122,6 +124,11 @@ class AppPages {
       name: AppRoutes.GRADE_SUBMISSION,
       page: () => const GradeSubmissionView(),
       binding: GradeSubmissionBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.AI_CHAT,
+      page: () => const AIChatView(),
+      binding: AIChatBinding(),
     ),
   ];
 }

@@ -1,6 +1,8 @@
+import 'package:cccc1/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'message_controller.dart';
+
 
 class MessagePage extends GetView<MessageController> {
   const MessagePage({Key? key}) : super(key: key);
@@ -15,6 +17,7 @@ class MessagePage extends GetView<MessageController> {
       body: const Center(
         child: Text('消息内容'),
       ),
+
     );
   }
 } 

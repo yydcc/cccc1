@@ -21,6 +21,7 @@ abstract class AppRoutes {
   static const TEACHER_ASSIGNMENT_DETAIL = '/teacher_assignment_detail';
   static const GRADE_SUBMISSION = '/grade_submission';
   static const EDIT_ASSIGNMENT = '/edit_assignment';
+  static const AI_CHAT = '/ai_chat';
 }
 
 

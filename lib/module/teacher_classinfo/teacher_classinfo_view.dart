@@ -19,6 +19,7 @@ class TeacherClassInfoView extends GetView<TeacherClassInfoController> {
         elevation: 0,
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: "create-class",
         onPressed: controller.showCreateClassDialog,
         backgroundColor: Theme.of(context).primaryColor,
         child: const Icon(Icons.add, color: Colors.white),

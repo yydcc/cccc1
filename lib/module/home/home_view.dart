@@ -21,26 +21,7 @@ class HomePage extends GetView<HomeController> {
         centerTitle: true,
       ),
       body: Center(
-        child: GestureDetector(
-          onTap: () => controller.test(),
-          child: Container(
-            width: 200.w,
-            height: 200.h,
-            decoration: BoxDecoration(
-              color: GlobalThemData.secondaryColor,
-              borderRadius: BorderRadius.circular(10.r),
-            ),
-            child: Center(
-              child: Obx(() => Text(
-                controller.info.value,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16.sp,
-                ),
-              )),
-            ),
-          ),
-        ),
+          child:Text("首页内容")
       ),
     );
   }

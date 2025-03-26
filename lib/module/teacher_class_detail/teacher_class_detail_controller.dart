@@ -96,7 +96,7 @@ class TeacherClassDetailController extends GetxController {
     
     Get.toNamed(
       AppRoutes.CLASS_MEMBERS,
-      arguments: {'classId': classInfo.value!.classId.toString()}
+      arguments: {'classId': classInfo.value!.classId}
     );
   }
   
@@ -105,7 +105,7 @@ class TeacherClassDetailController extends GetxController {
     
     Get.toNamed(
       AppRoutes.CLASS_ANNOUNCEMENTS,
-      arguments: {'classId': classInfo.value!.classId.toString()}
+      arguments: {'classId': classInfo.value!.classId}
     );
   }
   
@@ -115,7 +115,7 @@ class TeacherClassDetailController extends GetxController {
     // 跳转到待批改作业列表
     Get.toNamed(
       AppRoutes.PENDING_GRADING,
-      arguments: {'classId': classInfo.value!.classId.toString()}
+      arguments: {'classId': classInfo.value!.classId}
     );
   }
   
