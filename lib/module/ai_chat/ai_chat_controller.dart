@@ -6,6 +6,7 @@ import 'dart:async';
 import '../../common/utils/http.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Message {
   final bool isUser;
@@ -31,19 +32,23 @@ class AIChatController extends GetxController {
   late dio.Dio dioInstance;
   late dio.CancelToken cancelToken;
   
+  // 存储会话历史的键
+  static const String CHAT_HISTORY_KEY = 'ai_chat_history';
+  
   @override
   void onInit() {
     super.onInit();
+    // 从本地存储加载历史记录
+    _loadChatHistory();
+    
+    // 初始化会话
+    _initSession();
+  }
+  
+  void _initSession() {
     sessionId = _generateSessionId();
     dioInstance = dio.Dio();
     cancelToken = dio.CancelToken();
-    
-    // 添加欢迎消息
-    messages.add(Message(
-      isUser: false,
-      content: '你好！我是AI助手，有什么我可以帮助你的吗？',
-      timestamp: DateTime.now(),
-    ));
     
     // 连接SSE
     connectToSSE();
@@ -55,6 +60,59 @@ class AIChatController extends GetxController {
     scrollController.dispose();
     cancelToken.cancel("控制器销毁");
     super.onClose();
+  }
+  
+  // 加载聊天历史
+  Future<void> _loadChatHistory() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? historyJson = prefs.getString(CHAT_HISTORY_KEY);
+      
+      if (historyJson != null && historyJson.isNotEmpty) {
+        final List<dynamic> history = jsonDecode(historyJson);
+        
+        messages.clear();
+        for (var item in history) {
+          messages.add(Message(
+            isUser: item['isUser'],
+            content: item['content'],
+            timestamp: DateTime.parse(item['timestamp']),
+          ));
+        }
+      }
+      
+      // 如果没有历史消息，添加欢迎消息
+      if (messages.isEmpty) {
+        messages.add(Message(
+          isUser: false,
+          content: '你好！我是AI助手，有什么我可以帮助你的吗？',
+          timestamp: DateTime.now(),
+        ));
+      }
+      
+      // 保存历史记录
+      _saveChatHistory();
+    } catch (e) {
+      print('加载聊天历史失败: $e');
+    }
+  }
+  
+  // 保存聊天历史
+  Future<void> _saveChatHistory() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      final List<Map<String, dynamic>> historyData = messages.map((msg) => {
+        'isUser': msg.isUser,
+        'content': msg.content,
+        'timestamp': msg.timestamp.toIso8601String(),
+      }).toList();
+      
+      final String historyJson = jsonEncode(historyData);
+      await prefs.setString(CHAT_HISTORY_KEY, historyJson);
+    } catch (e) {
+      print('保存聊天历史失败: $e');
+    }
   }
   
   void connectToSSE() async {
@@ -140,6 +198,9 @@ class AIChatController extends GetxController {
           ));
           currentResponse.value = '';
           isLoading.value = false;
+          
+          // 保存聊天历史
+          _saveChatHistory();
         }
       } else if (event == 'error') {
         // 处理错误
@@ -147,38 +208,13 @@ class AIChatController extends GetxController {
         isLoading.value = false;
       }
     }
-    
-    // 增加超时处理
-    _resetLoadingIfNeeded();
-  }
-  
-  // 增加超时处理机制
-  Timer? _loadingTimer;
-  
-  void _resetLoadingIfNeeded() {
-    _loadingTimer?.cancel();
-    _loadingTimer = Timer(const Duration(seconds: 30), () {
-      if (isLoading.value) {
-        print('响应超时，强制结束加载状态');
-        isLoading.value = false;
-        if (currentResponse.isNotEmpty) {
-          messages.add(Message(
-            isUser: false,
-            content: currentResponse.value,
-            timestamp: DateTime.now(),
-          ));
-          currentResponse.value = '';
-        }
-        Get.snackbar('提示', '响应超时，已显示当前接收到的内容');
-      }
-    });
   }
   
   void sendMessage() async {
     final message = textController.text.trim();
     if (message.isEmpty) return;
     
-    // 添加用户消息到列表
+    // 添加用户消息
     messages.add(Message(
       isUser: true,
       content: message,
@@ -191,48 +227,98 @@ class AIChatController extends GetxController {
     // 滚动到底部
     scrollToBottom();
     
-    // 设置加载状态
+    // 保存会话历史
+    await _saveChatHistory();
+    
+    // 显示加载状态
     isLoading.value = true;
     
     try {
-      // 发送消息到服务器
+      // 发送请求到后端的chat/send接口
       await dioInstance.post(
         '${HttpUtil.SERVER_API_URL}/chat/send',
         data: {
           'sessionId': sessionId,
           'message': message,
         },
-        cancelToken: cancelToken,
+        options: dio.Options(
+          headers: {
+            'Authorization': 'Bearer ${await _getToken()}',
+            'Content-Type': 'application/json',
+          },
+        ),
       );
+      
+      // 注意：不需要在这里处理响应，因为响应会通过SSE连接返回
     } catch (e) {
       print('发送消息失败: $e');
-      Get.snackbar('错误', '发送消息失败，请稍后重试');
+      // 添加错误消息
+      messages.add(Message(
+        isUser: false,
+        content: '抱歉，发生了网络错误，请稍后再试。',
+        timestamp: DateTime.now(),
+      ));
       isLoading.value = false;
+      
+      // 保存会话历史
+      await _saveChatHistory();
+      
+      // 滚动到底部
+      scrollToBottom();
     }
   }
   
+  // 清除历史记录并建立新连接
   void clearHistory() async {
     try {
+      // 1. 先向后端发送清除历史请求
       await dioInstance.post(
         '${HttpUtil.SERVER_API_URL}/chat/clear',
         data: {
           'sessionId': sessionId,
         },
-        cancelToken: cancelToken,
+        options: dio.Options(
+          headers: {
+            'Authorization': 'Bearer ${await _getToken()}',
+            'Content-Type': 'application/json',
+          },
+        ),
       );
       
-      // 清空本地消息，只保留欢迎消息
+      // 2. 取消当前的SSE连接
+      cancelToken.cancel("用户清除历史");
+      
+      // 3. 清除本地消息
       messages.clear();
+      currentResponse.value = '';
+      
+      // 4. 清除本地存储
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(CHAT_HISTORY_KEY);
+      
+      // 5. 生成新的会话ID
+      sessionId = _generateSessionId();
+      
+      // 6. 创建新的取消令牌
+      cancelToken = dio.CancelToken();
+      
+      // 7. 添加欢迎消息
       messages.add(Message(
         isUser: false,
         content: '你好！我是AI助手，有什么我可以帮助你的吗？',
         timestamp: DateTime.now(),
       ));
       
-      Get.snackbar('成功', '聊天历史已清空');
+      // 8. 保存新的欢迎消息到本地存储
+      await _saveChatHistory();
+      
+      // 9. 重新连接SSE
+      connectToSSE();
+      
+      Get.snackbar('成功', '聊天历史已清除，已建立新的对话');
     } catch (e) {
-      print('清空历史失败: $e');
-      Get.snackbar('错误', '清空历史失败，请稍后重试');
+      print('清除聊天历史失败: $e');
+      Get.snackbar('错误', '清除聊天历史失败: $e');
     }
   }
   
@@ -252,6 +338,12 @@ class AIChatController extends GetxController {
         );
       }
     });
+  }
+  
+  // 获取token的辅助方法
+  Future<String> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token') ?? '';
   }
   
   // 生成唯一会话ID

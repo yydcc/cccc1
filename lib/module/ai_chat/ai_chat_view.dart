@@ -26,19 +26,7 @@ class AIChatView extends GetView<AIChatController> {
       body: Column(
         children: [
           Expanded(
-            child: Obx(() => ListView.builder(
-              controller: controller.scrollController,
-              padding: EdgeInsets.all(16.w),
-              itemCount: controller.messages.length + (controller.currentResponse.value.isNotEmpty ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index < controller.messages.length) {
-                  return _buildMessageItem(controller.messages[index]);
-                } else {
-                  // 显示正在输入的消息
-                  return _buildTypingMessage(controller.currentResponse.value);
-                }
-              },
-            )),
+            child: Obx(() => _buildChatList()),
           ),
           _buildInputArea(),
         ],
@@ -67,6 +55,23 @@ class AIChatView extends GetView<AIChatController> {
         ],
       ),
     );
+  }
+
+  Widget _buildChatList() {
+    return Obx(() => ListView.builder(
+      controller: controller.scrollController,
+      padding: EdgeInsets.all(16.w),
+      itemCount: controller.messages.length + (controller.isLoading.value && controller.currentResponse.isNotEmpty ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index < controller.messages.length) {
+          final message = controller.messages[index];
+          return _buildMessageItem(message);
+        } else {
+          // 显示正在输入的消息
+          return _buildStreamingMessage(controller.currentResponse.value);
+        }
+      },
+    ));
   }
 
   Widget _buildMessageItem(Message message) {
@@ -159,7 +164,7 @@ class AIChatView extends GetView<AIChatController> {
     );
   }
 
-  Widget _buildTypingMessage(String content) {
+  Widget _buildStreamingMessage(String content) {
     return Padding(
       padding: EdgeInsets.only(bottom: 16.h),
       child: Row(
@@ -169,60 +174,61 @@ class AIChatView extends GetView<AIChatController> {
           _buildAvatar(isUser: false),
           SizedBox(width: 8.w),
           Flexible(
-            child: Container(
-              constraints: BoxConstraints(
-                maxWidth: 0.7.sw,
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 5,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: SelectableText(
-                          content,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 8.w),
-                      SizedBox(
-                        width: 12.w,
-                        height: 12.w,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.w,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Theme.of(Get.context!).primaryColor,
-                          ),
-                        ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(12.w),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 5,
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    _formatTime(DateTime.now()),
-                    style: TextStyle(
-                      fontSize: 10.sp,
-                      color: Colors.black54,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        content,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: GlobalThemData.textPrimaryColor,
+                          height: 1.5,
+                        ),
+                      ),
+                      SizedBox(height: 4.h),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: 10.w,
+                            height: 10.w,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.w,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Theme.of(Get.context!).primaryColor,
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 4.w),
+                          Text(
+                            '正在输入...',
+                            style: TextStyle(
+                              fontSize: 10.sp,
+                              color: GlobalThemData.textTertiaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
