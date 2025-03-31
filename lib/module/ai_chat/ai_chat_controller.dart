@@ -18,6 +18,18 @@ class Message {
     required this.content,
     required this.timestamp,
   });
+
+  Map<String, dynamic> toJson() => {
+    'isUser': isUser,
+    'content': content,
+    'timestamp': timestamp.toIso8601String(),
+  };
+
+  factory Message.fromJson(Map<String, dynamic> json) => Message(
+    isUser: json['isUser'],
+    content: json['content'],
+    timestamp: DateTime.parse(json['timestamp']),
+  );
 }
 
 class AIChatController extends GetxController {
@@ -31,34 +43,58 @@ class AIChatController extends GetxController {
   late String sessionId;
   late dio.Dio dioInstance;
   late dio.CancelToken cancelToken;
+  StreamSubscription? _sseSubscription;
+  bool _isDisposed = false;
   
-  // 存储会话历史的键
+  // 存储会话历史和会话ID的键
   static const String CHAT_HISTORY_KEY = 'ai_chat_history';
+  static const String SESSION_ID_KEY = 'ai_chat_session_id';
   
   @override
   void onInit() {
     super.onInit();
-    // 从本地存储加载历史记录
-    _loadChatHistory();
-    
-    // 初始化会话
-    _initSession();
+    // 初始化
+    _initialize();
   }
   
-  void _initSession() {
-    sessionId = _generateSessionId();
+  Future<void> _initialize() async {
     dioInstance = dio.Dio();
+    
+    // 1. 尝试从本地存储获取会话ID
+    final prefs = await SharedPreferences.getInstance();
+    final savedSessionId = prefs.getString(SESSION_ID_KEY);
+    
+    if (savedSessionId != null && savedSessionId.isNotEmpty) {
+      // 使用保存的会话ID
+      sessionId = savedSessionId;
+      print('使用保存的会话ID: $sessionId');
+    } else {
+      // 生成新的会话ID
+      sessionId = _generateSessionId();
+      // 保存会话ID
+      await prefs.setString(SESSION_ID_KEY, sessionId);
+      print('生成新的会话ID: $sessionId');
+    }
+    
+    // 2. 从本地存储加载历史记录
+    await _loadChatHistory();
+    
+    // 3. 创建新的取消令牌
     cancelToken = dio.CancelToken();
     
-    // 连接SSE
+    // 4. 连接SSE
     connectToSSE();
   }
   
   @override
   void onClose() {
+    _isDisposed = true;
     textController.dispose();
     scrollController.dispose();
-    cancelToken.cancel("控制器销毁");
+    
+    // 断开SSE连接，但不清除会话ID和历史记录
+    _disconnectSSE();
+    
     super.onClose();
   }
   
@@ -73,12 +109,10 @@ class AIChatController extends GetxController {
         
         messages.clear();
         for (var item in history) {
-          messages.add(Message(
-            isUser: item['isUser'],
-            content: item['content'],
-            timestamp: DateTime.parse(item['timestamp']),
-          ));
+          messages.add(Message.fromJson(item));
         }
+        
+        print('从本地存储加载了 ${messages.length} 条消息');
       }
       
       // 如果没有历史消息，添加欢迎消息
@@ -88,12 +122,19 @@ class AIChatController extends GetxController {
           content: '你好！我是AI助手，有什么我可以帮助你的吗？',
           timestamp: DateTime.now(),
         ));
+        
+        // 保存初始欢迎消息
+        await _saveChatHistory();
       }
-      
-      // 保存历史记录
-      _saveChatHistory();
     } catch (e) {
       print('加载聊天历史失败: $e');
+      // 出错时添加默认欢迎消息
+      messages.clear();
+      messages.add(Message(
+        isUser: false,
+        content: '你好！我是AI助手，有什么我可以帮助你的吗？',
+        timestamp: DateTime.now(),
+      ));
     }
   }
   
@@ -102,14 +143,11 @@ class AIChatController extends GetxController {
     try {
       final prefs = await SharedPreferences.getInstance();
       
-      final List<Map<String, dynamic>> historyData = messages.map((msg) => {
-        'isUser': msg.isUser,
-        'content': msg.content,
-        'timestamp': msg.timestamp.toIso8601String(),
-      }).toList();
+      final List<Map<String, dynamic>> historyData = messages.map((msg) => msg.toJson()).toList();
       
       final String historyJson = jsonEncode(historyData);
       await prefs.setString(CHAT_HISTORY_KEY, historyJson);
+      print('保存了 ${messages.length} 条消息到本地存储');
     } catch (e) {
       print('保存聊天历史失败: $e');
     }
@@ -133,8 +171,10 @@ class AIChatController extends GetxController {
       final stream = response.data.stream;
       String buffer = '';
       
-      stream.listen(
+      _sseSubscription = stream.listen(
         (data) {
+          if (_isDisposed) return; // 如果控制器已销毁，不处理数据
+          
           final String chunk = utf8.decode(data);
           buffer += chunk;
           
@@ -148,17 +188,25 @@ class AIChatController extends GetxController {
           }
         },
         onError: (error) {
+          if (_isDisposed) return; // 如果控制器已销毁，不处理错误
+          
           print('SSE流错误: $error');
-          Get.snackbar('连接错误', '与AI助手的连接中断，请刷新页面重试');
-          isLoading.value = false;
+          if (!_isDisposed) {
+            Get.snackbar('连接错误', '与AI助手的连接中断，请刷新页面重试');
+            isLoading.value = false;
+          }
         },
         onDone: () {
+          if (_isDisposed) return; // 如果控制器已销毁，不处理完成事件
+          
           print('SSE连接关闭');
           isLoading.value = false;
         },
-        cancelOnError: true,
+        cancelOnError: false, // 不要在错误时取消订阅
       );
     } catch (e) {
+      if (_isDisposed) return; // 如果控制器已销毁，不处理异常
+      
       print('连接SSE失败: $e');
       Get.snackbar('连接错误', '无法连接到AI助手，请稍后重试');
       isLoading.value = false;
@@ -166,6 +214,8 @@ class AIChatController extends GetxController {
   }
   
   void _processEventChunk(String chunk) {
+    if (_isDisposed) return; // 如果控制器已销毁，不处理事件
+    
     String? event;
     String? data;
     String? id;
@@ -180,32 +230,51 @@ class AIChatController extends GetxController {
       }
     }
     
-    if (data != null) {
-      print('收到SSE事件: $event, 数据: $data, ID: $id');
-      
+    if (event != null && data != null) {
       if (event == 'connected') {
-        print('SSE连接成功');
+        print('SSE连接成功: $data');
       } else if (event == 'message') {
+        // 处理消息
         currentResponse.value += data;
-        scrollToBottom();
-      } else if (event == 'complete' || data == '[DONE]') {
-        // 消息完成，添加到消息列表
-        if (currentResponse.isNotEmpty) {
+      } else if (event == 'complete') {
+        // 处理完成事件
+        if (currentResponse.value.isNotEmpty) {
+          // 添加AI回复到消息列表
           messages.add(Message(
             isUser: false,
             content: currentResponse.value,
             timestamp: DateTime.now(),
           ));
-          currentResponse.value = '';
-          isLoading.value = false;
           
           // 保存聊天历史
           _saveChatHistory();
+          
+          // 清空当前响应
+          currentResponse.value = '';
+          
+          // 滚动到底部
+          scrollToBottom();
         }
-      } else if (event == 'error') {
-        // 处理错误
-        Get.snackbar('错误', '与AI助手通信时出错: $data');
+        
+        // 结束加载状态
         isLoading.value = false;
+      } else if (event == 'error') {
+        // 处理错误，但只在控制器未销毁时显示
+        if (!_isDisposed) {
+          print('AI助手错误: $data');
+          isLoading.value = false;
+        }
+      } else if (event == 'close') {
+        // 服务器要求关闭连接
+        print('服务器要求关闭连接: $data');
+        _disconnectSSE();
+        
+        // 重新连接
+        if (!_isDisposed) {
+          connectToSSE();
+        }
+      } else if (event == 'ping') {
+        // 心跳检测，不需要特殊处理
       }
     }
   }
@@ -232,6 +301,7 @@ class AIChatController extends GetxController {
     
     // 显示加载状态
     isLoading.value = true;
+    currentResponse.value = '';
     
     try {
       // 发送请求到后端的chat/send接口
@@ -251,6 +321,8 @@ class AIChatController extends GetxController {
       
       // 注意：不需要在这里处理响应，因为响应会通过SSE连接返回
     } catch (e) {
+      if (_isDisposed) return; // 如果控制器已销毁，不处理异常
+      
       print('发送消息失败: $e');
       // 添加错误消息
       messages.add(Message(
@@ -286,50 +358,92 @@ class AIChatController extends GetxController {
       );
       
       // 2. 取消当前的SSE连接
-      cancelToken.cancel("用户清除历史");
+      _disconnectSSE();
       
       // 3. 清除本地消息
       messages.clear();
       currentResponse.value = '';
       
-      // 4. 清除本地存储
+      // 4. 清除本地存储的历史记录
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(CHAT_HISTORY_KEY);
       
       // 5. 生成新的会话ID
       sessionId = _generateSessionId();
       
-      // 6. 创建新的取消令牌
+      // 6. 保存新的会话ID
+      await prefs.setString(SESSION_ID_KEY, sessionId);
+      
+      // 7. 创建新的取消令牌
       cancelToken = dio.CancelToken();
       
-      // 7. 添加欢迎消息
+      // 8. 添加欢迎消息
       messages.add(Message(
         isUser: false,
         content: '你好！我是AI助手，有什么我可以帮助你的吗？',
         timestamp: DateTime.now(),
       ));
       
-      // 8. 保存新的欢迎消息到本地存储
+      // 9. 保存新的欢迎消息到本地存储
       await _saveChatHistory();
       
-      // 9. 重新连接SSE
+      // 10. 重新连接SSE
       connectToSSE();
       
       Get.snackbar('成功', '聊天历史已清除，已建立新的对话');
     } catch (e) {
+      if (_isDisposed) return; // 如果控制器已销毁，不处理异常
+      
       print('清除聊天历史失败: $e');
-      Get.snackbar('错误', '清除聊天历史失败: $e');
+      Get.snackbar('错误', '清除聊天历史失败');
+    }
+  }
+  
+  // 断开SSE连接
+  void _disconnectSSE() {
+    try {
+      // 取消流订阅
+      _sseSubscription?.cancel();
+      _sseSubscription = null;
+      
+      // 取消dio请求
+      cancelToken.cancel("用户断开连接");
+      
+      // 通知后端断开连接
+      dioInstance.post(
+        '${HttpUtil.SERVER_API_URL}/chat/disconnect',
+        data: {
+          'sessionId': sessionId,
+        },
+        options: dio.Options(
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        ),
+      ).catchError((e) {
+        print('通知后端断开连接失败: $e');
+      });
+      
+      print('已断开SSE连接');
+    } catch (e) {
+      print('断开SSE连接失败: $e');
     }
   }
   
   void copyMessage(String content) {
     Clipboard.setData(ClipboardData(text: content)).then((_) {
-      Get.snackbar('成功', '文本已复制到剪贴板');
+      if (!_isDisposed) {
+        Get.snackbar('成功', '文本已复制到剪贴板');
+      }
     });
   }
   
   void scrollToBottom() {
+    if (_isDisposed) return; // 如果控制器已销毁，不执行滚动
+    
     Future.delayed(const Duration(milliseconds: 100), () {
+      if (_isDisposed) return; // 再次检查，防止延迟期间控制器被销毁
+      
       if (scrollController.hasClients) {
         scrollController.animateTo(
           scrollController.position.maxScrollExtent,

@@ -58,7 +58,7 @@ class AIChatView extends GetView<AIChatController> {
   }
 
   Widget _buildChatList() {
-    return Obx(() => ListView.builder(
+    return ListView.builder(
       controller: controller.scrollController,
       padding: EdgeInsets.all(16.w),
       itemCount: controller.messages.length + (controller.isLoading.value && controller.currentResponse.isNotEmpty ? 1 : 0),
@@ -71,7 +71,7 @@ class AIChatView extends GetView<AIChatController> {
           return _buildStreamingMessage(controller.currentResponse.value);
         }
       },
-    ));
+    );
   }
 
   Widget _buildMessageItem(Message message) {
