@@ -18,12 +18,12 @@ class AssignmentDetailController extends GetxController {
   final RxBool isLoading = true.obs;
   final RxBool isSubmitting = false.obs;
   final RxString selectedFile = ''.obs;
-  final contentController = TextEditingController();
+  final RxString contentText = ''.obs;
   File? selectedFileObj;
   final int assignmentId;
   final RxString submissionType = 'content'.obs; // 'content' 或 'file'
   final RxString selectedFileName = ''.obs;
-  final RxString content = ''.obs;
+  final RxBool canSubmit = false.obs;
   
   AssignmentDetailController({required this.assignmentId});
 
@@ -31,11 +31,12 @@ class AssignmentDetailController extends GetxController {
   void onInit() {
     super.onInit();
     loadAssignmentDetail();
+    
+
   }
 
   @override
   void onClose() {
-    contentController.dispose();
     super.onClose();
   }
 
@@ -52,8 +53,15 @@ class AssignmentDetailController extends GetxController {
       if (response.code == 200 && response.data != null) {
         assignment.value = Assignment.fromJson(response.data);
         
-        // 加载学生提交
-        await loadStudentSubmission();
+        // 加载提交信息
+        await loadSubmission();
+        
+        // 根据作业状态决定是否显示提交按钮
+        canSubmit.value = _canSubmitAssignment();
+        
+        // 打印调试信息
+        print('作业状态: ${assignment.value?.getStatusText(submission.value)}');
+        print('提交信息: ${submission.value?.isSubmitted}');
       } else {
         Get.snackbar('错误', '获取作业详情失败: ${response.msg}');
       }
@@ -65,7 +73,7 @@ class AssignmentDetailController extends GetxController {
     }
   }
 
-  Future<void> loadStudentSubmission() async {
+  Future<void> loadSubmission() async {
     try {
       final storage = await StorageService.instance;
       final studentId = storage.getUserId() ?? 0;
@@ -138,71 +146,80 @@ class AssignmentDetailController extends GetxController {
   }
 
   Future<void> submitAssignment() async {
-    if (isSubmitting.value) return;
+    // 检查是否可以提交
+    if (!canSubmit.value) {
+      if (assignment.value?.isExpired ?? false) {
+        Get.snackbar('提示', '作业已过期，无法提交');
+      } else if (!(assignment.value?.isStarted ?? true)) {
+        Get.snackbar('提示', '作业尚未开始，无法提交');
+      }
+      return;
+    }
+    
+    // 检查是否有文本或文件
+    final String content = contentText.value.trim();
+    final bool hasFile = selectedFile.value.isNotEmpty;
+    
+    // 如果既没有文本也没有文件，显示错误提示
+    if (content.isEmpty && !hasFile) {
+      Get.snackbar('提示', '请输入文本内容或上传文件');
+      return;
+    }
     
     try {
       isSubmitting.value = true;
       
+      // 获取学生ID
       final storage = await StorageService.instance;
       final studentId = storage.getUserId() ?? 0;
       
-      if (selectedFile.value.isNotEmpty) {
-        // 文件提交
+      dynamic response;
+      
+      if (hasFile) {
+        // 提交文件
+        final formData = dio.FormData();
         final file = File(selectedFile.value);
         final fileName = file.path.split('/').last;
         
-        final formData = dio.FormData.fromMap({
-          'assignmentId': assignmentId,
-          'studentId': studentId,
-          'file': await dio.MultipartFile.fromFile(
+        formData.files.add(MapEntry(
+          'file',
+          await dio.MultipartFile.fromFile(
             file.path,
             filename: fileName,
           ),
-        });
+        ));
         
-        final response = await API.assignments.submitAssignmentFile(
+        formData.fields.add(MapEntry('studentId', studentId.toString()));
+        
+        response = await API.assignments.submitFile(
+          assignmentId, 
+          studentId,
+          formData,
+        );
+      } else {
+        // 提交文本内容
+        response = await API.assignments.submitContent(
           assignmentId,
           studentId,
-          formData
+          content,
         );
-
-        if (response.code == 200) {
-          Get.snackbar('成功', '作业提交成功');
-          // 重新加载作业详情
-          loadAssignmentDetail();
-        }
-        else {
-          Get.snackbar('错误', '提交作业失败: ${response.data['msg']}');
-        }
-
-      } else if (contentController.text.isNotEmpty) {
-        // 内容提交
-        final data = {
-          'assignmentId': assignmentId,
-          'studentId': studentId,
-          'content': contentController.text,
-        };
-        
-        final response = await API.assignments.submitAssignmentContent(
-          assignmentId,
-          data
-        );
-
-        if (response.code == 200) {
-          Get.snackbar('成功', '作业提交成功');
-          // 重新加载作业详情
-          loadAssignmentDetail();
-        }
-        else {
-          Get.snackbar('错误', '提交作业失败: ${response.data['msg']}');
-        }
       }
-      else {
-        Get.snackbar('提示', '请输入内容或上传文件');
+      
+      if (response.code == 200) {
+        Get.snackbar('成功', '作业提交成功');
+        
+        // 重新加载提交信息
+        await loadSubmission();
+        
+        // 清空输入
+        contentText.value = '';
+        selectedFile.value = '';
+      } else {
+        Get.snackbar('错误', '提交失败: ${response.msg}');
       }
     } catch (e) {
       print('提交作业失败: $e');
-      Get.snackbar('错误', '提交作业失败，请稍后重试');
+      Get.snackbar('错误', '提交失败，请稍后重试');
     } finally {
       isSubmitting.value = false;
     }
@@ -258,5 +275,16 @@ class AssignmentDetailController extends GetxController {
       print('下载提交文件失败: $e');
       Get.snackbar('错误', '下载提交文件失败: $e');
     }
+  }
+
+  bool _canSubmitAssignment() {
+    if (assignment.value == null) return false;
+    
+    // 如果作业未开始或已过期，不能提交
+    if (!assignment.value!.isStarted || assignment.value!.isExpired) {
+      return false;
+    }
+    
+    return true;
   }
 } 

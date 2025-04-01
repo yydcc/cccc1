@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cccc1/model/classinfo_model.dart';
+import 'package:cccc1/common/api/api.dart';
 class ClassDetailController extends GetxController {
   final HttpUtil httpUtil = HttpUtil();
   final classInfo = Rx<ClassInfo?>(null);
@@ -26,9 +27,7 @@ class ClassDetailController extends GetxController {
     
     try {
       isLoading.value = true;
-      final response = await httpUtil.get(
-        '/class-info/detail/${classInfo.value!.classId}'
-      );
+      final response = await API.classes.getClassDetail(classInfo.value!.classId);
       
       if (response.code == 200 && response.data != null) {
         final data = response.data;

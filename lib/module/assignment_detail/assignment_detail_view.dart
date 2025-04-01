@@ -46,11 +46,26 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
     final assignment = controller.assignment.value!;
     final submission = controller.submission.value;
     
-    // 使用controller的方法获取状态
-    final String status = submission != null 
-      ? (submission.isGraded ? 'graded' : 'submitted') 
-      : assignment.statusText;
-    final gradientColors = _getStatusGradient(status);
+    // 使用assignment的getStatusText方法获取状态
+    final String statusText = assignment.getStatusText(submission);
+    final Color statusColor = assignment.getStatusColor(submission);
+    
+    // 根据状态颜色获取渐变色
+    List<Color> gradientColors;
+    if (statusColor == Colors.grey) {
+      gradientColors = [Colors.grey.shade400, Colors.grey.shade600];
+    } else if (statusColor == Colors.blue) {
+      gradientColors = [Colors.blue.shade300, Colors.blue.shade600];
+    } else if (statusColor == Colors.orange) {
+      gradientColors = [Colors.orange.shade300, Colors.orange.shade600];
+    } else if (statusColor == Colors.green) {
+      gradientColors = [Colors.green.shade300, Colors.green.shade600];
+    } else if (statusColor == Colors.red) {
+      gradientColors = [Colors.red.shade300, Colors.red.shade600];
+    } else {
+      gradientColors = [Colors.grey.shade400, Colors.grey.shade600];
+    }
+    
     final primaryColor = Theme.of(Get.context!).primaryColor;
 
     return SingleChildScrollView(
@@ -68,9 +83,9 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
           if (submission != null)
             _buildSubmissionCard(submission, gradientColors),
           SizedBox(height: 16.h),
-          if (assignment.status != 'expired' && assignment.status != 'not_started')
+          if (controller.canSubmit.value)
             _buildSubmitSection(gradientColors, isUpdate: controller.isSubmitted),
-          if (assignment.status == 'expired' && !controller.isSubmitted)
+          if (!controller.canSubmit.value && !controller.isSubmitted)
             _buildExpiredNotice(),
         ],
       ),
@@ -78,23 +93,62 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
   }
 
   Widget _buildHeaderSection(Assignment assignment, Submission? submission, List<Color> gradientColors) {
-    final String status = submission != null 
-      ? (submission.isGraded ? 'graded' : 'submitted') 
-      : assignment.statusText;
+    // 使用assignment的getStatusText方法获取状态
+    final String statusText = assignment.getStatusText(submission);
+    final Color statusColor = assignment.getStatusColor(submission);
+    
+    // 根据状态文本获取对应的图标
+    IconData statusIcon;
+    switch (statusText) {
+      case '未开始':
+        statusIcon = Icons.assignment_outlined;
+        break;
+      case '进行中':
+        statusIcon = Icons.edit_note;
+        break;
+      case '已提交':
+      case '待批改':
+        statusIcon = Icons.assignment_turned_in_outlined;
+        break;
+      case '已批改':
+        statusIcon = Icons.grading;
+        break;
+      case '已过期':
+        statusIcon = Icons.assignment_late;
+        break;
+      default:
+        statusIcon = Icons.assignment_outlined;
+    }
+    
+    // 根据状态颜色获取渐变色
+    List<Color> statusGradient;
+    if (statusColor == Colors.grey) {
+      statusGradient = [Colors.grey.shade400, Colors.grey.shade600];
+    } else if (statusColor == Colors.blue) {
+      statusGradient = [Colors.blue.shade300, Colors.blue.shade600];
+    } else if (statusColor == Colors.orange) {
+      statusGradient = [Colors.orange.shade300, Colors.orange.shade600];
+    } else if (statusColor == Colors.green) {
+      statusGradient = [Colors.green.shade300, Colors.green.shade600];
+    } else if (statusColor == Colors.red) {
+      statusGradient = [Colors.red.shade300, Colors.red.shade600];
+    } else {
+      statusGradient = [Colors.grey.shade400, Colors.grey.shade600];
+    }
     
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: gradientColors,
+          colors: statusGradient,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: gradientColors[0].withOpacity(0.3),
+            color: statusGradient[0].withOpacity(0.3),
             blurRadius: 10,
             offset: Offset(0, 5),
           ),
@@ -110,7 +164,7 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              _getAssignmentIcon(status),
+              statusIcon,
               color: Colors.white,
               size: 28.sp,
             ),
@@ -143,7 +197,7 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
                     borderRadius: BorderRadius.circular(12.r),
                   ),
                   child: Text(
-                    _getStatusText(status),
+                    statusText,
                     style: TextStyle(
                       fontSize: 12.sp,
                       color: Colors.white,
@@ -187,13 +241,13 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
                 color: primaryColor,
               ),  
               SizedBox(width: 8.w),
-              Text(
+          Text(
                 '作业信息',
-                style: TextStyle(
+            style: TextStyle(
                   fontSize: 16.sp,
-                  fontWeight: FontWeight.bold,
-                  color: GlobalThemData.textPrimaryColor,
-                ),
+              fontWeight: FontWeight.bold,
+              color: GlobalThemData.textPrimaryColor,
+            ),
               ),
             ],
           ),
@@ -216,7 +270,7 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
           
           if (assignment.description != null && assignment.description!.isNotEmpty) ...[
             SizedBox(height: 16.h),
-            Text(
+          Text(
               '作业描述:',
               style: TextStyle(
                 fontSize: 14.sp,
@@ -238,12 +292,12 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
               ),
               child: Text(
                 assignment.description ?? '暂无描述',
-                style: TextStyle(
+            style: TextStyle(
                   fontSize: 14.sp,
-                  color: GlobalThemData.textPrimaryColor,
-                  height: 1.5,
-                ),
-              ),
+              color: GlobalThemData.textPrimaryColor,
+              height: 1.5,
+            ),
+          ),
             ),
           ],
           
@@ -344,11 +398,11 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
         SizedBox(width: 8.w),
         Expanded(
           child: Text(
-            content,
-            style: TextStyle(
-              fontSize: 14.sp,
+          content,
+          style: TextStyle(
+            fontSize: 14.sp,
               fontWeight: FontWeight.w500,
-              color: contentColor ?? GlobalThemData.textPrimaryColor,
+            color: contentColor ?? GlobalThemData.textPrimaryColor,
             ),
             textAlign: TextAlign.right,
           ),
@@ -385,14 +439,14 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
                 color: primaryColor,
               ),
               SizedBox(width: 8.w),
-              Text(
+          Text(
                 isUpdate ? '更新提交' : '提交作业',
-                style: TextStyle(
+            style: TextStyle(
                   fontSize: 16.sp,
-                  fontWeight: FontWeight.bold,
-                  color: GlobalThemData.textPrimaryColor,
-                ),
-              ),
+              fontWeight: FontWeight.bold,
+              color: GlobalThemData.textPrimaryColor,
+            ),
+          ),
             ],
           ),
           SizedBox(height: 16.h),
@@ -404,8 +458,8 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
               borderRadius: BorderRadius.circular(8.r),
             ),
             child: Obx(() => Row(
-              children: [
-                Expanded(
+            children: [
+              Expanded(
                   child: InkWell(
                     onTap: () => controller.setSubmissionType('content'),
                     child: Container(
@@ -419,8 +473,8 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
                       child: Center(
                         child: Text(
                           '文本提交',
-                          style: TextStyle(
-                            fontSize: 14.sp,
+                  style: TextStyle(
+                    fontSize: 14.sp,
                             fontWeight: FontWeight.w500,
                             color: controller.submissionType.value == 'content'
                                 ? Colors.white
@@ -500,31 +554,35 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
   }
 
   Widget _buildContentSubmissionForm(Color primaryColor) {
-    return TextField(
-      maxLines: 5,
-      decoration: InputDecoration(
-        hintText: '请输入作业内容...',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.r),
-          borderSide: BorderSide(
-            color: primaryColor.withOpacity(0.3),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '作业内容',
+          style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.bold,
+            color: GlobalThemData.textPrimaryColor,
           ),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.r),
-          borderSide: BorderSide(
-            color: primaryColor,
-            width: 2,
+        SizedBox(height: 8.h),
+        TextField(
+          onChanged: (value) => controller.contentText.value = value,
+          maxLines: 8,
+          decoration: InputDecoration(
+            hintText: '请输入作业内容...',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+          ),
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: GlobalThemData.textPrimaryColor,
           ),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.r),
-          borderSide: BorderSide(
-            color: primaryColor.withOpacity(0.3),
-          ),
-        ),
-      ),
-      onChanged: (value) => controller.content.value = value,
+      ],
     );
   }
 
@@ -921,4 +979,4 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
     }
     return '附件';
   }
-} 
+}

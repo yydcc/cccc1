@@ -4,7 +4,7 @@ import '../../model/classinfo_model.dart';
 import '../../routes/app_pages.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
-
+import 'package:cccc1/common/api/api.dart';
 class TeacherClassDetailController extends GetxController {
   final HttpUtil httpUtil = HttpUtil();
   final classInfo = Rx<ClassInfo?>(null);
@@ -30,10 +30,10 @@ class TeacherClassDetailController extends GetxController {
         return;
       }
       
-      final String classId = classInfo.value!.classId.toString();
+      final int classId = classInfo.value!.classId;
       
       // 获取班级详情
-      final response = await httpUtil.get('/class-info/detail/$classId');
+      final response = await API.classes.getClassDetail(classId);
       
       if (response.code == 200 && response.data != null) {
         try {

@@ -45,24 +45,25 @@ class AssignmentApi extends ApiService {
     return await ApiService.request('GET', '/assignments/$assignmentId/submissions');
   }
   
-  // 提交作业文件
-  Future<dynamic> submitAssignmentFile(int assignmentId, int studentId, FormData formData) async {
+  // 提交作业内容
+  Future<dynamic> submitContent(int assignmentId, int studentId, String content) async {
     return await ApiService.request(
       'POST', 
-      '/assignments/$assignmentId/submissions/file',
-      queryParameters: {
+      '/assignments/$assignmentId/submissions/content',
+      data: {
+        'assignmentId': assignmentId,
         'studentId': studentId,
+        'content': content,
       },
-      data: formData
     );
   }
   
-  // 提交作业内容
-  Future<dynamic> submitAssignmentContent(int assignmentId, Map<String, dynamic> data) async {
+  // 提交作业文件
+  Future<dynamic> submitFile(int assignmentId, int studentId, FormData formData) async {
     return await ApiService.request(
       'POST', 
-      '/assignments/$assignmentId/submissions/content', 
-      data: data
+      '/assignments/$assignmentId/submissions/file',
+      data: formData,
     );
   }
   

@@ -114,16 +114,34 @@ class HttpUtil {
     }
 
     try {
+      // 添加validateStatus回调，允许所有状态码
+      requestOptions.validateStatus = (status) => true;
+      
       var response = await dio.post(
         path,
         data: data,
         queryParameters: queryParameters,
         options: requestOptions,
       );
+      
+      // 手动处理状态码
+      if (response.statusCode == 500) {
+        print('服务器错误: ${response.data}');
+        return DioResponse(
+          code: 500,
+          msg: '服务器内部错误，请稍后重试',
+          data: null,
+        );
+      }
+      
       return response.data;
     } catch (e) {
       print('HTTP Error: $e');
-      rethrow;
+      return DioResponse(
+        code: -1,
+        msg: '网络请求失败: ${e.toString()}',
+        data: null,
+      );
     }
   }
 
