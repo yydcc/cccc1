@@ -12,7 +12,10 @@ class TeacherAssignmentController extends GetxController {
   final int classId;
   final RxString filterStatus = 'all'.obs;
   
-  final EasyRefreshController refreshController = EasyRefreshController();
+  EasyRefreshController refreshController = EasyRefreshController(
+    controlFinishRefresh: true,
+    controlFinishLoad: true,
+  );
   
   int currentPage = 1;
   final int pageSize = 10;
@@ -115,20 +118,40 @@ class TeacherAssignmentController extends GetxController {
   }
   
   Future<void> onRefresh() async {
-    currentPage = 1;
-    hasMore = true;
-    await loadAssignments();
-    refreshController.finishRefresh();
-    refreshController.resetFooter();
+    try {
+      currentPage = 1;
+      hasMore = true;
+      await loadAssignments();
+      if (refreshController.controlFinishRefresh) {
+        refreshController.finishRefresh();
+        refreshController.resetFooter();
+      }
+    } catch (e) {
+      print('刷新失败: $e');
+      if (refreshController.controlFinishRefresh) {
+        refreshController.finishRefresh(IndicatorResult.fail);
+      }
+    }
   }
   
   Future<void> onLoadMore() async {
-    if (hasMore) {
-      currentPage++;
-      await loadAssignments();
-      refreshController.finishLoad(hasMore ? IndicatorResult.success : IndicatorResult.noMore);
-    } else {
-      refreshController.finishLoad(IndicatorResult.noMore);
+    try {
+      if (hasMore) {
+        currentPage++;
+        await loadAssignments();
+        if (refreshController.controlFinishLoad) {
+          refreshController.finishLoad(hasMore ? IndicatorResult.success : IndicatorResult.noMore);
+        }
+      } else {
+        if (refreshController.controlFinishLoad) {
+          refreshController.finishLoad(IndicatorResult.noMore);
+        }
+      }
+    } catch (e) {
+      print('加载更多失败: $e');
+      if (refreshController.controlFinishLoad) {
+        refreshController.finishLoad(IndicatorResult.fail);
+      }
     }
   }
   

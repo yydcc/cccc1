@@ -1,6 +1,8 @@
-import 'package:dio/dio.dart';
+import 'package:dio/dio.dart' as dio;
+import 'package:get/get_connect/http/src/multipart/form_data.dart';
 import 'api_service.dart';
-
+import 'dart:io';
+import 'package:cccc1/common/api/api.dart';
 class AssignmentApi extends ApiService {
   // 获取作业列表
   Future<dynamic> getAssignments(int classId, {int page = 1, int size = 10}) async {
@@ -26,8 +28,31 @@ class AssignmentApi extends ApiService {
   }
   
   // 创建作业
-  Future<dynamic> createAssignment(FormData formData) async {
-    return await ApiService.request('POST', '/assignments', data: formData);
+  Future<dynamic> createAssignment(Map<String, dynamic> assignmentData, File? file) async {
+    if (file != null) {
+      // 如果有文件，先上传文件
+      final fileName = file.path.split('/').last;
+      final fileFormData = dio.FormData.fromMap({
+        'file': await dio.MultipartFile.fromFile(file.path, filename: fileName),
+      });
+      
+      final fileResponse = await API.files.uploadFile('assignment', fileFormData);
+      
+      if (fileResponse.code == 200 && fileResponse.data != null) {
+        // 获取文件URL并添加到作业数据中
+        assignmentData['contentUrl'] = fileResponse.data['url'];
+      }
+    }
+    
+    // 使用JSON格式发送作业数据
+    return await ApiService.request(
+      'POST', 
+      '/assignments',
+      data: assignmentData,
+      options: dio.Options(
+        contentType: 'application/json',
+      ),
+    );
   }
   
   // 更新作业
@@ -59,7 +84,7 @@ class AssignmentApi extends ApiService {
   }
   
   // 提交作业文件
-  Future<dynamic> submitFile(int assignmentId, int studentId, FormData formData) async {
+  Future<dynamic> submitFile(int assignmentId, int studentId, dio.FormData formData) async {
     return await ApiService.request(
       'POST', 
       '/assignments/$assignmentId/submissions/file',

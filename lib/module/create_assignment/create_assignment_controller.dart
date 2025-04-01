@@ -6,6 +6,7 @@ import '../../common/utils/http.dart';
 import '../../common/api/api.dart';
 import '../../common/utils/storage.dart';
 import 'package:dio/dio.dart' as dio;
+import 'dart:convert';
 
 class CreateAssignmentController extends GetxController {
   final titleController = TextEditingController();
@@ -119,31 +120,21 @@ class CreateAssignmentController extends GetxController {
   
   Future<void> createAssignment() async {
     if (titleController.text.isEmpty) {
-      Get.snackbar('错误', '请输入作业标题');
-      return;
-    }
-    
-    if (descriptionController.text.isEmpty) {
-      Get.snackbar('错误', '请输入作业描述');
-      return;
-    }
-    
-    if (selectedStartTime.value == null) {
-      Get.snackbar('错误', '请设置开始时间');
+      Get.snackbar('提示', '请输入作业标题');
       return;
     }
     
     if (selectedDeadline.value == null) {
-      Get.snackbar('错误', '请设置截止时间');
+      Get.snackbar('提示', '请选择截止时间');
       return;
     }
     
-    if (selectedStartTime.value!.isBefore(DateTime.now())) {
-      Get.snackbar('错误', '开始时间不能早于当前时间');
+    if (selectedStartTime.value == null) {
+      Get.snackbar('提示', '请选择开始时间');
       return;
     }
     
-    if (selectedDeadline.value!.isBefore(selectedStartTime.value!)) {
+    if (selectedStartTime.value!.isAfter(selectedDeadline.value!)) {
       Get.snackbar('错误', '截止时间不能早于开始时间');
       return;
     }
@@ -154,31 +145,23 @@ class CreateAssignmentController extends GetxController {
       final storage = await StorageService.instance;
       final teacherId = storage.getUserId();
       
-      final formData = dio.FormData.fromMap({
+      // 创建Assignment对象
+      final Map<String, dynamic> assignmentData = {
         'title': titleController.text,
         'description': descriptionController.text,
-        'classId': classId,
+        'classId': int.parse(classId),
         'teacherId': teacherId,
         'deadline': _formatDateTimeForApi(selectedDeadline.value!),
         'createTime': _formatDateTimeForApi(selectedStartTime.value!)
-      });
+      };
       
+      // 准备文件（如果有）
+      File? fileToUpload = null;
       if (selectedFile.value.isNotEmpty) {
-        final file = File(selectedFile.value);
-        final fileName = file.path.split('/').last;
-        
-        formData.files.add(
-          MapEntry(
-            'file',
-            await dio.MultipartFile.fromFile(
-              file.path,
-              filename: fileName,
-            ),
-          ),
-        );
+        fileToUpload = File(selectedFile.value);
       }
       
-      final response = await API.assignments.createAssignment(formData);
+      final response = await API.assignments.createAssignment(assignmentData, fileToUpload);
       
       if (response.code == 200) {
         Get.back(result: true);
