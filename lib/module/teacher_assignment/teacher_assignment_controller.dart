@@ -1,194 +1,147 @@
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import '../../common/utils/http.dart';
+import '../../common/api/api.dart';
 import '../../model/assignment_model.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import '../../routes/app_pages.dart';
 
 class TeacherAssignmentController extends GetxController {
-  final HttpUtil httpUtil = HttpUtil();
   final RxList<Assignment> assignments = <Assignment>[].obs;
-  final RxList<Assignment> filteredAssignments = <Assignment>[].obs;
   final RxBool isLoading = true.obs;
-  final refreshController = EasyRefreshController(
-    controlFinishRefresh: true,
-    controlFinishLoad: true,
-  );
-  
+  final int classId;
   final RxString filterStatus = 'all'.obs;
+  
+  final EasyRefreshController refreshController = EasyRefreshController();
   
   int currentPage = 1;
   final int pageSize = 10;
   bool hasMore = true;
-  final String classId;
-
+  
   TeacherAssignmentController({required this.classId});
-
+  
   @override
-  void onInit() async {
+  void onInit() {
     super.onInit();
-    await loadAssignments();
-    applyFilter();
-  }
-
-  void setFilter(String status) {
-    filterStatus.value = status;
-    applyFilter();
+    loadAssignments();
   }
   
-  void applyFilter() {
-    if (filterStatus.value == 'all') {
-      filteredAssignments.value = assignments;
-    } else {
-      filteredAssignments.value = assignments.where(
-        (assignment) => assignment.status == filterStatus.value
-      ).toList();
-    }
+  @override
+  void onClose() {
+    refreshController.dispose();
+    super.onClose();
   }
-
-  Future<void> onRefresh() async {
-    try {
-      currentPage = 1;
-      hasMore = true;
-      await loadAssignments();
-      applyFilter();
-      refreshController.finishRefresh(IndicatorResult.success);
-      refreshController.resetFooter();
-    } catch (e) {
-      print('刷新失败: $e');
-      refreshController.finishRefresh(IndicatorResult.fail);
-    }
-  }
-
-  Future<void> onLoadMore() async {
-    if (!hasMore) {
-      refreshController.finishLoad(IndicatorResult.noMore);
-      return;
-    }
-    
-    try {
-      currentPage++;
-      await loadAssignments(isLoadMore: true);
-      applyFilter();
-      refreshController.finishLoad(
-        hasMore ? IndicatorResult.success : IndicatorResult.noMore
-      );
-    } catch (e) {
-      print('加载更多失败: $e');
-      currentPage--;
-      refreshController.finishLoad(IndicatorResult.fail);
-    }
-  }
-
-  Future<void> loadAssignments({bool isLoadMore = false}) async {
+  
+  Future<void> loadAssignments() async {
     try {
       isLoading.value = true;
       
-      final response = await httpUtil.get(
-        '/assignment/list',
-        queryParameters: {
-          'classId': classId,
-          'page': currentPage,
-          'size': pageSize
-        }
-      ).catchError((error) {
-        print('网络请求错误: $error');
-        throw error;
-      });
+      final response = await API.assignments.getClassAssignments(classId);
       
-      if (response.code == 200) {
-        final data = response.data;
-        
-        if (data == null) {
-          print('返回数据为空');
-          if (!isLoadMore) {
-            assignments.clear();
-          }
-          hasMore = false;
-          return;
-        }
-        
-        final List<dynamic> records = data['records'] ?? [];
-        final int totalPages = data['pages'] ?? 1;
-        
-        final List<Assignment> newAssignments = [];
-        for (var item in records) {
-          try {
-            newAssignments.add(Assignment.fromJson(item));
-          } catch (e) {
-            print('解析作业数据错误: $e');
-            // 继续处理下一条数据
-          }
-        }
-        
-        if (isLoadMore) {
-          assignments.addAll(newAssignments);
-        } else {
-          assignments.value = newAssignments;
-        }
-        
-        hasMore = currentPage < totalPages;
+      if (response.code == 200 && response.data != null) {
+        final List<dynamic> assignmentsData = response.data;
+        assignments.value = assignmentsData
+            .map((item) => Assignment.fromJson(item))
+            .toList();
       } else {
-        print('API返回错误: ${response.msg}');
-        if (!isLoadMore) {
-          // 如果不是加载更多，则清空列表
-          assignments.clear();
-        }
-        hasMore = false;
+        Get.snackbar('提示', '暂无作业');
       }
     } catch (e) {
       print('加载作业列表失败: $e');
-      if (!isLoadMore) {
-        // 如果不是加载更多，则清空列表
-        assignments.clear();
-      }
-      hasMore = false;
-      // 不在这里显示snackbar，避免多次弹出
+      Get.snackbar('错误', '获取作业列表失败，请检查网络连接');
     } finally {
       isLoading.value = false;
     }
   }
-
+  
+  void goToAssignmentDetail(Assignment assignment) {
+    Get.toNamed(
+      AppRoutes.TEACHER_ASSIGNMENT_DETAIL,
+      arguments: {'assignmentId': assignment.assignmentId}
+    )?.then((value) {
+      if (value == true) {
+        loadAssignments();
+      }
+    });
+  }
+  
+  void createAssignment() {
+    Get.toNamed(
+      AppRoutes.CREATE_ASSIGNMENT,
+      arguments: {'classId': classId}
+    )?.then((value) {
+      if (value == true) {
+        loadAssignments();
+      }
+    });
+  }
+  
+  void refreshAssignments() {
+    loadAssignments();
+  }
+  
   void goToCreateAssignment() {
     Get.toNamed(
       AppRoutes.CREATE_ASSIGNMENT,
       arguments: {'classId': classId}
     )?.then((value) {
       if (value == true) {
-        onRefresh(); // 使用onRefresh而不是直接调用loadAssignments
+        loadAssignments();
       }
     });
   }
-
-  void goToAssignmentManagement(int? assignmentId) {
-    if (assignmentId == null || assignmentId == 0) {
-      Get.snackbar('错误', '无效的作业ID');
-      return;
+  
+  List<Assignment> get filteredAssignments {
+    if (filterStatus.value == 'all') {
+      return assignments;
     }
+    
+    return assignments.where((assignment) {
+      switch (filterStatus.value) {
+        case 'not_started':
+          return assignment.status == 'not_started';
+        case 'in_progress':
+          return assignment.status == 'in_progress';
+        case 'expired':
+          return assignment.status == 'expired';
+        default:
+          return true;
+      }
+    }).toList();
+  }
+  
+  void setFilter(String status) {
+    filterStatus.value = status;
+  }
+  
+  Future<void> onRefresh() async {
+    currentPage = 1;
+    hasMore = true;
+    await loadAssignments();
+    refreshController.finishRefresh();
+    refreshController.resetFooter();
+  }
+  
+  Future<void> onLoadMore() async {
+    if (hasMore) {
+      currentPage++;
+      await loadAssignments();
+      refreshController.finishLoad(hasMore ? IndicatorResult.success : IndicatorResult.noMore);
+    } else {
+      refreshController.finishLoad(IndicatorResult.noMore);
+    }
+  }
+  
+  void goToAssignmentManagement(int? assignmentId) {
+    if (assignmentId == null) return;
     
     Get.toNamed(
       AppRoutes.TEACHER_ASSIGNMENT_DETAIL,
       arguments: {'assignmentId': assignmentId}
     )?.then((value) {
       if (value == true) {
-        onRefresh(); // 使用onRefresh而不是直接调用loadAssignments
+        loadAssignments();
       }
     });
-  }
-
-  void goToPendingGrading() {
-    Get.toNamed(
-      AppRoutes.PENDING_GRADING,
-      arguments: {'classId': classId}
-    )?.then((value) {
-      if (value == true) {
-        onRefresh(); // 使用onRefresh而不是直接调用loadAssignments
-      }
-    });
-  }
-
-  @override
-  void onClose() {
-    refreshController.dispose();
-    super.onClose();
   }
 } 

@@ -2,6 +2,14 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+// 添加作业状态枚举
+enum AssignmentStatus {
+  NOT_STARTED,
+  IN_PROGRESS,
+  COMPLETED,
+  EXPIRED
+}
+
 class Assignment {
   final int? assignmentId;
   final String? title;
@@ -12,6 +20,7 @@ class Assignment {
   int? submittedCount;
   int? totalStudents;
   int? gradedCount;
+  AssignmentStatus? status;
 
   Assignment({
     this.assignmentId,
@@ -23,6 +32,7 @@ class Assignment {
     this.submittedCount,
     this.totalStudents,
     this.gradedCount,
+    this.status,
   });
 
   factory Assignment.fromJson(Map<String, dynamic> json) {
@@ -33,7 +43,24 @@ class Assignment {
       deadline: json['deadline']?.toString(),
       createTime: json['createTime'] ?? '',
       contentUrl: json['contentUrl'] ?? '',
+      status: _parseStatus(json['status']),
     );
+  }
+
+  // 解析状态的辅助方法
+  static AssignmentStatus _parseStatus(String? status) {
+    switch (status) {
+      case 'not_started':
+        return AssignmentStatus.NOT_STARTED;
+      case 'in_progress':
+        return AssignmentStatus.IN_PROGRESS;
+      case 'completed':
+        return AssignmentStatus.COMPLETED;
+      case 'expired':
+        return AssignmentStatus.EXPIRED;
+      default:
+        return AssignmentStatus.NOT_STARTED;
+    }
   }
 
   String get formattedDeadline {
@@ -45,7 +72,7 @@ class Assignment {
   }
 
   // 根据当前时间与开始时间和截止时间判断作业状态
-  String get status {
+  String get statusText {
     final now = DateTime.now();
     
     // 如果有截止时间，检查是否已过期
@@ -79,7 +106,7 @@ class Assignment {
   }
 
   Color get statusColor {
-    switch (status) {
+    switch (statusText) {
       case 'not_started':
         return Colors.grey;
       case 'in_progress':
@@ -91,8 +118,8 @@ class Assignment {
     }
   }
 
-  String get statusText {
-    switch (status) {
+  String get statusDisplay {
+    switch (statusText) {
       case 'not_started':
         return '未开始';
       case 'in_progress':

@@ -10,10 +10,31 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="90c71f39-95ed-4573-8768-4b6e6de27f4d" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/devtools_options.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/devtools_options.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/common/utils/http.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/common/utils/http.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/model/assignment_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/model/assignment_model.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/module/ai_chat/ai_chat_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/ai_chat/ai_chat_controller.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/module/ai_chat/ai_chat_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/ai_chat/ai_chat_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/assignment/assignment_binding.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/assignment/assignment_binding.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/assignment/assignment_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/assignment/assignment_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/assignment/assignment_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/assignment/assignment_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/assignment_detail/assignment_detail_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/assignment_detail/assignment_detail_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/assignment_detail/assignment_detail_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/assignment_detail/assignment_detail_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/classinfo/classinfo_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/classinfo/classinfo_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/create_assignment/create_assignment_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/create_assignment/create_assignment_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/grade_submission/grade_submission_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/grade_submission/grade_submission_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/grade_submission/grade_submission_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/grade_submission/grade_submission_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/profile/profile_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/profile/profile_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/sign_in/sign_in_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/sign_in/sign_in_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/sign_up/sign_up_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/sign_up/sign_up_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/teacher_assignment/teacher_assignment_binding.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_assignment/teacher_assignment_binding.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/teacher_assignment/teacher_assignment_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_assignment/teacher_assignment_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/teacher_assignment/teacher_assignment_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_assignment/teacher_assignment_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/teacher_assignment_detail/teacher_assignment_detail_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_assignment_detail/teacher_assignment_detail_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/teacher_classinfo/teacher_classinfo_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_classinfo/teacher_classinfo_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/teacher_classinfo/teacher_classinfo_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_classinfo/teacher_classinfo_view.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

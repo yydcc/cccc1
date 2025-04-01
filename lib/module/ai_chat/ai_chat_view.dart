@@ -92,8 +92,8 @@ class AIChatView extends GetView<AIChatController> {
                 ),
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
                 decoration: BoxDecoration(
-                  color: message.isUser 
-                      ? Theme.of(Get.context!).primaryColor 
+                  color: message.isUser
+                      ? Theme.of(Get.context!).primaryColor
                       : Colors.white,
                   borderRadius: BorderRadius.circular(16.r),
                   boxShadow: [
@@ -119,8 +119,8 @@ class AIChatView extends GetView<AIChatController> {
                       _formatTime(message.timestamp),
                       style: TextStyle(
                         fontSize: 10.sp,
-                        color: message.isUser 
-                            ? Colors.white.withOpacity(0.7) 
+                        color: message.isUser
+                            ? Colors.white.withOpacity(0.7)
                             : Colors.black54,
                       ),
                     ),
@@ -241,8 +241,8 @@ class AIChatView extends GetView<AIChatController> {
       width: 36.w,
       height: 36.w,
       decoration: BoxDecoration(
-        color: isUser 
-            ? Theme.of(Get.context!).primaryColor.withOpacity(0.2) 
+        color: isUser
+            ? Theme.of(Get.context!).primaryColor.withOpacity(0.2)
             : Colors.grey.withOpacity(0.2),
         shape: BoxShape.circle,
       ),
@@ -250,8 +250,8 @@ class AIChatView extends GetView<AIChatController> {
         child: Icon(
           isUser ? Icons.person : Icons.smart_toy,
           size: 20.w,
-          color: isUser 
-              ? Theme.of(Get.context!).primaryColor 
+          color: isUser
+              ? Theme.of(Get.context!).primaryColor
               : Colors.grey[700],
         ),
       ),
@@ -308,18 +308,18 @@ class AIChatView extends GetView<AIChatController> {
             backgroundColor: Theme.of(Get.context!).primaryColor,
             child: controller.isLoading.value
                 ? SizedBox(
-                    width: 24.w,
-                    height: 24.w,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.w,
-                      valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
+              width: 24.w,
+              height: 24.w,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.w,
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            )
                 : Icon(
-                    Icons.send,
-                    color: Colors.white,
-                    size: 20.sp,
-                  ),
+              Icons.send,
+              color: Colors.white,
+              size: 20.sp,
+            ),
             onPressed: controller.isLoading.value ? null : controller.sendMessage,
           )),
         ],

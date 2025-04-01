@@ -5,6 +5,7 @@ import '../../model/assignment_model.dart';
 import '../../model/submission_model.dart';
 import '../../routes/app_pages.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cccc1/common/api/api.dart';
 
 class TeacherAssignmentDetailController extends GetxController {
   final HttpUtil httpUtil = HttpUtil();
@@ -28,9 +29,7 @@ class TeacherAssignmentDetailController extends GetxController {
     try {
       isLoading.value = true;
       
-      final response = await httpUtil.get(
-        '/assignment/detail/$assignmentId'
-      );
+      final response = await API.assignments.getAssignmentDetail(assignmentId);
       
       if (response.code == 200 && response.data != null) {
         assignment.value = Assignment.fromJson(response.data);
@@ -49,9 +48,7 @@ class TeacherAssignmentDetailController extends GetxController {
     try {
       isSubmissionsLoading.value = true;
       
-      final response = await httpUtil.get(
-        '/assignment/submissions/$assignmentId'
-      );
+      final response = await API.submissions.getAssignmentSubmissions(assignmentId);
       
       if (response.code == 200 && response.data != null) {
         final List<dynamic> submissionData = response.data is List 
@@ -134,9 +131,7 @@ class TeacherAssignmentDetailController extends GetxController {
             onPressed: () async {
               Get.back();
               try {
-                final response = await httpUtil.delete(
-                  '/assignment/delete/$assignmentId'
-                );
+                final response = await API.assignments.deleteAssignment(assignmentId);
                 
                 if (response.code == 200) {
                   Get.back(result: true);

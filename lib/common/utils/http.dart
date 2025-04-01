@@ -29,7 +29,7 @@ class DioResponse<T> {
 
 class HttpUtil {
   static final HttpUtil _instance = HttpUtil.internal();
-  static final SERVER_API_URL = "http://140.143.194.73:8080";  // 替换为你的服务器地址
+  static final SERVER_API_URL = "http://yizhe.natapp1.cc";
   factory HttpUtil() => _instance;
 
   late Dio dio;

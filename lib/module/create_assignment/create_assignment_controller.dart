@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import '../../common/utils/http.dart';
+import '../../common/api/api.dart';
 import '../../common/utils/storage.dart';
 import 'package:dio/dio.dart' as dio;
 
 class CreateAssignmentController extends GetxController {
-  final HttpUtil httpUtil = HttpUtil();
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
   final RxString selectedFile = ''.obs;
@@ -111,11 +111,6 @@ class CreateAssignmentController extends GetxController {
           pickedTime.minute,
         );
         
-        if (combinedDateTime.isBefore(now)) {
-          Get.snackbar('错误', '开始时间不能早于当前时间');
-          return;
-        }
-        
         selectedStartTime.value = combinedDateTime;
         startTimeController.text = _formatDateTime(combinedDateTime);
       }
@@ -183,10 +178,7 @@ class CreateAssignmentController extends GetxController {
         );
       }
       
-      final response = await httpUtil.post(
-        '/assignment/create',
-        data: formData,
-      );
+      final response = await API.assignments.createAssignment(formData);
       
       if (response.code == 200) {
         Get.back(result: true);

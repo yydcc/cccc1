@@ -7,14 +7,14 @@ import '../../model/classinfo_model.dart';
 import 'package:cccc1/common/utils/http.dart';
 import 'package:cccc1/common/widget/code_input_field.dart';
 import 'dart:async';
-
 import '../../routes/app_pages.dart';
-
-
+import 'package:cccc1/common/api/api.dart';
+import 'package:cccc1/model/classinfo_model.dart';
 class ClassinfoController extends GetxController {
   var joinClassCode = ''.obs;
   var isJoining = false.obs; // 标记是否正在加入班级
-  final List<TextEditingController> controllers = List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> controllers = List.generate(
+      6, (_) => TextEditingController());
   final List<FocusNode> focusNodes = List.generate(6, (_) => FocusNode());
 
   Future<void> showJoinClassDialog() async {
@@ -25,86 +25,97 @@ class ClassinfoController extends GetxController {
     isJoining.value = false; // 重置按钮状态
 
     await Get.dialog(
-      Obx(() => Dialog(
-        child: Padding(
-          padding: EdgeInsets.all(20.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '请输入6位加课码',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 20.h),
-              Container(
-                width: 300.w,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(6, (index) {
-                    return Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 4.w),
-                        child: CodeInputField(
-                          controller: controllers[index],
-                          focusNode: focusNodes[index],
-                          index: index,
-                          totalFields: 6,
-                          controllers: controllers,
-                          focusNodes: focusNodes,
-                          autoFocus: index == 0,
-                          onComplete: (value) {
-                            String code = controllers.map((c) => c.text).join();
-                            if (code.length == 6) {
-                              joinClass(); // 发送请求
-                            }
-                          },
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-              ),
-              SizedBox(height: 20.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+      Obx(() =>
+          Dialog(
+            child: Padding(
+              padding: EdgeInsets.all(20.w),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      for (var controller in controllers) {
-                        controller.clear();
-                      }
-                      Get.back();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(Get.context!).primaryColor,
-                      padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 10.h),
+                  Text(
+                    '请输入6位加课码',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
                     ),
-                    child: Text('取消', style: TextStyle(fontSize: 14.sp)),
                   ),
-                  SizedBox(width: 20.w),
-                  ElevatedButton(
-                    onPressed: isJoining.value ? null : joinClass, // 请求进行中时禁用按钮
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(Get.context!).primaryColor,
-                      padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 10.h),
+                  SizedBox(height: 20.h),
+                  Container(
+                    width: 300.w,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(6, (index) {
+                        return Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4.w),
+                            child: CodeInputField(
+                              controller: controllers[index],
+                              focusNode: focusNodes[index],
+                              index: index,
+                              totalFields: 6,
+                              controllers: controllers,
+                              focusNodes: focusNodes,
+                              autoFocus: index == 0,
+                              onComplete: (value) {
+                                String code = controllers
+                                    .map((c) => c.text)
+                                    .join();
+                                if (code.length == 6) {
+                                  joinClass(); // 发送请求
+                                }
+                              },
+                            ),
+                          ),
+                        );
+                      }),
                     ),
-                    child: isJoining.value
-                        ? SizedBox(
-                      width: 20.w,
-                      height: 20.w,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                    )
-                        : Text('确定', style: TextStyle(fontSize: 14.sp)),
+                  ),
+                  SizedBox(height: 20.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          for (var controller in controllers) {
+                            controller.clear();
+                          }
+                          Get.back();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme
+                              .of(Get.context!)
+                              .primaryColor,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 30.w, vertical: 10.h),
+                        ),
+                        child: Text('取消', style: TextStyle(fontSize: 14.sp)),
+                      ),
+                      SizedBox(width: 20.w),
+                      ElevatedButton(
+                        onPressed: isJoining.value ? null : joinClass,
+                        // 请求进行中时禁用按钮
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme
+                              .of(Get.context!)
+                              .primaryColor,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 30.w, vertical: 10.h),
+                        ),
+                        child: isJoining.value
+                            ? SizedBox(
+                          width: 20.w,
+                          height: 20.w,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white),
+                        )
+                            : Text('确定', style: TextStyle(fontSize: 14.sp)),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
-        ),
-      )),
+            ),
+          )),
       barrierDismissible: false,
     );
   }
@@ -122,12 +133,8 @@ class ClassinfoController extends GetxController {
     try {
       final storage = await StorageService.instance;
       final userRole = storage.getRole() ?? 'student';
-      final response = await httpUtil.post('/$userRole/join_class', data: {
-        "username": storage.getUsername(),
-        "courseCode": code
-
-      });
-
+      final response = await API.students.joinClass(
+          storage.getUserId() ?? 0, code);
       if (response.code == 200) {
         Get.back(); // 关闭对话框
         Get.snackbar('成功', '成功加入班级');
@@ -147,7 +154,7 @@ class ClassinfoController extends GetxController {
     controlFinishRefresh: true,
     controlFinishLoad: true,
   );
-  
+
   int currentPage = 1;
   final int pageSize = 10;
   bool hasMore = true;
@@ -193,7 +200,7 @@ class ClassinfoController extends GetxController {
       refreshController.finishLoad(IndicatorResult.noMore);
       return;
     }
-    
+
     try {
       currentPage++;
       await loadClasses(isLoadMore: true).timeout(
@@ -203,7 +210,7 @@ class ClassinfoController extends GetxController {
         },
       );
       refreshController.finishLoad(
-        hasMore ? IndicatorResult.success : IndicatorResult.noMore
+          hasMore ? IndicatorResult.success : IndicatorResult.noMore
       );
     } catch (e) {
       currentPage--; // 加载失败，恢复页码
@@ -216,28 +223,22 @@ class ClassinfoController extends GetxController {
     final storage = await StorageService.instance;
     final username = storage.getUsername() ?? '';
     try {
-      final response = await httpUtil.post(
-        '/student/get_class',
-        data: {
-          'username': username,
-          'page': currentPage,
-          'size': pageSize,
-        },
-      );
-      
+      final response = await API.students.getStudentClasses(
+          storage.getUserId() ?? 0);
       if (response.code == 200) {
         final data = response.data;
         final List<ClassInfo> newClasses = (data['records'] as List? ?? [])
-            .map((item) => ClassInfo(
-                  teacherId: item['teacherId'] ?? 0,
-                  classId: item['classId'] ?? 0,
-                  className: item['className'] ?? '',
-                  teacherNickname: item['teacherNickname'] ?? '',
-                  joinedAt: item['joinedAt'] ?? '',
-                  courseCode: item['courseCode'] ?? '',
-                  createAt: item['createdAt'] ?? '',
-                  studentCount: item['studentCount'] ?? 0,
-                ))
+            .map((item) =>
+            ClassInfo(
+              teacherId: item['teacherId'] ?? 0,
+              classId: item['classId'] ?? 0,
+              className: item['className'] ?? '',
+              teacherNickname: item['teacherNickname'] ?? '',
+              joinedAt: item['joinedAt'] ?? '',
+              courseCode: item['courseCode'] ?? '',
+              createAt: item['createdAt'] ?? '',
+              studentCount: item['studentCount'] ?? 0,
+            ))
             .toList();
 
         if (isLoadMore) {
@@ -245,7 +246,7 @@ class ClassinfoController extends GetxController {
         } else {
           classList.value = newClasses;
         }
-        
+
         // 根据后端返回的总页数判断是否还有更多数据
         final int totalPages = data['pages'] ?? 1;
         hasMore = currentPage < totalPages;
@@ -253,11 +254,9 @@ class ClassinfoController extends GetxController {
     } catch (e) {
       print('Load classes error: $e');
       Get.snackbar('错误', '获取班级列表失败');
-      rethrow;  // 重新抛出异常以便上层处理
+      rethrow; // 重新抛出异常以便上层处理
     }
   }
-
-
 
   void handleClassTap(ClassInfo classInfo) {
     Get.toNamed(

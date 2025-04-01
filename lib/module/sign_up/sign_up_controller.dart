@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../common/utils/http.dart';
 import '../../common/utils/storage.dart';
 import 'dart:async';
+import 'package:cccc1/common/api/api.dart';
 class SignUpController extends GetxController {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
@@ -32,19 +33,29 @@ class SignUpController extends GetxController {
 
     try {
       isLoading.value = true;  // 开始加载
-      final response = await httpUtil.post(
-        '/$selectedRole/register',
-        data: {
-          'username': usernameController.text,
-          'password': passwordController.text,
-        },
-      ).timeout(  // 添加超时处理
-        const Duration(seconds: 3),
-        onTimeout: () {
-          throw TimeoutException('请求超时');
-        },
-      );
-      
+      dynamic response;
+      final  data = {
+        'username': usernameController.text,
+        'password': passwordController.text,
+      };
+      if(selectedRole.value == 'student'){
+        response = await API.students.register(data) .timeout(  // 添加超时处理
+          const Duration(seconds: 3),
+          onTimeout: () {
+            throw TimeoutException('请求超时');
+          },
+        );
+
+      }
+      else {
+        response = await API.teachers.register(data) .timeout(  // 添加超时处理
+          const Duration(seconds: 3),
+          onTimeout: () {
+            throw TimeoutException('请求超时');
+          },
+        );
+      }
+
       if (response.code == 200) {
         final storage = await StorageService.instance;
         await storage.setRole(selectedRole.value);

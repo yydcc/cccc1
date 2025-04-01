@@ -47,7 +47,9 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
     final submission = controller.submission.value;
     
     // 使用controller的方法获取状态
-    final String status = controller.getAssignmentStatus();
+    final String status = submission != null 
+      ? (submission.isGraded ? 'graded' : 'submitted') 
+      : assignment.statusText;
     final gradientColors = _getStatusGradient(status);
     final primaryColor = Theme.of(Get.context!).primaryColor;
 
@@ -78,7 +80,7 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
   Widget _buildHeaderSection(Assignment assignment, Submission? submission, List<Color> gradientColors) {
     final String status = submission != null 
       ? (submission.isGraded ? 'graded' : 'submitted') 
-      : assignment.status;
+      : assignment.statusText;
     
     return Container(
       width: double.infinity,
@@ -183,7 +185,7 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
                 Icons.info_outline,
                 size: 24.sp,
                 color: primaryColor,
-              ),
+              ),  
               SizedBox(width: 8.w),
               Text(
                 '作业信息',
@@ -763,7 +765,7 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(12.r),  
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),

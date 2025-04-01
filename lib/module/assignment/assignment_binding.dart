@@ -5,7 +5,7 @@ class AssignmentBinding implements Bindings {
   @override
   void dependencies() {
     final Map<String, dynamic> args = Get.arguments ?? {};
-    final String classId = args['classId']?.toString() ?? '';
+    final int classId = args['classId']?? 0;
     
     Get.lazyPut<AssignmentController>(
       () => AssignmentController(classId: classId)

@@ -4,24 +4,22 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../common/utils/http.dart';
 import '../../common/utils/storage.dart';
+import '../../common/api/api.dart';
 import '../profile/profile_controller.dart';
 import 'dart:async';
 
 class SignInController extends GetxController {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
-  final HttpUtil httpUtil = HttpUtil();
-  
-  // 添加角色选择状态
   final RxString selectedRole = 'student'.obs;
-  final RxBool isLoading = false.obs;  // 添加加载状态
+  final RxBool isLoading = false.obs;
 
   void setRole(String role) {
     selectedRole.value = role;
   }
 
   Future<void> handleSignIn() async {
-    if (isLoading.value) return;  // 如果正在加载，直接返回
+    if (isLoading.value) return;
     
     if (usernameController.text.isEmpty || passwordController.text.isEmpty) {
       Get.snackbar('提示', '请填写完整信息');
@@ -29,19 +27,20 @@ class SignInController extends GetxController {
     }
 
     try {
-      isLoading.value = true;  // 开始加载
-      final response = await httpUtil.post(
-        '/${selectedRole.value}/login',
-        data: {
-          'username': usernameController.text,
-          'password': passwordController.text,
-        },
-      ).timeout(  // 添加超时处理
-        const Duration(seconds: 3),
-        onTimeout: () {
-          throw TimeoutException('请求超时');
-        },
-      );
+      isLoading.value = true;
+      
+      dynamic response;
+      if (selectedRole.value == 'student') {
+        response = await API.students.login(
+          usernameController.text,
+          passwordController.text,
+        );
+      } else {
+        response = await API.teachers.login(
+          usernameController.text,
+          passwordController.text,
+        );
+      }
       
       if (response.code == 200) {
         final storage = await StorageService.instance;
@@ -68,7 +67,7 @@ class SignInController extends GetxController {
         Get.snackbar('错误', '登录失败，请检查网络连接');
       }
     } finally {
-      isLoading.value = false;  // 结束加载
+      isLoading.value = false;
     }
   }
 

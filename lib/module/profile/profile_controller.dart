@@ -1,3 +1,5 @@
+import 'package:cccc1/common/api/api_service.dart';
+import 'package:cccc1/common/api/student_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart' hide FormData, MultipartFile;
@@ -7,7 +9,7 @@ import '../../routes/app_pages.dart';
 import '../../common/theme/color.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
-
+import '../../common/api/api.dart';
 class ProfileController extends GetxController {
   final HttpUtil httpUtil = HttpUtil();
   final RxString username = ''.obs;
@@ -41,7 +43,13 @@ class ProfileController extends GetxController {
       role.value = userRole == 'student' ? '学生' : '教师';
       avatarUrl.value = storage.getAvatarUrl()??'';
       username.value = storage.getUsername() ?? '';
-      final response = await httpUtil.get('/$userRole/info?username=$username');
+      var response;
+      if(userRole == 'student'){
+        response = await API.students.getStudentInfo(storage.getUserId()??0);
+      }
+      else{
+        response = await API.teachers.getTeacherInfo(storage.getUserId()??0);
+      }
       if (response.code == 200) {
         if (response.data['username'] != null && response.data['username'] != username.value) {
           username.value = response.data['username'];
@@ -115,18 +123,26 @@ class ProfileController extends GetxController {
                         Get.snackbar('错误', '用户名不能为空');
                         return;
                       }
+                      if(username.value == usernameController.text){
+                        Get.snackbar("错误","新用户名不能与原用户名相同");
+                        return;
+                      }
 
                       try {
                         final storage = await StorageService.instance;
                         final userRole = storage.getRole() ?? 'student';
-                        
-                        final response = await httpUtil.post(
-                          '/$userRole/update/username',
-                          data: {
-                            'username': username.value,
-                            'newUsername': usernameController.text,
-                          },
-                        );
+                        dynamic response;
+                        final data = {
+                          "username":username.value,
+                          "newUsername":usernameController.text
+                        };
+                        if(userRole == 'student'){
+                            print(data);
+                              response = await API.students.changeUsername(storage.getUserId()??0,username.value,usernameController.text);
+                        }
+                        else{
+                              response = await API.teachers.changeUsername(storage.getUserId()??0,username.value,usernameController.text);
+                        }
 
                         if (response.code == 200) {
                           username.value = usernameController.text;
@@ -238,16 +254,14 @@ class ProfileController extends GetxController {
                       try {
                         final storage = await StorageService.instance;
                         final userRole = storage.getRole() ?? 'student';
-                        
-                        final response = await httpUtil.post(
-                          '/$userRole/update/password',
-                          data: {
-                            'username': username.value,
-                            'password': oldPasswordController.text,
-                            'newPassword': newPasswordController.text,
-                          },
-                        );
-
+                        final userId = storage.getUserId()??0;
+                        final response;
+                        if(userRole == 'student'){
+                          response = await API.students.changePassword(userId,oldPasswordController.text, newPasswordController.text);
+                        }
+                        else{
+                          response = await API.teachers.changePassword(userId,oldPasswordController.text, newPasswordController.text);
+                        }
                         if (response.code == 200) {
                           Get.back(); // 只在成功时关闭对话框
                           oldPasswordController.clear();
@@ -406,13 +420,14 @@ class ProfileController extends GetxController {
       try {
         final storage = await StorageService.instance;
         final userRole = storage.getRole() ?? 'student';
-        final response = await httpUtil.post('/$userRole/delete',
-        data: {
-          'username': username.value
+        final userId = storage.getUserId()??0;
+        dynamic response;
+        if(userRole == 'student'){
+          response = await API.students.deleteStudent(userId);
         }
-        
-        );
-        
+        else{
+          response = await API.teachers.deleteTeacher(userId);
+        }
         if (response.code == 200) {
           await storage.removeToken();
           Get.offAllNamed(AppRoutes.SIGN_IN);
@@ -501,28 +516,32 @@ class ProfileController extends GetxController {
           image.path,
           filename: fileName,
         ),
-        'username': username.value,
       });
 
       final storage = await StorageService.instance;
       final userRole = storage.getRole() ?? 'student';
+      final userId = storage.getUserId() ?? 0;
 
       // 上传头像
-      final response = await httpUtil.post(
-        '/upload/image',
-        data: formData,
-      );
+      final response = await API.files.uploadFile('image', formData);
 
       if (response.code == 200) {
-         avatarUrl.value =  response.data['path'];
+        avatarUrl.value = response.data['path'];
         storage.setAvaterUrl(avatarUrl.value);
-         final updateResponse = await httpUtil.post(
-          '/$userRole/update',
-          data: {
-            'username': username.value,
-            'avatar': avatarUrl.value,
-          },
-        );
+        
+        // 更新用户信息
+        dynamic updateResponse;
+        if (userRole == 'student') {
+          updateResponse = await API.students.updateStudentInfo(
+            userId,
+            {'avatar': avatarUrl.value}
+          );
+        } else {
+          updateResponse = await API.teachers.updateTeacherInfo(
+            userId,
+            {'avatar': avatarUrl.value}
+          );
+        }
 
         if (updateResponse.code == 200) {
           Get.snackbar('成功', '头像更新成功');

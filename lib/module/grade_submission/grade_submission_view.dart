@@ -47,7 +47,7 @@ class GradeSubmissionView extends GetView<GradeSubmissionController> {
               Expanded(
                 flex: 1,
                 child: ElevatedButton.icon(
-                  onPressed: controller.isAutoGrading.value ? null : controller.autoGradeSubmission,
+                  onPressed: controller.isAutoGrading.value ? null : controller.autoGrade,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepPurple,
                     foregroundColor: Colors.white,
@@ -62,7 +62,7 @@ class GradeSubmissionView extends GetView<GradeSubmissionController> {
                           width: 16.w,
                           height: 16.w,
                           child: const CircularProgressIndicator(
-                            strokeWidth: 2,
+                            strokeWidth: 2, 
                             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
@@ -360,7 +360,7 @@ class GradeSubmissionView extends GetView<GradeSubmissionController> {
                         ),
                         SizedBox(height: 8.h),
                         InkWell(
-                          onTap: controller.downloadSubmissionFile,
+                            onTap: controller.downloadSubmissionFile,
                           borderRadius: BorderRadius.circular(8.r),
                           child: Container(
                             padding: EdgeInsets.symmetric(

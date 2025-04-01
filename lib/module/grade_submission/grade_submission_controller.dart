@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import '../../common/utils/http.dart';
+import '../../common/api/api.dart';
 import '../../model/submission_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
@@ -8,8 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart' as dio;
 
 class GradeSubmissionController extends GetxController {
-  final HttpUtil httpUtil = HttpUtil();
-  final Rx<Submission?> submission = Rx<Submission?>(null);
+  final submission = Rx<Submission?>(null);
   final RxBool isLoading = true.obs;
   final RxBool isSubmitting = false.obs;
   final RxBool isAutoGrading = false.obs;
@@ -39,164 +39,140 @@ class GradeSubmissionController extends GetxController {
     try {
       isLoading.value = true;
       
-      final response = await httpUtil.get(
-        '/submission/$submissionId',
-      );
+      final response = await API.submissions.getSubmissionDetail(submissionId);
       
       if (response.code == 200 && response.data != null) {
         submission.value = Submission.fromJson(response.data);
         
-        // 如果已经批改过，填充表单
-        if (submission.value!.isGraded) {
+        // 预填充评分和反馈
+        if (submission.value != null) {
           scoreController.text = submission.value!.score.toString();
           feedbackController.text = submission.value!.feedback ?? '';
         }
       } else {
-        Get.snackbar('错误', '加载提交详情失败: ${response.msg}');
+        Get.snackbar('错误', '获取提交详情失败: ${response.msg}');
       }
     } catch (e) {
-      print('加载提交详情出错: $e');
-      Get.snackbar('错误', '加载提交详情失败，请稍后重试');
+      print('加载提交详情失败: $e');
+      Get.snackbar('错误', '获取提交详情失败，请检查网络连接');
     } finally {
       isLoading.value = false;
     }
   }
   
-  // 异步自动批改方法
-  void autoGradeSubmission() {
-    if (isAutoGrading.value) return;
-    
-    isAutoGrading.value = true;
-    autoGradingStatus.value = '正在启动AI批改...';
-    
-    // 使用Future.delayed避免UI阻塞
-    Future.delayed(Duration.zero, () async {
-      try {
-        autoGradingStatus.value = '正在分析提交内容...';
-        await Future.delayed(const Duration(milliseconds: 500)); // 添加小延迟以显示状态变化
-        
-        final response = await httpUtil.post(
-          '/assignment/grade/auto',
-          queryParameters: {
-            'submissionId': submissionId,
-          },
-        ).timeout(const Duration(seconds: 30)); // 添加超时处理
-        
-        if (response.code == 200 && response.data != null) {
-          autoGradingStatus.value = '批改完成，正在更新...';
-          await Future.delayed(const Duration(milliseconds: 500));
-          
-          // 更新提交信息
-          submission.value = Submission.fromJson(response.data);
-          
-          // 更新表单
-          scoreController.text = submission.value!.score.toString();
-          feedbackController.text = submission.value!.feedback ?? '';
-          
-          Get.snackbar('成功', 'AI自动批改完成');
-        } else {
-          Get.snackbar('错误', 'AI自动批改失败: ${response.msg}');
-        }
-      } catch (e) {
-        print('AI自动批改出错: $e');
-        if (e is dio.DioException && e.type == dio.DioExceptionType.connectionTimeout) {
-          Get.snackbar('错误', 'AI自动批改超时，请稍后重试');
-        } else {
-          Get.snackbar('错误', 'AI自动批改失败，请稍后重试');
-        }
-      } finally {
-        isAutoGrading.value = false;
-        autoGradingStatus.value = '';
-      }
-    });
-  }
-  
   Future<void> submitGrade() async {
-    // 验证分数
-    if (scoreController.text.isEmpty) {
-      Get.snackbar('错误', '请输入分数');
-      return;
-    }
-    
-    final double? score = double.tryParse(scoreController.text);
-    if (score == null || score < 0 || score > 100) {
-      Get.snackbar('错误', '分数必须在0-100之间');
-      return;
-    }
+    if (isSubmitting.value) return;
     
     try {
       isSubmitting.value = true;
       
-      final response = await httpUtil.post(
-        '/submission/grade',
-        data: {
-          'submissionId': submissionId,
-          'score': score,
-          'feedback': feedbackController.text,
-        },
-      );
+      if (scoreController.text.isEmpty) {
+        Get.snackbar('提示', '请输入分数');
+        return;
+      }
+      
+      final double score = double.tryParse(scoreController.text) ?? 0;
+      
+      if (score < 0 || score > 100) {
+        Get.snackbar('提示', '分数应在0-100之间');
+        return;
+      }
+      
+      final data = {
+        'submissionId': submissionId,
+        'score': score,
+        'feedback': feedbackController.text,
+      };
+      
+      final response = await API.submissions.gradeSubmission(submissionId, data);
       
       if (response.code == 200) {
         Get.back(result: true);
-        Get.snackbar('成功', '批改已提交');
+        Get.snackbar('成功', '评分已提交');
       } else {
-        Get.snackbar('错误', '提交批改失败: ${response.msg}');
+        Get.snackbar('错误', '评分提交失败: ${response.msg}');
       }
     } catch (e) {
-      print('提交批改出错: $e');
-      Get.snackbar('错误', '提交批改失败，请稍后重试');
+      print('提交评分失败: $e');
+      Get.snackbar('错误', '评分提交失败，请稍后重试');
     } finally {
       isSubmitting.value = false;
     }
   }
   
-  Future<void> downloadSubmissionFile() async {
-    if (submission.value == null || !submission.value!.hasFile) {
+  Future<void> autoGrade() async {
+    if (isAutoGrading.value) return;
+    
+    try {
+      isAutoGrading.value = true;
+      
+      final response = await API.submissions.autoGradeSubmission(submissionId);
+      
+      if (response.code == 200 && response.data != null) {
+        submission.value = Submission.fromJson(response.data);
+        
+        // 更新UI
+        scoreController.text = submission.value!.score.toString();
+        feedbackController.text = submission.value!.feedback ?? '';
+        
+        Get.snackbar('成功', '自动批改完成');
+      } else {
+        Get.snackbar('错误', '自动批改失败: ${response.msg}');
+      }
+    } catch (e) {
+      print('自动批改失败: $e');
+      Get.snackbar('错误', '自动批改失败，请稍后重试');
+    } finally {
+      isAutoGrading.value = false;
+    }
+  }
+  
+  Future<void> downloadSubmission() async {
+    if (submission.value == null || 
+        submission.value!.filePath == null || 
+        submission.value!.filePath!.isEmpty) {
       Get.snackbar('提示', '没有可下载的文件');
       return;
     }
     
     try {
-      final String fileUrl = submission.value!.filePath!;
+      final String fullUrl = HttpUtil.SERVER_API_URL + submission.value!.filePath!;
+      print('尝试下载提交文件: $fullUrl');
       
-      if (await canLaunch(fileUrl)) {
-        await launch(fileUrl);
+      final Uri? url = Uri.tryParse(fullUrl);
+      if (url != null && await canLaunchUrl(url)) {
+        await launchUrl(url);
       } else {
-        // 如果无法直接打开URL，尝试下载文件
-        final dio.Dio dioInstance = dio.Dio();
-        final Directory tempDir = await getTemporaryDirectory();
-        final String fileName = submission.value!.fileName ?? 'submission_file';
-        final String savePath = '${tempDir.path}/$fileName';
-        
-        Get.snackbar('提示', '正在下载文件...');
-        
-        await dioInstance.download(
-          fileUrl,
-          savePath,
-          onReceiveProgress: (received, total) {
-            if (total != -1) {
-              final progress = (received / total * 100).toStringAsFixed(0);
-              print('下载进度: $progress%');
-            }
-          },
-        );
-        
-        Get.snackbar('成功', '文件已下载到: $savePath');
-        
-        // 尝试打开文件
-        final File file = File(savePath);
-        if (await file.exists()) {
-          // 根据平台打开文件
-          if (Platform.isAndroid || Platform.isIOS) {
-            await launch('file://$savePath');
-          } else {
-            Get.snackbar('提示', '文件已下载，但无法自动打开');
-          }
-        }
+        Get.snackbar('错误', '无法打开文件链接');
       }
     } catch (e) {
-      print('下载文件出错: $e');
-      Get.snackbar('错误', '下载文件失败，请稍后重试');
+      print('下载提交文件失败: $e');
+      Get.snackbar('错误', '下载提交文件失败: $e');
+    }
+  }
+  
+  // 添加下载提交文件的方法
+  Future<void> downloadSubmissionFile() async {
+    if (submission.value == null || 
+        submission.value!.filePath == null || 
+        submission.value!.filePath!.isEmpty) {
+      Get.snackbar('提示', '没有可下载的文件');
+      return;
+    }
+    
+    try {
+      final String fullUrl = HttpUtil.SERVER_API_URL + submission.value!.filePath!;
+      print('尝试下载提交文件: $fullUrl');
+      
+      final Uri? url = Uri.tryParse(fullUrl);
+      if (url != null && await canLaunchUrl(url)) {
+        await launchUrl(url);
+      } else {
+        Get.snackbar('错误', '无法打开文件链接');
+      }
+    } catch (e) {
+      print('下载提交文件失败: $e');
+      Get.snackbar('错误', '下载提交文件失败: $e');
     }
   }
 } 

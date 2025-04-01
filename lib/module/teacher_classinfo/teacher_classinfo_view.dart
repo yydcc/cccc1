@@ -155,7 +155,7 @@ class TeacherClassInfoView extends GetView<TeacherClassInfoController> {
           SizedBox(height: 30.h),
           ElevatedButton.icon(
             onPressed: controller.showCreateClassDialog,
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add,color: Colors.white),
             label: const Text('创建班级'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(Get.context!).primaryColor,

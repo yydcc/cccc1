@@ -9,7 +9,7 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'dart:async';
 
 import '../../model/classinfo_model.dart';
-
+import 'package:cccc1/common/api/api.dart';
 class TeacherClassInfoController extends GetxController {
   final HttpUtil httpUtil = HttpUtil();
   final RxList<ClassInfo> classList = <ClassInfo>[].obs;
@@ -42,22 +42,13 @@ class TeacherClassInfoController extends GetxController {
       
       final storage = await StorageService.instance;
       final username = storage.getUsername();
-      
+      final userId = storage.getUserId()??0;
       if (username == null || username.isEmpty) {
         hasError.value = true;
         errorMessage.value = '用户名不存在，请重新登录';
         return;
       }
-      
-      final response = await httpUtil.post(
-        '/teacher/get_class',
-        data: {
-          'username': username,
-          'page': currentPage,
-          'size': pageSize,
-        },
-      );
-      
+      final response = await API.teachers.getTeacherClasses(userId);
       if (response.code == 200 && response.data != null) {
         try {
           final data = response.data;
@@ -233,15 +224,13 @@ class TeacherClassInfoController extends GetxController {
 
     try {
       final storage = await StorageService.instance;
-      final response = await httpUtil.post(
-        '/teacher/create_class',
-        data: {
-          "teacherName":storage.getUsername(),
-          'className': classNameController.text,
-          'teacherNickname': teacherNicknameController.text,
-        },
-      );
-
+      final userId = await storage.getUserId()??0;
+      final data = {
+      "teacherName":storage.getUsername(),
+      'className': classNameController.text,
+      'teacherNickname': teacherNicknameController.text,
+      };
+      final response = await API.teachers.createClass(userId, data);
       if (response.code == 200) {
         Get.back();
         classNameController.clear();

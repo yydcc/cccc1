@@ -136,7 +136,7 @@ class AssignmentView extends GetView<AssignmentController> {
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: InkWell(
-        onTap: () => controller.goToAssignmentDetail(assignment.assignmentId),
+        onTap: () => controller.goToAssignmentDetail(assignment),
         borderRadius: BorderRadius.circular(12.r),
         child: Padding(
           padding: EdgeInsets.all(16.w),

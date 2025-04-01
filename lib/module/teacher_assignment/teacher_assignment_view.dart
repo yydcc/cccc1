@@ -6,6 +6,7 @@ import '../../common/theme/color.dart';
 import 'teacher_assignment_controller.dart';
 import '../../model/assignment_model.dart';
 
+
 class TeacherAssignmentView extends GetView<TeacherAssignmentController> {
   const TeacherAssignmentView({Key? key}) : super(key: key);
 
@@ -122,7 +123,7 @@ class TeacherAssignmentView extends GetView<TeacherAssignmentController> {
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: InkWell(
-        onTap: () => controller.goToAssignmentManagement(assignment.assignmentId),
+        onTap: () => controller.goToAssignmentManagement(assignment.assignmentId ?? 0),
         borderRadius: BorderRadius.circular(12.r),
         child: Padding(
           padding: EdgeInsets.all(16.w),

@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import '../../common/utils/http.dart';
+import '../../common/api/api.dart';
 import '../../model/assignment_model.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 
@@ -21,7 +23,7 @@ class AssignmentController extends GetxController {
   int currentPage = 1;
   final int pageSize = 10;
   bool hasMore = true;
-  final String classId;
+  final int classId;
 
   AssignmentController({required this.classId});
 
@@ -96,85 +98,35 @@ class AssignmentController extends GetxController {
     try {
       isLoading.value = true;
       
-      final response = await httpUtil.get(
-        '/assignment/list',
-        queryParameters: {
-          'classId': classId,
-          'page': currentPage,
-          'size': pageSize
-        }
-      ).catchError((error) {
-        print('网络请求错误: $error');
-        throw error;
-      });
+      final response = await API.assignments.getAssignments(classId);
       
-      if (response.code == 200) {
+      if (response.code == 200 && response.data != null) {
         final data = response.data;
+        final List<dynamic> assignmentsData = data is Map ? data['records'] : data;
         
-        if (data == null) {
-          print('返回数据为空');
-          if (!isLoadMore) {
-            assignments.clear();
-          }
-          hasMore = false;
-          return;
-        }
-        
-        final List<dynamic> records = data['records'] ?? [];
-        final int totalPages = data['pages'] ?? 1;
-        
-        final List<Assignment> newAssignments = [];
-        for (var item in records) {
-          try {
-            newAssignments.add(Assignment.fromJson(item));
-          } catch (e) {
-            print('解析作业数据错误: $e');
-            // 继续处理下一条数据
-          }
-        }
-        
-        if (isLoadMore) {
-          assignments.addAll(newAssignments);
-        } else {
-          assignments.value = newAssignments;
-        }
-        
-        hasMore = currentPage < totalPages;
+        assignments.value = assignmentsData
+            .map((item) => Assignment.fromJson(item))
+            .toList();
       } else {
-        print('API返回错误: ${response.msg}');
-        if (!isLoadMore) {
-          // 如果不是加载更多，则清空列表
-          assignments.clear();
-        }
-        hasMore = false;
+        Get.snackbar('提示', '暂无作业');
       }
     } catch (e) {
       print('加载作业列表失败: $e');
-      if (!isLoadMore) {
-        // 如果不是加载更多，则清空列表
-        assignments.clear();
-      }
-      hasMore = false;
-      // 不在这里显示snackbar，避免多次弹出
+      Get.snackbar('错误', '获取作业列表失败，请检查网络连接');
     } finally {
       isLoading.value = false;
     }
   }
 
-  void goToAssignmentDetail(int? assignmentId) {
-    if (assignmentId == null || assignmentId == 0) {
-      Get.snackbar('错误', '无效的作业ID');
-      return;
-    }
-    
+  void goToAssignmentDetail(Assignment assignment) {
     Get.toNamed(
       AppRoutes.ASSIGNMENT_DETAIL,
-      arguments: {'assignmentId': assignmentId}
-    )?.then((value) {
-      if (value == true) {
-        onRefresh(); // 使用onRefresh而不是直接调用loadAssignments
-      }
-    });
+      arguments: {'assignmentId': assignment.assignmentId}
+    );
+  }
+
+  void refreshAssignments() {
+    loadAssignments();
   }
 
   @override
