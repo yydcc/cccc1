@@ -23,9 +23,8 @@ class ClassDetailView extends GetView<ClassDetailController> {
                 _buildTeacherCard(context),
                 _buildClassStats(context),
                 _buildDivider('课程功能'),
-                _buildClassActions(context),
-                _buildDivider('班级活动'),
-                _buildActivityList(context),
+                _buildClassActions(context)
+           
               ],
             ),
           ),
@@ -206,126 +205,122 @@ class ClassDetailView extends GetView<ClassDetailController> {
   Widget _buildClassActions(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildActionItem(
-            context,
-            icon: Icons.assignment,
-            title: '作业',
-            color: Colors.blue,
-            onTap: () => controller.goToHomework(),
+
+          Row(
+            children: [
+              Expanded(
+                child: _buildFunctionCard(
+                  icon: Icons.assignment,
+                  title: '作业',
+                  subtitle: '查看作业',
+                  color: Colors.green,
+                  onTap: () => controller.goToHomework(),
+                ),
+              ),
+              SizedBox(width: 16.w),
+              Expanded(
+                child: _buildFunctionCard(
+                  icon: Icons.quiz,
+                  title: '测验',
+                  subtitle: '参与测验',
+                  color: Colors.orange,
+                  onTap: () => controller.goToQuiz(),
+                ),
+              ),
+            ],
           ),
-          SizedBox(width: 12.w),
-          _buildActionItem(
-            context,
-            icon: Icons.quiz,
-            title: '测试',
-            color: Colors.orange,
-            onTap: () => controller.goToQuiz(),
-          ),
-          SizedBox(width: 12.w),
-          _buildActionItem(
-            context,
-            icon: Icons.forum,
-            title: '讨论',
-            color: Colors.green,
-            onTap: () => controller.goToDiscussion(),
-          ),
-          SizedBox(width: 12.w),
-          _buildActionItem(
-            context,
-            icon: Icons.more_horiz,
-            title: '更多',
-            color: Colors.purple,
-            onTap: () => controller.showMoreOptions(),
+          SizedBox(height: 16.h),
+          Row(
+            children: [
+              Expanded(
+                child: _buildFunctionCard(
+                  icon: Icons.people,
+                  title: '班级成员',
+                  subtitle: '查看成员',
+                  color: Colors.blue,
+                  onTap: () => controller.goToClassMembers(),
+                ),
+              ),
+              SizedBox(width: 16.w),
+              Expanded(
+                child: _buildFunctionCard(
+                  icon: Icons.chat_bubble,
+                  title: 'AI助手',
+                  subtitle: '智能辅导',
+                  color: Colors.purple,
+                  onTap: () => controller.goToAIChat(),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildActionItem(
-    BuildContext context, {
+  Widget _buildFunctionCard({
     required IconData icon,
     required String title,
+    required String subtitle,
     required Color color,
     required VoidCallback onTap,
   }) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12.r),
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 16.h),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12.r),
-          ),
-          child: Column(
-            children: [
-              Icon(icon, color: color, size: 28.sp),
-              SizedBox(height: 8.h),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: color,
-                  fontWeight: FontWeight.w500,
-                ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: EdgeInsets.all(10.w),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                shape: BoxShape.circle,
               ),
-            ],
-          ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 24.sp,
+              ),
+            ),
+            SizedBox(height: 12.h),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.bold,
+                color: GlobalThemData.textPrimaryColor,
+              ),
+            ),
+            SizedBox(height: 4.h),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: GlobalThemData.textSecondaryColor,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildActivityList(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          _buildActivityItem(
-            context,
-            icon: Icons.assignment_turned_in,
-            title: '新作业发布',
-            subtitle: '第三章习题',
-            time: '10分钟前',
-            color: Colors.blue,
-          ),
-          Divider(height: 1),
-          _buildActivityItem(
-            context,
-            icon: Icons.announcement,
-            title: '课程公告',
-            subtitle: '关于下周课程安排的通知',
-            time: '1小时前',
-            color: Colors.orange,
-          ),
-          Divider(height: 1),
-          _buildActivityItem(
-            context,
-            icon: Icons.quiz,
-            title: '测试成绩公布',
-            subtitle: '第二章测试',
-            time: '2小时前',
-            color: Colors.green,
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildActivityItem(
     BuildContext context, {

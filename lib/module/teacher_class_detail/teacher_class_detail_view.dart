@@ -111,6 +111,7 @@ class TeacherClassDetailView extends GetView<TeacherClassDetailController> {
                 _buildFunctionCards(primaryColor),
                 SizedBox(height: 16.h),
                 _buildRecentActivities(primaryColor),
+                SizedBox(height: 16.h),
               ],
             ),
           ),
@@ -175,11 +176,6 @@ class TeacherClassDetailView extends GetView<TeacherClassDetailController> {
           icon: Icon(Icons.refresh),
           onPressed: controller.loadClassDetail,
           tooltip: '刷新',
-        ),
-        IconButton(
-          icon: Icon(Icons.more_vert),
-          onPressed: controller.showMoreOptions,
-          tooltip: '更多',
         ),
       ],
     );
@@ -388,53 +384,59 @@ class TeacherClassDetailView extends GetView<TeacherClassDetailController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '班级管理',
+          '班级功能',
           style: TextStyle(
-            fontSize: 16.sp,
+            fontSize: 18.sp,
             fontWeight: FontWeight.bold,
             color: GlobalThemData.textPrimaryColor,
           ),
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: 16.h),
+        Row(
+          children: [
+            Expanded(
+              child: _buildFunctionCard(
+                icon: Icons.people,
+                title: '班级成员',
+                subtitle: '管理学生',
+                color: Colors.blue,
+                onTap: controller.goToClassMembers,
+              ),
+            ),
+            SizedBox(width: 16.w),
+            Expanded(
+              child: _buildFunctionCard(
+                icon: Icons.quiz,
+                title: '课堂测验',
+                subtitle: '即时测验',
+                color: Colors.orange,
+                onTap: controller.goToCreateQuiz,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 16.h),
         Row(
           children: [
             Expanded(
               child: _buildFunctionCard(
                 icon: Icons.assignment,
                 title: '作业管理',
-                color: Colors.blue,
-                onTap: controller.goToAssignmentList,
-              ),
-            ),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: _buildFunctionCard(
-                icon: Icons.people,
-                title: '学生管理',
+                subtitle: '布置作业',
                 color: Colors.green,
-                onTap: controller.goToClassMembers,
+                onTap: controller.goToAssignments,
               ),
             ),
-          ],
-        ),
-        SizedBox(height: 12.h),
-        Row(
-          children: [
-            Expanded(
-              child: _buildFunctionCard(
-                icon: Icons.announcement,
-                title: '班级公告',
-                color: Colors.orange,
-                onTap: controller.goToAnnouncements,
-              ),
-            ),
-            SizedBox(width: 12.w),
+            SizedBox(width: 16.w),
             Expanded(
               child: _buildFunctionCard(
                 icon: Icons.analytics,
-                title: '数据统计',
+                title: '成绩统计',
+                subtitle: '学习分析',
                 color: Colors.purple,
-                onTap: controller.showMoreOptions,
+                onTap: (){
+
+                },
               ),
             ),
           ],
@@ -446,6 +448,7 @@ class TeacherClassDetailView extends GetView<TeacherClassDetailController> {
   Widget _buildFunctionCard({
     required IconData icon,
     required String title,
+    required String subtitle,
     required Color color,
     required VoidCallback onTap,
   }) {
@@ -465,10 +468,10 @@ class TeacherClassDetailView extends GetView<TeacherClassDetailController> {
           ],
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 50.w,
-              height: 50.w,
+              padding: EdgeInsets.all(10.w),
               decoration: BoxDecoration(
                 color: color.withOpacity(0.1),
                 shape: BoxShape.circle,
@@ -483,9 +486,17 @@ class TeacherClassDetailView extends GetView<TeacherClassDetailController> {
             Text(
               title,
               style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w500,
+                fontSize: 16.sp,
+                fontWeight: FontWeight.bold,
                 color: GlobalThemData.textPrimaryColor,
+              ),
+            ),
+            SizedBox(height: 4.h),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: GlobalThemData.textSecondaryColor,
               ),
             ),
           ],
@@ -675,6 +686,58 @@ class TeacherClassDetailView extends GetView<TeacherClassDetailController> {
           ),
         ),
       ],
+    );
+  }
+  
+
+  
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: 50.w,
+              height: 50.w,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: Colors.black,
+                size: 24.sp,
+              ),
+            ),
+            SizedBox(height: 12.h),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+                color: GlobalThemData.textPrimaryColor,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 } 

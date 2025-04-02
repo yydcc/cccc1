@@ -98,21 +98,25 @@ class AssignmentController extends GetxController {
     try {
       isLoading.value = true;
       
-      final response = await API.assignments.getAssignments(classId);
+      if (classId == 0) {
+        Get.snackbar('错误', '班级ID不能为空');
+        return;
+      }
+      
+      final response = await API.assignments.getClassAssignments(classId);
       
       if (response.code == 200 && response.data != null) {
-        final data = response.data;
-        final List<dynamic> assignmentsData = data is Map ? data['records'] : data;
+        final List<dynamic> assignmentsData = response.data;
         
+        // 过滤掉isInClass为true的作业（课堂测验）
         assignments.value = assignmentsData
             .map((item) => Assignment.fromJson(item))
+            .where((assignment) => assignment.isInClass != true)
             .toList();
-      } else {
-        Get.snackbar('提示', '暂无作业');
       }
     } catch (e) {
-      print('加载作业列表失败: $e');
-      Get.snackbar('错误', '获取作业列表失败，请检查网络连接');
+      print('Load assignments error: $e');
+      Get.snackbar('错误', '获取作业列表失败');
     } finally {
       isLoading.value = false;
     }

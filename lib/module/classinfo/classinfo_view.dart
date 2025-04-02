@@ -77,7 +77,9 @@ class ClassinfoView extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 18.sp,
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(context).primaryColor,
+                              color: Theme
+                                  .of(context)
+                                  .primaryColor,
                             ),
                           ),
                         ),
@@ -87,14 +89,19 @@ class ClassinfoView extends StatelessWidget {
                             vertical: 4.h,
                           ),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor.withOpacity(0.1),
+                            color: Theme
+                                .of(context)
+                                .primaryColor
+                                .withOpacity(0.1),
                             borderRadius: BorderRadius.circular(15.r),
                           ),
                           child: Text(
                             '课程码：${classInfo.courseCode}',
                             style: TextStyle(
                               fontSize: 12.sp,
-                              color: Theme.of(context).primaryColor,
+                              color: Theme
+                                  .of(context)
+                                  .primaryColor,
                             ),
                           ),
                         ),
@@ -156,40 +163,44 @@ class ClassinfoView extends StatelessWidget {
           return TeacherClassInfoView();
         } else {
           return GetBuilder<ClassinfoController>(
-            builder: (controller) => Scaffold(
-              backgroundColor: GlobalThemData.backgroundColor,
-              appBar: AppBar(
-                title: const Text('我的班级'),
-                centerTitle: true,
-              ),
-              floatingActionButton: FloatingActionButton(
-                heroTag: "join-class",
-                onPressed: () => controller.showJoinClassDialog(),
-                backgroundColor: Theme.of(context).primaryColor,
-                child: Icon(Icons.add, color: Colors.white),
-              ),
-              body: EasyRefresh(
-                controller: controller.refreshController,
-                header: const ClassicHeader(
-                  processedDuration: Duration(milliseconds: 0),
-                ),
-                footer: const ClassicFooter(
-                  processedDuration: Duration(milliseconds: 0),
-                ),
-                onRefresh: controller.onRefresh,
-                onLoad: controller.onLoadMore,
-                child: CustomScrollView(
-                  slivers: [
-                    SliverFillRemaining(
-                      child: Obx(() => controller.classList.isEmpty
-                        ? _buildEmptyState()
-                        : _buildClassList(context, controller)
-                      ),
+            builder: (controller) =>
+                Scaffold(
+                  backgroundColor: GlobalThemData.backgroundColor,
+                  appBar: AppBar(
+                    title: const Text('我的班级'),
+                    centerTitle: true,
+                  ),
+                  floatingActionButton: FloatingActionButton(
+                    heroTag: "join-class",
+                    onPressed: () => controller.showJoinClassDialog(),
+                    backgroundColor: Theme
+                        .of(context)
+                        .primaryColor,
+                    child: Icon(Icons.add, color: Colors.white),
+                  ),
+                  body: EasyRefresh(
+                    controller: controller.refreshController,
+                    header: const ClassicHeader(
+                      processedDuration: Duration(milliseconds: 0),
                     ),
-                  ],
+                    footer: const ClassicFooter(
+                      processedDuration: Duration(milliseconds: 0),
+                    ),
+                    onRefresh: controller.onRefresh,
+                    onLoad: controller.onLoadMore,
+                    child: CustomScrollView(
+                      slivers: [
+                        SliverFillRemaining(
+                          child: Obx(() =>
+                          controller.classList.isEmpty
+                              ? _buildEmptyState()
+                              : _buildClassList(context, controller)
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
           );
         }
       },

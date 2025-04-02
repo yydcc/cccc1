@@ -32,6 +32,8 @@ import '../module/grade_submission/grade_submission_binding.dart';
 import '../module/grade_submission/grade_submission_view.dart';
 import '../module/ai_chat/ai_chat_binding.dart';
 import '../module/ai_chat/ai_chat_view.dart';
+import '../module/create_quiz/create_quiz_binding.dart';
+import '../module/create_quiz/create_quiz_view.dart';
 
 part 'app_routes.dart';
 
@@ -129,6 +131,11 @@ class AppPages {
       name: AppRoutes.AI_CHAT,
       page: () => const AIChatView(),
       binding: AIChatBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.CREATE_QUIZ,
+      page: () => CreateQuizView(),
+      binding: CreateQuizBinding(),
     ),
   ];
 }

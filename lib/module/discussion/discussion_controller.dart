@@ -16,15 +16,7 @@ class DiscussionController extends GetxController {
 
   Future<void> loadDiscussions() async {
     try {
-      isLoading.value = true;
-      final response = await httpUtil.get(
-        '/student/discussion/list',
-        queryParameters: {'classId': classId},
-      );
-      
-      if (response.code == 200) {
-        // TODO: 处理讨论列表数据
-      }
+
     } catch (e) {
       print('Load discussions error: $e');
       Get.snackbar('错误', '获取讨论列表失败');

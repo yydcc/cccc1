@@ -140,38 +140,30 @@ class TeacherClassDetailController extends GetxController {
       Get.snackbar('错误', '下载班级资料失败: $e');
     }
   }
+
+
   
-  void showMoreOptions() {
-    Get.bottomSheet(
-      Container(
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(Icons.announcement),
-              title: Text('班级公告'),
-              onTap: () {
-                Get.back();
-                goToAnnouncements();
-              },
-            ),
-            if (contentUrl != null && contentUrl!.isNotEmpty)
-              ListTile(
-                leading: Icon(Icons.download),
-                title: Text('下载班级资料'),
-                onTap: () {
-                  Get.back();
-                  downloadClassMaterial();
-                },
-              ),
-          ],
-        ),
-      ),
-    );
+  void goToCreateQuiz() {
+    Get.toNamed(
+      AppRoutes.CREATE_QUIZ,
+      arguments: {'classId': classInfo.value?.classId}
+    )?.then((value) {
+      if (value == true) {
+        // 刷新数据
+        loadClassDetail();
+      }
+    });
+  }
+  
+  void goToAssignments() {
+    Get.toNamed(
+      AppRoutes.TEACHER_ASSIGNMENT,
+      arguments: {'classId': classInfo.value?.classId}
+    )?.then((value) {
+      if (value == true) {
+        // 刷新数据
+        loadClassDetail();
+      }
+    });
   }
 } 

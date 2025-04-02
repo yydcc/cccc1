@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:ui';
 
 import 'package:cccc1/model/submission_model.dart';
@@ -10,9 +11,11 @@ class Assignment {
   final String? deadline;
   final String? createTime;
   final String? contentUrl; // 附件URL
+  final bool? isInClass; // 是否为课堂测验
   int? submittedCount;
   int? totalStudents;
   int? gradedCount;
+
 
   Assignment({
     this.assignmentId,
@@ -24,6 +27,7 @@ class Assignment {
     this.submittedCount,
     this.totalStudents,
     this.gradedCount,
+    this.isInClass = false,
   });
 
   factory Assignment.fromJson(Map<String, dynamic> json) {
@@ -34,6 +38,7 @@ class Assignment {
       deadline: json['deadline']?.toString(),
       createTime: json['createTime'] ?? '',
       contentUrl: json['contentUrl'] ?? '',
+      isInClass: json['isInClass'] ?? false,
     );
   }
 
@@ -175,6 +180,48 @@ class Assignment {
       } else {
         return Colors.orange;
       }
+    }
+  }
+
+  // 判断作业是否可提交
+  bool get isSubmittable {
+    final now = DateTime.now();
+    
+    // 解析创建时间和截止时间
+    DateTime? createDateTime = parseDateTime(createTime);
+    DateTime? deadlineDateTime = parseDateTime(deadline);
+    
+    // 如果作业还未开始，不可提交
+    if (createDateTime != null && now.isBefore(createDateTime)) {
+      return false;
+    }
+    
+    // 如果已过截止时间，不可提交
+    if (deadlineDateTime != null && now.isAfter(deadlineDateTime)) {
+      return false;
+    }
+    
+    // 作业进行中，可以提交
+    return true;
+  }
+
+  // 辅助方法：解析日期时间字符串
+  DateTime? parseDateTime(String? dateTimeStr) {
+    if (dateTimeStr == null || dateTimeStr.isEmpty) {
+      return null;
+    }
+    
+    try {
+      // 处理可能的格式差异
+      if (dateTimeStr.contains('T')) {
+        return DateTime.parse(dateTimeStr);
+      } else {
+        // 假设格式为 "yyyy-MM-dd HH:mm:ss"
+        return DateTime.parse(dateTimeStr.replaceAll(' ', 'T'));
+      }
+    } catch (e) {
+      print('日期解析错误: $e');
+      return null;
     }
   }
 }

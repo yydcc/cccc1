@@ -264,4 +264,33 @@ class ClassinfoController extends GetxController {
       arguments: {'classInfo': classInfo},
     );
   }
+
+  void goToQuizzes(ClassInfo classInfo) {
+    Get.toNamed(
+      AppRoutes.CLASS_QUIZ,
+      arguments: {'classId': classInfo.classId}
+    );
+  }
+
+  void goToAssignments() {
+    if (classList.isEmpty) return;
+    Get.toNamed(
+      AppRoutes.ASSIGNMENT,
+      arguments: {'classId': classList[0].classId}
+    );
+  }
+
+  void goToClassMembers(ClassInfo classInfo) {
+    Get.toNamed(
+      AppRoutes.CLASS_MEMBERS,
+      arguments: {'classId': classInfo.classId}
+    );
+  }
+
+  void goToAIChat(ClassInfo classInfo) {
+    Get.toNamed(
+      AppRoutes.AI_CHAT,
+      arguments: {'classId': classInfo.classId}
+    );
+  }
 }

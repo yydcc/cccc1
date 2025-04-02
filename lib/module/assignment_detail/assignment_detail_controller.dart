@@ -287,4 +287,28 @@ class AssignmentDetailController extends GetxController {
     
     return true;
   }
+
+  void showSubmitDialog() {
+    if (isSubmitting.value) return;
+    
+    Get.dialog(
+      AlertDialog(
+        title: Text('提交作业'),
+        content: Text('确定要提交此作业吗？'),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text('取消'),
+          ),
+          TextButton(
+            onPressed: () {
+              Get.back();
+              submitAssignment();
+            },
+            child: Text('确定'),
+          ),
+        ],
+      ),
+    );
+  }
 } 

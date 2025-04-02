@@ -39,15 +39,21 @@ class TeacherAssignmentController extends GetxController {
     try {
       isLoading.value = true;
       
+      if (classId == 0) {
+        Get.snackbar('错误', '班级ID不能为空');
+        return;
+      }
+      
       final response = await API.assignments.getClassAssignments(classId);
       
       if (response.code == 200 && response.data != null) {
         final List<dynamic> assignmentsData = response.data;
+        
+        // 过滤掉isInClass为true的作业（课堂测验）
         assignments.value = assignmentsData
             .map((item) => Assignment.fromJson(item))
+            .where((assignment) => assignment.isInClass != true)
             .toList();
-      } else {
-        Get.snackbar('提示', '暂无作业');
       }
     } catch (e) {
       print('加载作业列表失败: $e');

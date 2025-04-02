@@ -104,9 +104,11 @@ class ClassDetailController extends GetxController {
 
   // 班级成员
   void goToClassMembers() {
+    if (classInfo.value == null) return;
+    
     Get.toNamed(
       AppRoutes.CLASS_MEMBERS,
-      arguments: {'classId': classInfo.value?.classId},
+      arguments: {'classId': classInfo.value!.classId}
     );
   }
 
@@ -125,5 +127,14 @@ class ClassDetailController extends GetxController {
     }
     
     Get.snackbar('提示', '开始下载班级资料');
+  }
+
+  void goToAIChat() {
+    if (classInfo.value == null) return;
+    
+    Get.toNamed(
+      AppRoutes.AI_CHAT,
+      arguments: {'classId': classInfo.value!.classId}
+    );
   }
 } 

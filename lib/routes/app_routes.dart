@@ -22,6 +22,7 @@ abstract class AppRoutes {
   static const GRADE_SUBMISSION = '/grade_submission';
   static const EDIT_ASSIGNMENT = '/edit_assignment';
   static const AI_CHAT = '/ai_chat';
+  static const CREATE_QUIZ = '/create_quiz';
 }
 
 

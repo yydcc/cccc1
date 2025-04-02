@@ -12,6 +12,23 @@
     <list default="true" id="90c71f39-95ed-4573-8768-4b6e6de27f4d" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/common/utils/http.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/common/utils/http.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/model/assignment_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/model/assignment_model.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/assignment/assignment_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/assignment/assignment_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/assignment_detail/assignment_detail_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/assignment_detail/assignment_detail_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/assignment_detail/assignment_detail_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/assignment_detail/assignment_detail_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/class_detail/class_detail_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/class_detail/class_detail_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/class_detail/class_detail_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/class_detail/class_detail_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/class_members/class_members_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/class_members/class_members_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/classinfo/classinfo_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/classinfo/classinfo_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/classinfo/classinfo_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/classinfo/classinfo_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/discussion/discussion_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/discussion/discussion_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/quiz/quiz_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/quiz/quiz_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/quiz/quiz_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/quiz/quiz_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/teacher_assignment/teacher_assignment_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_assignment/teacher_assignment_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/teacher_class_detail/teacher_class_detail_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_class_detail/teacher_class_detail_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/teacher_class_detail/teacher_class_detail_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_class_detail/teacher_class_detail_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/routes/app_pages.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/routes/app_pages.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/routes/app_routes.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/routes/app_routes.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,7 +90,7 @@
     &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
     &quot;flutter.view.tool.window.visible&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;开始实现课堂测验(不命题作业)&quot;,
     &quot;io.flutter.reload.alreadyRun&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/Lenovo/OneDrive/Desktop/code/jishe/cccc1&quot;,

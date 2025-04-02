@@ -46,8 +46,7 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
     final assignment = controller.assignment.value!;
     final submission = controller.submission.value;
     
-    // 使用assignment的getStatusText方法获取状态
-    final String statusText = assignment.getStatusText(submission);
+
     final Color statusColor = assignment.getStatusColor(submission);
     
     // 根据状态颜色获取渐变色
@@ -93,9 +92,8 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
   }
 
   Widget _buildHeaderSection(Assignment assignment, Submission? submission, List<Color> gradientColors) {
-    // 使用assignment的getStatusText方法获取状态
+    // 获取状态文本和对应图标
     final String statusText = assignment.getStatusText(submission);
-    final Color statusColor = assignment.getStatusColor(submission);
     
     // 根据状态文本获取对应的图标
     IconData statusIcon;
@@ -120,21 +118,8 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
         statusIcon = Icons.assignment_outlined;
     }
     
-    // 根据状态颜色获取渐变色
-    List<Color> statusGradient;
-    if (statusColor == Colors.grey) {
-      statusGradient = [Colors.grey.shade400, Colors.grey.shade600];
-    } else if (statusColor == Colors.blue) {
-      statusGradient = [Colors.blue.shade300, Colors.blue.shade600];
-    } else if (statusColor == Colors.orange) {
-      statusGradient = [Colors.orange.shade300, Colors.orange.shade600];
-    } else if (statusColor == Colors.green) {
-      statusGradient = [Colors.green.shade300, Colors.green.shade600];
-    } else if (statusColor == Colors.red) {
-      statusGradient = [Colors.red.shade300, Colors.red.shade600];
-    } else {
-      statusGradient = [Colors.grey.shade400, Colors.grey.shade600];
-    }
+    // 直接使用状态对应的渐变色
+    List<Color> statusGradient = _getStatusGradient(statusText);
     
     return Container(
       width: double.infinity,
@@ -191,10 +176,13 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
                 ),
                 SizedBox(height: 4.h),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 8.w,
+                    vertical: 4.h,
+                  ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12.r),
+                    color: Colors.white.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(4.r),
                   ),
                   child: Text(
                     statusText,
@@ -525,27 +513,27 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
             width: double.infinity,
             height: 48.h,
             child: Obx(() => ElevatedButton(
-              onPressed: controller.isSubmitting.value
-                ? null
-                : controller.submitAssignment,
+              onPressed: controller.assignment.value != null && controller.assignment.value!.isSubmittable 
+                  ? () => controller.showSubmitDialog()
+                  : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
+                backgroundColor: Theme.of(Get.context!).primaryColor,
+                disabledBackgroundColor: Colors.grey,
                 foregroundColor: Colors.white,
-                disabledBackgroundColor: primaryColor.withOpacity(0.3),
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.r),
                 ),
               ),
-              child: controller.isSubmitting.value
-                ? SizedBox(
-                    width: 24.w,
-                    height: 24.w,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : Text(isUpdate ? '更新提交' : '提交作业'),
+              child: Text(
+                controller.assignment.value != null && controller.assignment.value!.isSubmittable 
+                    ? '提交作业' 
+                    : (controller.assignment.value?.statusText == '未开始' ? '作业未开始' : '已过截止日期'),
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             )),
           ),
         ],
@@ -931,21 +919,20 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
   }
 
   List<Color> _getStatusGradient(String status) {
-    final primaryColor = Theme.of(Get.context!).primaryColor;
-    
     switch (status) {
-      case 'not_started':
-        return [Colors.grey.shade400, Colors.grey.shade600];
-      case 'in_progress':
-        return [primaryColor.withOpacity(0.7), primaryColor];
-      case 'submitted':
-        return [Colors.orange.shade300, Colors.orange.shade600];
-      case 'graded':
-        return [Colors.green.shade300, Colors.green.shade600];
-      case 'expired':
-        return [Colors.red.shade300, Colors.red.shade600];
+      case '未开始':
+        return [Color(0xFF5C6BC0), Color(0xFF3949AB)]; // 蓝色渐变
+      case '进行中':
+        return [Color(0xFF66BB6A), Color(0xFF388E3C)]; // 绿色渐变
+      case '已截止':
+      case '已过期':
+        return [Color(0xFFEF5350), Color(0xFFD32F2F)]; // 红色渐变
+      case '已提交':
+        return [Color(0xFFFF9800), Color(0xFFE65100)]; // 橙色渐变
+      case '已批改':
+        return [Color(0xFF9575CD), Color(0xFF5E35B1)]; // 紫色渐变
       default:
-        return [Colors.grey.shade400, Colors.grey.shade600];
+        return [Color(0xFF9E9E9E), Color(0xFF616161)]; // 灰色渐变
     }
   }
 
@@ -978,5 +965,41 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
       return pathSegments.last;
     }
     return '附件';
+  }
+
+  Color _getStatusBackgroundColor(String status) {
+    switch (status) {
+      case '未开始':
+        return Color(0xFFECEFFD); // 更柔和的浅蓝色背景
+      case '进行中':
+        return Color(0xFFEDF7ED); // 更柔和的浅绿色背景
+      case '已截止':
+      case '已过期':
+        return Color(0xFFFDEDED); // 更柔和的浅红色背景
+      case '已提交':
+        return Color(0xFFFEF5E7); // 更柔和的浅橙色背景
+      case '已批改':
+        return Color(0xFFF5EEFA); // 更柔和的浅紫色背景
+      default:
+        return Color(0xFFF8F8F8); // 更柔和的浅灰色背景
+    }
+  }
+
+  Color _getStatusTextColor(String status) {
+    switch (status) {
+      case '未开始':
+        return Color(0xFF5C6BC0); // 更柔和的靛蓝色文字
+      case '进行中':
+        return Color(0xFF66BB6A); // 更柔和的绿色文字
+      case '已截止':
+      case '已过期':
+        return Color(0xFFEF5350); // 更柔和的红色文字
+      case '已提交':
+        return Color(0xFFFF9800); // 更柔和的橙色文字
+      case '已批改':
+        return Color(0xFF9575CD); // 更柔和的紫色文字
+      default:
+        return Color(0xFF9E9E9E); // 更柔和的灰色文字
+    }
   }
 }
