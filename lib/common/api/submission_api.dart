@@ -3,8 +3,8 @@ import 'api_service.dart';
 
 class SubmissionApi extends ApiService {
   // 提交作业
-  Future<dynamic> submitAssignment(FormData formData) async {
-    return await ApiService.request('POST', '/submissions', data: formData);
+  Future<dynamic> submitAssignment(dynamic data) async {
+    return await ApiService.request('POST', '/submissions', data: data);
   }
   
   // 获取提交详情
@@ -38,16 +38,7 @@ class SubmissionApi extends ApiService {
   Future<dynamic> autoGradeSubmission(int submissionId) async {
     return await ApiService.request('POST', '/submissions/$submissionId/autograde');
   }
-  
-  // 创建提交
-  Future<dynamic> createSubmission(Map<String, dynamic> data, {FormData? formData}) async {
-    if (formData != null) {
-      return await ApiService.request('POST', '/submissions/create', data: formData);
-    } else {
-      return await ApiService.request('POST', '/submissions/create', data: data);
-    }
-  }
-  
+
   // 更新提交
   Future<dynamic> updateSubmission(int submissionId, Map<String, dynamic> data) async {
     return await ApiService.request('PUT', '/submissions/$submissionId', data: data);
@@ -78,5 +69,10 @@ class SubmissionApi extends ApiService {
       '/submissions',
       queryParameters: queryParams
     );
+  }
+
+  // 提交带附件的作业
+  Future<dynamic> submitAssignmentWithFiles(dynamic formData) async {
+    return await ApiService.request('POST', '/submissions', data: formData);
   }
 } 

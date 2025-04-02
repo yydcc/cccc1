@@ -48,11 +48,11 @@ class QuizController extends GetxController {
   
   void goToQuizDetail(Assignment quiz) {
     Get.toNamed(
-      AppRoutes.ASSIGNMENT_DETAIL,
-      arguments: {'assignmentId': quiz.assignmentId}
+      AppRoutes.QUIZ_DETAIL,
+      arguments: {'quizId': quiz.assignmentId}
     )?.then((value) {
       if (value == true) {
-        loadQuizList();
+        refreshQuizList();
       }
     });
   }

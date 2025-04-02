@@ -34,6 +34,8 @@ import '../module/ai_chat/ai_chat_binding.dart';
 import '../module/ai_chat/ai_chat_view.dart';
 import '../module/create_quiz/create_quiz_binding.dart';
 import '../module/create_quiz/create_quiz_view.dart';
+import '../module/quiz_detail/quiz_detail_binding.dart';
+import '../module/quiz_detail/quiz_detail_view.dart';
 
 part 'app_routes.dart';
 
@@ -136,6 +138,11 @@ class AppPages {
       name: AppRoutes.CREATE_QUIZ,
       page: () => CreateQuizView(),
       binding: CreateQuizBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.QUIZ_DETAIL,
+      page: () => QuizDetailView(),
+      binding: QuizDetailBinding(),
     ),
   ];
 }
