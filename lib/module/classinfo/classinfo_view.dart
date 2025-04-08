@@ -124,7 +124,7 @@ class ClassinfoView extends StatelessWidget {
                         ),
                         SizedBox(width: 4.w),
                         Text(
-                          '学生人数：${classInfo.studentCount}',
+                          '学生：${classInfo.studentCount}',
                           style: TextStyle(
                             fontSize: 14.sp,
                             color: GlobalThemData.textSecondaryColor,
@@ -144,164 +144,25 @@ class ClassinfoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<StorageService>(
-      future: StorageService.instance,
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return Center(child: CircularProgressIndicator());
-        }
-
-        final role = snapshot.data!.getRole();
-        if (role == 'teacher') {
-          return TeacherClassInfoView();
-        } else {
-          return GetBuilder<ClassinfoController>(
-            builder: (controller) => Scaffold(
-              backgroundColor: GlobalThemData.backgroundColor,
-              appBar: AppBar(
-                title: const Text('我的班级'),
-                centerTitle: true,
-              ),
-              floatingActionButton: FloatingActionButton(
-                heroTag: "join-class",
-                onPressed: () => controller.showJoinClassDialog(),
-                backgroundColor: Theme.of(context).primaryColor,
-                child: Icon(Icons.add, color: Colors.white),
-              ),
-              body: EasyRefresh(
-                controller: controller.refreshController,
-                header: const ClassicHeader(
-                  processedDuration: Duration(milliseconds: 0),
-                ),
-                footer: const ClassicFooter(
-                  processedDuration: Duration(milliseconds: 0),
-                ),
-                onRefresh: controller.onRefresh,
-                onLoad: controller.onLoadMore,
-                child: CustomScrollView(
-                  slivers: [
-                    SliverFillRemaining(
-                      child: Obx(() => controller.classList.isEmpty
-                        ? _buildEmptyState()
-                        : _buildClassList(context, controller)
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }
-      },
-    );
-  }
-}
-
-class CodeInputField extends StatelessWidget {
-  final TextEditingController controller;
-  final FocusNode focusNode;
-  final bool autoFocus;
-
-  CodeInputField({
-    required this.controller,
-    required this.focusNode,
-    this.autoFocus = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 40.w,
-      height: 40.h,
-      margin: EdgeInsets.symmetric(horizontal: 5.w),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(5.r),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('班级详情'),
       ),
-      child: TextField(
-        controller: controller,
-        focusNode: focusNode,
-        autofocus: autoFocus,
-        textAlign: TextAlign.center,
-        maxLength: 1,
-        decoration: InputDecoration(
-          counterText: '',
-          border: InputBorder.none,
-        ),
-        onChanged: (value) {
-          if (value.isNotEmpty) {
-            FocusScope.of(context).nextFocus();
-          }
-        },
-        onSubmitted: (value) {
-          if (value.isEmpty) {
-            FocusScope.of(context).previousFocus();
+      body: GetBuilder<ClassinfoController>(
+        init: ClassinfoController(),
+        builder: (controller) {
+          if (controller.classList.isEmpty) {
+            return _buildEmptyState();
+          } else {
+            return _buildClassList(context, controller);
           }
         },
       ),
-    );
-  }
-}
-
-extension ClassinfoControllerExtension on ClassinfoController {
-  void showJoinClassDialog() {
-    Get.dialog(
-      Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.r),
-        ),
-        child: Container(
-          padding: EdgeInsets.all(20.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '加入班级',
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
-                  color: GlobalThemData.textPrimaryColor,
-                ),
-              ),
-              SizedBox(height: 20.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List.generate(6, (index) {
-                  return CodeInputField(
-                    controller: TextEditingController(),
-                    focusNode: FocusNode(),
-                    autoFocus: index == 0,
-                  );
-                }),
-              ),
-              SizedBox(height: 20.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Get.back();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(Get.context!).primaryColor,
-                    ),
-                    child: Text('取消', style: TextStyle(fontSize: 14.sp)),
-                  ),
-                  SizedBox(width: 10.w),
-                  ElevatedButton(
-                    onPressed: () {
-                      // 确认加入班级的逻辑
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(Get.context!).primaryColor,
-                    ),
-                    child: Text('确定', style: TextStyle(fontSize: 14.sp)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // 处理加入班级的逻辑
+        },
+        child: Icon(Icons.add),
       ),
     );
   }

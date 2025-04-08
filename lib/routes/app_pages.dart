@@ -32,6 +32,8 @@ import '../module/grade_submission/grade_submission_binding.dart';
 import '../module/grade_submission/grade_submission_view.dart';
 import '../module/ai_chat/ai_chat_binding.dart';
 import '../module/ai_chat/ai_chat_view.dart';
+import '../pages/student_home_page.dart';
+import '../pages/teacher_home_page.dart';
 
 part 'app_routes.dart';
 
@@ -46,6 +48,8 @@ class AppPages {
       transition: Transition.fadeIn,
       transitionDuration: const Duration(milliseconds: 200),
     ),
+    GetPage(name: AppRoutes.STUDENT_HOME, page: () => StudentHomePage()),
+    GetPage(name: AppRoutes.TEACHER_HOME, page: () => TeacherHomePage()),
     GetPage(
       name: AppRoutes.SIGN_UP,
       page: () => const SignUpPage(),
