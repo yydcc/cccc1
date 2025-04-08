@@ -40,8 +40,8 @@ import '../module/quiz_detail/quiz_detail_binding.dart';
 import '../module/quiz_detail/quiz_detail_view.dart';
 import '../module/teacher_quiz_detail/teacher_quiz_detail_binding.dart';
 import '../module/teacher_quiz_detail/teacher_quiz_detail_view.dart';
-import '../pages/student_home_page.dart';
-import '../pages/teacher_home_page.dart';
+import '../module/schedule/schedule_binding.dart';
+import '../module/schedule/schedule_view.dart';
 
 part 'app_routes.dart';
 
@@ -56,8 +56,6 @@ class AppPages {
       transition: Transition.fadeIn,
       transitionDuration: const Duration(milliseconds: 200),
     ),
-    GetPage(name: AppRoutes.STUDENT_HOME, page: () => StudentHomePage()),
-    GetPage(name: AppRoutes.TEACHER_HOME, page: () => TeacherHomePage()),
     GetPage(
       name: AppRoutes.SIGN_UP,
       page: () => const SignUpPage(),
@@ -160,6 +158,11 @@ class AppPages {
       name: AppRoutes.TEACHER_QUIZ_DETAIL,
       page: () => TeacherQuizDetailView(),
       binding: TeacherQuizDetailBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.SCHEDULE,
+      page: () => ScheduleView(),
+      binding: ScheduleBinding(),
     ),
   ];
 }

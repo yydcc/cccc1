@@ -1,9 +1,11 @@
 import 'package:get/get.dart';
-import 'memo_controller.dart';
+import 'schedule_controller.dart';
 
-class ScheduleBinding implements Bindings {
+class ScheduleBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<MemoController>(() => MemoController());
+    Get.lazyPut<ScheduleController>(
+      () => ScheduleController(),
+    );
   }
 } 

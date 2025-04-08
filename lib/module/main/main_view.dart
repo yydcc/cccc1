@@ -19,7 +19,7 @@ class MainPage extends GetView<MainController> {
         index: controller.currentPage.value,
         children: [
           HomePage(),
-          SchedulePage(),
+          ScheduleView(),
           ClassinfoView(),
           ProfilePage(),
         ],
@@ -28,7 +28,7 @@ class MainPage extends GetView<MainController> {
     );
   }
 
-  Widget _buildBottomNavigationBar(BuildContext context) {
+  Widget _buildBottomNavigationBar(BuildContext  context) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -71,16 +71,16 @@ class MainPage extends GetView<MainController> {
       BuildContext context,
       int index,
       ) {
-    final List<String> labels = ['首页', '课程表', '班级', '我的'];
+    final List<String> labels = ['首页', '备忘录', '班级', '我的'];
     final List<IconData> unselectedIcons = [
       Icons.home_outlined,
-      Icons.calendar_month_outlined,
+      Icons.schedule_outlined,
       Icons.class_outlined,
       Icons.person_outline,
     ];
     final List<IconData> selectedIcons = [
       Icons.home,
-      Icons.calendar_month,
+      Icons.schedule,
       Icons.class_,
       Icons.person,
     ];
