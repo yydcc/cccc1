@@ -8,6 +8,8 @@ class Submission {
   final String? feedback;
   final String? content;
   final String? username;
+  final String? status;
+  final bool? isFinalSubmission;
   Submission({
     this.username,
     this.submissionId,
@@ -18,6 +20,8 @@ class Submission {
     this.score = 0,
     this.feedback,
     this.content,
+    this.status,
+    this.isFinalSubmission,
   });
 
   factory Submission.fromJson(Map<String, dynamic> json) {
@@ -31,6 +35,8 @@ class Submission {
       score: json['score'] ?? 0,
       feedback: json['feedback'],
       content: json['content'],
+      status: json['status'],
+      isFinalSubmission: json['isFinalSubmission'],
     );
   }
 

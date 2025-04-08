@@ -143,9 +143,9 @@ class TeacherClassDetailController extends GetxController {
 
 
   
-  void goToCreateQuiz() {
+  void goToQuizManagement() {
     Get.toNamed(
-      AppRoutes.CREATE_QUIZ,
+      AppRoutes.TEACHER_QUIZ_MANAGEMENT,
       arguments: {'classId': classInfo.value?.classId}
     )?.then((value) {
       if (value == true) {

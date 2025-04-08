@@ -6,10 +6,11 @@ import 'package:flutter/material.dart';
 
 class Assignment {
   final int? assignmentId;
-  final String? title;
-  final String? description;
+  String? title;
+  String? description;
   final String? deadline;
   final String? createTime;
+  final int? classId; // 添加班级ID字段
   final String? contentUrl; // 附件URL
   final bool? isInClass; // 是否为课堂测验
   int? submittedCount;
@@ -23,6 +24,7 @@ class Assignment {
     this.description,
     this.deadline,
     this.createTime,
+    this.classId, // 添加到构造函数
     this.contentUrl,
     this.submittedCount,
     this.totalStudents,
@@ -37,6 +39,7 @@ class Assignment {
       description: json['description']?.toString(),
       deadline: json['deadline']?.toString(),
       createTime: json['createTime'] ?? '',
+      classId: json['classId'], // 从JSON中解析
       contentUrl: json['contentUrl'] ?? '',
       isInClass: json['isInClass'] ?? false,
     );

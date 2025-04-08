@@ -19,7 +19,11 @@ class QuizDetailView extends GetView<QuizDetailController> {
       List<Color> gradientColors = [Color(0xFF9E9E9E), Color(0xFF616161)];
       
       if (!controller.isLoading.value && controller.quiz.value != null) {
-        final statusText = controller.quiz.value!.getStatusText(controller.submission.value);
+        // 使用控制器的方法获取正确的状态文本
+        final statusText = controller.getStatusText(
+          controller.quiz.value!, 
+          controller.submission.value
+        );
         gradientColors = _getStatusGradient(statusText);
         primaryColor = gradientColors[0];
       }
@@ -56,7 +60,8 @@ class QuizDetailView extends GetView<QuizDetailController> {
 
     final quiz = controller.quiz.value!;
     final submission = controller.submission.value;
-    final String statusText = quiz.getStatusText(submission);
+    // 使用控制器的方法获取正确的状态文本
+    final String statusText = controller.getStatusText(quiz, submission);
     
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
@@ -257,8 +262,8 @@ class QuizDetailView extends GetView<QuizDetailController> {
   }
 
   Widget _buildAnswerSection(Color primaryColor, String statusText) {
-    // 只有在进行中状态才允许提交
-    bool canSubmit = statusText == '进行中';
+    // 只有在进行中状态才允许编辑
+    bool canEdit = statusText == '进行中';
     
     return Container(
       width: double.infinity,
@@ -307,7 +312,7 @@ class QuizDetailView extends GetView<QuizDetailController> {
                 ),
               ),
               ElevatedButton.icon(
-                onPressed: canSubmit ? () => controller.addAnswerField() : null,
+                onPressed: canEdit ? () => controller.addAnswerField() : null,
                 icon: Icon(Icons.add, size: 18.sp),
                 label: Text('添加回答'),
                 style: ElevatedButton.styleFrom(
@@ -325,36 +330,67 @@ class QuizDetailView extends GetView<QuizDetailController> {
           Obx(() => Column(
             children: List.generate(
               controller.answerFields.length,
-              (index) => _buildAnswerField(index, primaryColor, canSubmit),
+              (index) => _buildAnswerField(index, primaryColor, canEdit),
             ),
           )),
           SizedBox(height: 24.h),
-          SizedBox(
-            width: double.infinity,
-            height: 48.h,
-            child: Obx(() => ElevatedButton(
-              onPressed: canSubmit && controller.answerFields.isNotEmpty
-                  ? () => controller.submitQuiz()
-                  : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                disabledBackgroundColor: Colors.grey,
-                foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
+          // 添加保存和提交按钮
+          Row(
+            children: [
+              // 保存按钮
+              Expanded(
+                child: Obx(() => ElevatedButton(
+                  onPressed: canEdit && !controller.isSaving.value
+                      ? () => controller.saveQuiz()
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    disabledBackgroundColor: Colors.grey,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                  ),
+                  child: Text(
+                    controller.isSaving.value 
+                        ? '保存中...' 
+                        : '保存',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                )),
               ),
-              child: Text(
-                controller.isSubmitting.value 
-                    ? '提交中...' 
-                    : '提交测验',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.bold,
-                ),
+              SizedBox(width: 12.w),
+              // 提交按钮
+              Expanded(
+                child: Obx(() => ElevatedButton(
+                  onPressed: canEdit && !controller.isSubmitting.value
+                      ? () => controller.submitQuiz()
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    disabledBackgroundColor: Colors.grey,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                  ),
+                  child: Text(
+                    controller.isSubmitting.value 
+                        ? '提交中...' 
+                        : '提交测验',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                )),
               ),
-            )),
+            ],
           ),
         ],
       ),

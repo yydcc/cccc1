@@ -9,6 +9,7 @@ import '../../model/assignment_model.dart';
 import '../../model/submission_model.dart';
 import '../../common/utils/storage.dart';
 import 'package:dio/dio.dart' as dio;
+import 'dart:async';
 
 class QuizDetailController extends GetxController {
   final HttpUtil httpUtil = HttpUtil();
@@ -27,6 +28,10 @@ class QuizDetailController extends GetxController {
   final ImagePicker _imagePicker = ImagePicker();
   
   final int quizId;
+  
+  // 添加新属性
+  final RxBool isSaving = false.obs;
+  final RxBool isSubmitted = false.obs;
   
   QuizDetailController({required this.quizId});
   
@@ -136,6 +141,7 @@ class QuizDetailController extends GetxController {
     answerAttachments[index] = attachments;
   }
   
+  // 加载测验详情时，获取最新答案
   Future<void> loadQuizDetail() async {
     try {
       isLoading.value = true;
@@ -144,7 +150,7 @@ class QuizDetailController extends GetxController {
       
       if (response.code == 200 && response.data != null) {
         quiz.value = Assignment.fromJson(response.data);
-        await loadSubmission();
+        await loadLatestAnswer();
       } else {
         Get.snackbar('错误', '获取测验详情失败: ${response.msg}');
       }
@@ -156,57 +162,168 @@ class QuizDetailController extends GetxController {
     }
   }
   
-  Future<void> loadSubmission() async {
+  // 加载最新答案（包括未提交的保存内容）
+  Future<void> loadLatestAnswer() async {
     try {
       if (quiz.value == null) return;
       
       final storage = await StorageService.instance;
       final userId = storage.getUserId();
       
-      final response = await API.submissions.getStudentSubmission(
+      // 先尝试获取最终答案
+      final finalResponse = await API.quiz.getFinalAnswer(
         quiz.value!.assignmentId!,
         userId!,
       );
       
-      if (response.code == 200 && response.data != null) {
-        submission.value = Submission.fromJson(response.data);
-        
-        // 如果已有提交内容，解析并填充到回答框
-        if (submission.value?.content != null && submission.value!.content!.isNotEmpty) {
-          try {
-            final answers = submission.value!.content!.split('|||');
-            
-            // 清空现有回答框
-            for (var controller in answerControllers) {
-              controller.dispose();
-            }
-            answerControllers.clear();
-            answerFields.clear();
-            
-            // 添加已有回答
-            for (var answer in answers) {
-              final controller = TextEditingController(text: answer);
-              answerControllers.add(controller);
-              answerFields.add(answer);
-            }
-            
-            // 如果没有回答，添加一个空回答框
-            if (answerControllers.isEmpty) {
-              addAnswerField();
-            }
-          } catch (e) {
-            print('解析回答失败: $e');
-            addAnswerField();
-          }
+      // 只有当成功获取到最终答案且答案标记为已提交时，才设置isSubmitted为true
+      if (finalResponse.code == 200 && finalResponse.data != null) {
+        final finalSubmission = Submission.fromJson(finalResponse.data);
+        // 检查submission是否为最终提交
+        if (finalSubmission.status == 'submitted' || finalSubmission.isFinalSubmission == true) {
+          submission.value = finalSubmission;
+          isSubmitted.value = true;
+          fillAnswerFields(submission.value!);
+          return;
         }
       }
+      
+      // 如果没有最终答案或答案未标记为已提交，获取最新答案
+      final latestResponse = await API.quiz.getLatestAnswer(
+        quiz.value!.assignmentId!,
+        userId!,
+      );
+      
+      if (latestResponse.code == 200 && latestResponse.data != null) {
+        submission.value = Submission.fromJson(latestResponse.data);
+        // 确保isSubmitted为false，允许编辑
+        isSubmitted.value = false;
+        fillAnswerFields(submission.value!);
+      } else {
+        // 没有任何答案，添加默认回答框
+        clearAnswerFields();
+        addAnswerField();
+      }
     } catch (e) {
-      print('加载提交记录失败: $e');
+      print('加载答案失败: $e');
+      // 出错时添加默认回答框
+      clearAnswerFields();
+      addAnswerField();
     }
   }
   
+  // 填充回答框
+  void fillAnswerFields(Submission submission) {
+    try {
+      // 清空现有回答框
+      clearAnswerFields();
+      
+      if (submission.content != null && submission.content!.isNotEmpty) {
+        final answers = submission.content!.split('\n');
+        
+        // 添加已有回答
+        for (var answer in answers) {
+          final controller = TextEditingController(text: answer);
+          answerControllers.add(controller);
+          answerFields.add(answer);
+        }
+      }
+      
+      // 如果没有回答，添加一个空回答框
+      if (answerControllers.isEmpty) {
+        addAnswerField();
+      }
+    } catch (e) {
+      print('填充回答框失败: $e');
+      clearAnswerFields();
+      addAnswerField();
+    }
+  }
+  
+  // 清空回答框
+  void clearAnswerFields() {
+    for (var controller in answerControllers) {
+      controller.dispose();
+    }
+    answerControllers.clear();
+    answerFields.clear();
+    answerAttachments.clear();
+  }
+  
+  // 保存测验答案（不提交为最终版本）
+  Future<void> saveQuiz({bool showSnackbar = true}) async {
+    if (isSaving.value || isSubmitting.value) return;
+    if (isSubmitted.value) {
+      if (showSnackbar) Get.snackbar('提示', '已提交的测验无法再次保存');
+      return;
+    }
+    
+    if (quiz.value == null) {
+      if (showSnackbar) Get.snackbar('错误', '测验信息不完整');
+      return;
+    }
+    
+    // 收集所有回答
+    final List<String> answers = [];
+    for (var controller in answerControllers) {
+      answers.add(controller.text.trim());
+    }
+    
+    try {
+      isSaving.value = true;
+      
+      final storage = await StorageService.instance;
+      final userId = storage.getUserId();
+      
+      // 使用 \n 分隔多个回答
+      final content = answers.join('\n');
+      
+      // 检查是否有附件
+      File? fileToUpload;
+      for (var attachmentList in answerAttachments.values) {
+        if (attachmentList.isNotEmpty) {
+          // 只上传第一个附件
+          final file = attachmentList.first;
+          if (file.path != null) {
+            fileToUpload = File(file.path!);
+            break;
+          }
+        }
+      }
+      
+      final response = await API.quiz.saveAnswer(
+        quiz.value!.assignmentId!,
+        userId!,
+        content,
+        fileToUpload,
+        isFinalSubmission: false, // 修改为 false，表示只是保存
+      );
+      
+      if (response.code == 200) {
+        if (showSnackbar) Get.snackbar('成功', '测验已保存');
+        // 更新submission
+        if (response.data != null) {
+          submission.value = Submission.fromJson(response.data);
+        }
+      } else {
+        if (showSnackbar) Get.snackbar('保存失败', response.msg);
+      }
+    } catch (e) {
+      print('保存测验失败: $e');
+      if (showSnackbar) Get.snackbar('错误', '保存测验失败，请稍后重试');
+    } finally {
+      isSaving.value = false;
+    }
+  }
+  
+  // 提交测验答案（标记为最终版本）
   Future<void> submitQuiz() async {
-    if (isSubmitting.value) return;
+    if (isSubmitting.value || isSaving.value) return;
+    
+    if (isSubmitted.value) {
+      Get.snackbar('提示', '测验已提交，无法再次提交');
+      return;
+    }
     
     if (quiz.value == null) {
       Get.snackbar('错误', '测验信息不完整');
@@ -241,66 +358,32 @@ class QuizDetailController extends GetxController {
       final content = answers.join('\n');
       
       // 检查是否有附件
-      bool hasAttachments = false;
+      File? fileToUpload;
       for (var attachmentList in answerAttachments.values) {
         if (attachmentList.isNotEmpty) {
-          hasAttachments = true;
-          break;
+          // 只上传第一个附件
+          final file = attachmentList.first;
+          if (file.path != null) {
+            fileToUpload = File(file.path!);
+            break;
+          }
         }
       }
       
-      if (hasAttachments) {
-        // 创建FormData对象
-        final formData = dio.FormData.fromMap({
-          'assignmentId': quiz.value!.assignmentId.toString(),
-          'studentId': userId.toString(),
-          'content': content,
-        });
-        
-        // 添加所有附件
-        int fileIndex = 0;
-        for (var entry in answerAttachments.entries) {
-          final questionIndex = entry.key;
-          final attachments = entry.value;
-          
-          for (var file in attachments) {
-            if (file.path != null) {
-              final fileName = '${questionIndex}_${fileIndex}_${file.name}';
-              formData.files.add(MapEntry(
-                'files',
-                dio.MultipartFile.fromFileSync(
-                  file.path!,
-                  filename: fileName,
-                ),
-              ));
-              fileIndex++;
-            }
-          }
-        }
-        
-        // 提交带附件的测验
-        final response = await API.submissions.submitAssignment(formData);
-        
-        if (response.code == 200) {
-          Get.back(result: true);
-          Get.snackbar('成功', '测验已提交');
-        } else {
-          Get.snackbar('提交失败', response.msg);
-        }
+      final response = await API.quiz.saveAnswer(
+        quiz.value!.assignmentId!,
+        userId!,
+        content,
+        fileToUpload,
+        isFinalSubmission: true, // 指定为最终提交
+      );
+      
+      if (response.code == 200) {
+        isSubmitted.value = true;
+        Get.back(result: true);
+        Get.snackbar('成功', '测验已提交');
       } else {
-        // 提交纯文本测验
-        final response = await API.assignments.submitContent(
-          quiz.value?.assignmentId ?? 0, 
-          userId!, 
-          content
-        );
-        
-        if (response.code == 200) {
-          Get.back(result: true);
-          Get.snackbar('成功', '测验已提交');
-        } else {
-          Get.snackbar('提交失败', response.msg);
-        }
+        Get.snackbar('提交失败', response.msg);
       }
     } catch (e) {
       print('提交测验失败: $e');
@@ -308,5 +391,28 @@ class QuizDetailController extends GetxController {
     } finally {
       isSubmitting.value = false;
     }
+  }
+
+  // 在 QuizDetailController 类中添加一个方法来获取正确的状态文本
+  String getStatusText(Assignment quiz, Submission? submission) {
+    if (quiz.isExpired) {
+      return '已截止';
+    }
+    
+    if (submission != null) {
+      // 检查是否为最终提交
+      if (submission.isFinalSubmission == true || submission.status == 'submitted') {
+        return '已提交';
+      } else {
+        // 只是保存但未最终提交
+        return '进行中';
+      }
+    }
+    
+    if (quiz.isStarted) {
+      return '进行中';
+    }
+    
+    return '未开始';
   }
 } 

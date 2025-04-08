@@ -410,7 +410,7 @@ class TeacherClassDetailView extends GetView<TeacherClassDetailController> {
                 title: '课堂测验',
                 subtitle: '即时测验',
                 color: Colors.orange,
-                onTap: controller.goToCreateQuiz,
+                onTap: ()=>controller.goToQuizManagement(),
               ),
             ),
           ],

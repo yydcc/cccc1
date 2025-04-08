@@ -1,4 +1,6 @@
 import 'package:cccc1/model/assignment_model.dart';
+import 'package:cccc1/module/quiz_management/teacher_quiz_management_binding.dart';
+import 'package:cccc1/module/quiz_management/teacher_quiz_management_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../module/sign_in/sign_in_binding.dart';
@@ -36,6 +38,8 @@ import '../module/create_quiz/create_quiz_binding.dart';
 import '../module/create_quiz/create_quiz_view.dart';
 import '../module/quiz_detail/quiz_detail_binding.dart';
 import '../module/quiz_detail/quiz_detail_view.dart';
+import '../module/teacher_quiz_detail/teacher_quiz_detail_binding.dart';
+import '../module/teacher_quiz_detail/teacher_quiz_detail_view.dart';
 
 part 'app_routes.dart';
 
@@ -143,6 +147,15 @@ class AppPages {
       name: AppRoutes.QUIZ_DETAIL,
       page: () => QuizDetailView(),
       binding: QuizDetailBinding(),
+    ),
+    GetPage(name: AppRoutes.TEACHER_QUIZ_MANAGEMENT,
+      page: ()=>TeacherQuizManagementView(),
+      binding: TeacherQuizManagementBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.TEACHER_QUIZ_DETAIL,
+      page: () => TeacherQuizDetailView(),
+      binding: TeacherQuizDetailBinding(),
     ),
   ];
 }

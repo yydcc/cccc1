@@ -24,6 +24,8 @@ abstract class AppRoutes {
   static const AI_CHAT = '/ai_chat';
   static const CREATE_QUIZ = '/create_quiz';
   static const QUIZ_DETAIL = '/quiz_detail';
+  static const TEACHER_QUIZ_MANAGEMENT = "/teacher/quiz/management";
+  static const TEACHER_QUIZ_DETAIL = '/teacher/quiz/detail';
 }
 
 

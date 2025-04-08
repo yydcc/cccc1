@@ -29,7 +29,7 @@ class DioResponse<T> {
 
 class HttpUtil {
   static final HttpUtil _instance = HttpUtil.internal();
-  static final SERVER_API_URL = "http://140.143.194.73:8080";
+  static final SERVER_API_URL = "http://yizhe.natapp1.cc";
   factory HttpUtil() => _instance;
 
   late Dio dio;
@@ -72,7 +72,7 @@ class HttpUtil {
           );
         },
         onError: (error, handler) async {
-          print('ERROR[${error.response?.statusCode}] => PATH: ${error.requestOptions.path}');
+          print('ERROR[${error.response?.statusCode}] => PATH:  ${error.requestOptions.path}');
           print('ERROR HEADERS: ${error.requestOptions.headers}'); // 调试用
           
           if (error.response?.statusCode == 401) {
