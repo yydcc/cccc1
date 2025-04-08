@@ -4,6 +4,8 @@ abstract class AppRoutes {
   static const SIGN_IN = '/sign_in';
   static const SIGN_UP = '/sign_up';
   static const HOME = '/';
+  static const STUDENT_HOME = '/student_home';
+  static const TEACHER_HOME = '/teacher_home';
   static const CLASS_DETAIL = '/class_detail';
   static const CLASS_HOMEWORK = '/class_homework';
   static const CLASS_QUIZ = '/class_quiz';

@@ -131,7 +131,7 @@ class ClassinfoView extends StatelessWidget {
                         ),
                         SizedBox(width: 4.w),
                         Text(
-                          '学生人数：${classInfo.studentCount}',
+                          '学生：${classInfo.studentCount}',
                           style: TextStyle(
                             fontSize: 14.sp,
                             color: GlobalThemData.textSecondaryColor,
@@ -250,69 +250,11 @@ class CodeInputField extends StatelessWidget {
           }
         },
       ),
-    );
-  }
-}
-
-extension ClassinfoControllerExtension on ClassinfoController {
-  void showJoinClassDialog() {
-    Get.dialog(
-      Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.r),
-        ),
-        child: Container(
-          padding: EdgeInsets.all(20.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '加入班级',
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
-                  color: GlobalThemData.textPrimaryColor,
-                ),
-              ),
-              SizedBox(height: 20.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List.generate(6, (index) {
-                  return CodeInputField(
-                    controller: TextEditingController(),
-                    focusNode: FocusNode(),
-                    autoFocus: index == 0,
-                  );
-                }),
-              ),
-              SizedBox(height: 20.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Get.back();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(Get.context!).primaryColor,
-                    ),
-                    child: Text('取消', style: TextStyle(fontSize: 14.sp)),
-                  ),
-                  SizedBox(width: 10.w),
-                  ElevatedButton(
-                    onPressed: () {
-                      // 确认加入班级的逻辑
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(Get.context!).primaryColor,
-                    ),
-                    child: Text('确定', style: TextStyle(fontSize: 14.sp)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // 处理加入班级的逻辑
+        },
+        child: Icon(Icons.add),
       ),
     );
   }

@@ -10,12 +10,32 @@ import 'dart:async';
 import '../../routes/app_pages.dart';
 import 'package:cccc1/common/api/api.dart';
 import 'package:cccc1/model/classinfo_model.dart';
+
 class ClassinfoController extends GetxController {
   var joinClassCode = ''.obs;
   var isJoining = false.obs; // 标记是否正在加入班级
   final List<TextEditingController> controllers = List.generate(
       6, (_) => TextEditingController());
   final List<FocusNode> focusNodes = List.generate(6, (_) => FocusNode());
+
+  var classList = <ClassInfo>[].obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchClassList();
+  }
+
+  Future<void> fetchClassList() async {
+    // 模拟从API获取班级列表
+    await Future.delayed(Duration(seconds: 2));
+    // 这里可以根据实际情况从API获取数据并更新 classList
+    classList.value = []; // 更新为实际获取的班级数据
+  }
+
+  void handleClassTap(ClassInfo classInfo) {
+    // 处理班级点击事件
+  }
 
   Future<void> showJoinClassDialog() async {
     // 清空输入框
@@ -82,9 +102,7 @@ class ClassinfoController extends GetxController {
                           Get.back();
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme
-                              .of(Get.context!)
-                              .primaryColor,
+                          backgroundColor: Theme.of(Get.context!).primaryColor,
                           padding: EdgeInsets.symmetric(
                               horizontal: 30.w, vertical: 10.h),
                         ),
@@ -95,9 +113,7 @@ class ClassinfoController extends GetxController {
                         onPressed: isJoining.value ? null : joinClass,
                         // 请求进行中时禁用按钮
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme
-                              .of(Get.context!)
-                              .primaryColor,
+                          backgroundColor: Theme.of(Get.context!).primaryColor,
                           padding: EdgeInsets.symmetric(
                               horizontal: 30.w, vertical: 10.h),
                         ),
@@ -116,7 +132,6 @@ class ClassinfoController extends GetxController {
               ),
             ),
           )),
-      barrierDismissible: false,
     );
   }
 
