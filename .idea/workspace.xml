@@ -10,17 +10,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="90c71f39-95ed-4573-8768-4b6e6de27f4d" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/common/api/api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/common/api/api.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/common/utils/http.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/common/utils/http.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/model/assignment_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/model/assignment_model.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/model/submission_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/model/submission_model.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/quiz_detail/quiz_detail_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/quiz_detail/quiz_detail_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/quiz_detail/quiz_detail_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/quiz_detail/quiz_detail_view.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/teacher_class_detail/teacher_class_detail_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_class_detail/teacher_class_detail_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/teacher_class_detail/teacher_class_detail_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_class_detail/teacher_class_detail_view.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/routes/app_pages.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/routes/app_pages.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/routes/app_routes.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/routes/app_routes.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
