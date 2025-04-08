@@ -9,26 +9,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="90c71f39-95ed-4573-8768-4b6e6de27f4d" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/lib/flutter_animate/flutter_animate.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/flutter_illuminate/ui.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/pages/student_home_page.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/pages/teacher_home_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/classinfo/classinfo_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/classinfo/classinfo_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/classinfo/classinfo_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/classinfo/classinfo_view.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/home/home_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/home/home_view.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/main/main_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/main/main_view.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/schedule/schedule_binding.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/schedule/schedule_binding.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/schedule/schedule_controller.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/schedule/schedule_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/schedule/schedule_view.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/routes/app_pages.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/routes/app_pages.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/routes/app_routes.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/routes/app_routes.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-    </list>
+    <list default="true" id="90c71f39-95ed-4573-8768-4b6e6de27f4d" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -110,7 +91,7 @@
     "com.google.services.firebase.aqiPopupShown": "true",
     "dart.analysis.tool.window.visible": "false",
     "flutter.view.tool.window.visible": "true",
-    "git-widget-placeholder": "Merging quiz__feature",
+    "git-widget-placeholder": "quiz__feature",
     "io.flutter.reload.alreadyRun": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/Lenovo/Desktop/code/jishe/cccc1",
