@@ -51,7 +51,9 @@ class QuizApi {
     );
   }
 
-  Future<void>? autoGradeAll(int quizId) {
-    return null;
+  Future<dynamic>? autoGradeAll(int assignmentId) async{
+      return  await httpUtil.post(
+        '/quiz/$assignmentId/grade'
+      );
   }
 } 

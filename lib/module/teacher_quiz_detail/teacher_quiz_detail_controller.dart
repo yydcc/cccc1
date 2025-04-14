@@ -392,7 +392,7 @@ class TeacherQuizDetailController extends GetxController {
       final result = await Get.dialog(
         AlertDialog(
           title: Text('AI自动批改'),
-          content: Text('确定要使用AI对所有提交进行自动批改吗？'),
+          content: Text('确定要使用AI对所有未批改提交进行自动批改吗？'),
           actions: [
             TextButton(
               onPressed: () => Get.back(result: false),
@@ -407,17 +407,17 @@ class TeacherQuizDetailController extends GetxController {
       );
       
       if (result == true) {
-        // final response = await API.quiz.autoGradeAll(quizId);
+        final response = await API.quiz.autoGradeAll(quizId);
         
-        // if (response.code == 200) {
-        //   Get.snackbar('成功', 'AI批改已启动，请稍后刷新查看结果');
-        //
-        //   // 延迟3秒后刷新数据
-        //   await Future.delayed(Duration(seconds: 3));
-        //   refreshData();
-        // } else {
-        //   Get.snackbar('操作失败', response.msg);
-        // }
+        if (response.code == 200) {
+          Get.snackbar('成功', 'AI批改已启动，请稍后刷新查看结果');
+
+          // 延迟3秒后刷新数据
+          await Future.delayed(Duration(seconds: 5));
+          refreshData();
+        } else {
+          Get.snackbar('操作失败', response.msg);
+        }
       }
     } catch (e) {
       print('AI批改失败: $e');

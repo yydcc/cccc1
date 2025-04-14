@@ -9,7 +9,7 @@ class ChatApi extends ApiService {
   Future<dynamic> connect(String sessionId) async {
     try {
       final response = await _httpUtil.get(
-        '/chat/connect',
+        '/ai-chat/connect',
         queryParameters: {'sessionId': sessionId},
       );
       return response;
@@ -23,7 +23,7 @@ class ChatApi extends ApiService {
   Future<dynamic> sendMessage(String sessionId, String message) async {
     try {
       final response = await _httpUtil.post(
-        '/chat/send',
+        '/ai-chat/send',
         data: {
           'sessionId': sessionId,
           'message': message,
@@ -40,7 +40,7 @@ class ChatApi extends ApiService {
   Future<dynamic> clearHistory(String sessionId) async {
     try {
       final response = await _httpUtil.post(
-        '/chat/clear',
+        '/ai-chat/clear',
         data: {
           'sessionId': sessionId,
         },
@@ -56,7 +56,7 @@ class ChatApi extends ApiService {
   Future<dynamic> disconnect(String sessionId) async {
     try {
       final response = await _httpUtil.post(
-        '/chat/disconnect',
+        '/ai-chat/disconnect',
         data: {
           'sessionId': sessionId,
         },

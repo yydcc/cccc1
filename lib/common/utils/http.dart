@@ -31,7 +31,6 @@ class HttpUtil {
   static final HttpUtil _instance = HttpUtil.internal();
   static final SERVER_API_URL = "http://140.143.194.73:8080";
   factory HttpUtil() => _instance;
-
   late Dio dio;
 
   HttpUtil.internal() {
