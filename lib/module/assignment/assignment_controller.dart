@@ -122,10 +122,10 @@ class AssignmentController extends GetxController {
     }
   }
 
-  void goToAssignmentDetail(Assignment assignment) {
+  void goToAssignmentDetail(int? assignmentId) {
     Get.toNamed(
       AppRoutes.ASSIGNMENT_DETAIL,
-      arguments: {'assignmentId': assignment.assignmentId}
+      arguments: {'assignmentId': assignmentId}
     );
   }
 

@@ -110,8 +110,7 @@ class TeacherClassDetailView extends GetView<TeacherClassDetailController> {
                 SizedBox(height: 16.h),
                 _buildFunctionCards(primaryColor),
                 SizedBox(height: 16.h),
-                _buildRecentActivities(primaryColor),
-                SizedBox(height: 16.h),
+
               ],
             ),
           ),
@@ -328,6 +327,14 @@ class TeacherClassDetailView extends GetView<TeacherClassDetailController> {
                   color: Colors.green,
                 ),
               ),
+              Expanded(
+                child: _buildStatItem(
+                  icon:Icons.quiz,
+                  title: '测验',
+                  value: classInfo.quizCount?.toString() ?? '0',
+                  color: Colors.orange,
+                ),
+              ),
             ],
           ),
         ],
@@ -505,58 +512,7 @@ class TeacherClassDetailView extends GetView<TeacherClassDetailController> {
     );
   }
   
-  Widget _buildRecentActivities(Color primaryColor) {
-    return Obx(() {
-      if (controller.activities.isEmpty) {
-        return SizedBox.shrink();
-      }
-      
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '最近活动',
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.bold,
-              color: GlobalThemData.textPrimaryColor,
-            ),
-          ),
-          SizedBox(height: 12.h),
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(16.w),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12.r),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Column(
-              children: List.generate(
-                controller.activities.length > 5 ? 5 : controller.activities.length,
-                (index) {
-                  final activity = controller.activities[index];
-                  if (activity == null) return SizedBox.shrink();
-                  
-                  return _buildActivityItem(
-                    activity,
-                    index == controller.activities.length - 1,
-                    primaryColor,
-                  );
-                },
-              ),
-            ),
-          ),
-        ],
-      );
-    });
-  }
+
   
   Widget _buildActivityItem(dynamic activity, bool isLast, Color primaryColor) {
     if (activity == null) return SizedBox.shrink();

@@ -32,7 +32,7 @@ class ClassDetailController extends GetxController {
       if (response.code == 200 && response.data != null) {
         final data = response.data;
         classInfo.value = ClassInfo.fromJson(data);
-        activities.value = classInfo.value?.activities ?? [];
+
         
         contentUrl = data['content_url'];
       }

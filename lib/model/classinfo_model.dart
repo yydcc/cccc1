@@ -8,7 +8,7 @@ class ClassInfo {
   final String joinedAt;
   final int studentCount;
   final int assignmentCount;
-  final List<ClassActivity> activities;
+  final int quizCount;
 
   ClassInfo({
     required this.classId,
@@ -20,7 +20,7 @@ class ClassInfo {
     required this.joinedAt,
     required this.studentCount,
     this.assignmentCount = 0,
-    this.activities = const [],
+    this.quizCount = 0,
   });
   factory ClassInfo.fromJson(Map<String, dynamic> json) {
     return ClassInfo(
@@ -33,9 +33,7 @@ class ClassInfo {
       joinedAt: json['joinedAt']??'',
       studentCount: json['studentCount']??0,
       assignmentCount: json['assignmentCount'] ?? 0,
-      activities: (json['activities'] as List?)
-          ?.map((e) => ClassActivity.fromJson(e))
-          .toList() ?? [],
+      quizCount: json['quizCount']??0,
     );
   }
 
@@ -44,31 +42,3 @@ class ClassInfo {
   }
 }
 
-class ClassActivity {
-  final String id;
-  final String type;  // assignment, announcement, quiz
-  final String title;
-  final String content;
-  final String createTime;
-  final bool isRead;
-
-  ClassActivity({
-    required this.id,
-    required this.type,
-    required this.title,
-    required this.content,
-    required this.createTime,
-    this.isRead = false,
-  });
-
-  factory ClassActivity.fromJson(Map<String, dynamic> json) {
-    return ClassActivity(
-      id: json['id'],
-      type: json['type'],
-      title: json['title'],
-      content: json['content'],
-      createTime: json['createTime'],
-      isRead: json['isRead'] ?? false,
-    );
-  }
-}

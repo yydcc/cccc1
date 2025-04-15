@@ -162,7 +162,7 @@ class AIChatController extends GetxController {
     
     try {
       // 创建EventSource连接
-      final url = '${HttpUtil.SERVER_API_URL}/chat/connect?sessionId=$sessionId';
+      final url = '${HttpUtil.SERVER_API_URL}/ai-chat/connect?sessionId=$sessionId';
       print('连接到SSE: $url');
 
       final response = await dioInstance.get(
@@ -316,7 +316,7 @@ class AIChatController extends GetxController {
     try {
       // 发送请求到后端的chat/send接口
       await dioInstance.post(
-        '${HttpUtil.SERVER_API_URL}/chat/send',
+        '${HttpUtil.SERVER_API_URL}/ai-chat/send',
         data: {
           'sessionId': sessionId,
           'message': message,
@@ -358,7 +358,7 @@ class AIChatController extends GetxController {
       
       // 1. 先向后端发送清除历史请求
       await dioInstance.post(
-        '${HttpUtil.SERVER_API_URL}/chat/clear',
+        '${HttpUtil.SERVER_API_URL}/ai-chat/clear',
         data: {
           'sessionId': sessionId,
         },
@@ -435,7 +435,7 @@ class AIChatController extends GetxController {
 
       // 通知后端断开连接
       dioInstance.post(
-        '${HttpUtil.SERVER_API_URL}/chat/disconnect',
+        '${HttpUtil.SERVER_API_URL}/ai-chat/disconnect',
         data: {
           'sessionId': sessionId,
         },

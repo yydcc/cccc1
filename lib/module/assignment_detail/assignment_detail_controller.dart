@@ -31,8 +31,6 @@ class AssignmentDetailController extends GetxController {
   void onInit() {
     super.onInit();
     loadAssignmentDetail();
-    
-
   }
 
   @override
@@ -55,7 +53,7 @@ class AssignmentDetailController extends GetxController {
         
         // 加载提交信息
         await loadSubmission();
-        
+
         // 根据作业状态决定是否显示提交按钮
         canSubmit.value = _canSubmitAssignment();
         
@@ -101,18 +99,7 @@ class AssignmentDetailController extends GetxController {
     return submission.value?.isGraded ?? false;
   }
 
-  // 获取作业状态
-  String getAssignmentStatus() {
-    if (submission.value != null) {
-      if (submission.value!.isGraded) {
-        return 'graded';
-      } else if (submission.value!.isSubmitted) {
-        return 'submitted';
-      }
-    }
-    
-    return assignment.value?.statusText ?? 'in_progress';
-  }
+
 
   Future<void> selectFile() async {
     try {

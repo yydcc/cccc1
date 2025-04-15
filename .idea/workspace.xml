@@ -11,10 +11,34 @@
   <component name="ChangeListManager">
     <list default="true" id="90c71f39-95ed-4573-8768-4b6e6de27f4d" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/common/api/chat_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/common/api/chat_api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/common/api/quiz_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/common/api/quiz_api.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/common/utils/http.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/common/utils/http.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/teacher_quiz_detail/teacher_quiz_detail_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_quiz_detail/teacher_quiz_detail_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/model/assignment_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/model/assignment_model.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/model/classinfo_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/model/classinfo_model.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/model/submission_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/model/submission_model.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/ai_chat/ai_chat_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/ai_chat/ai_chat_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/assignment/assignment_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/assignment/assignment_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/assignment/assignment_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/assignment/assignment_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/assignment_detail/assignment_detail_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/assignment_detail/assignment_detail_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/assignment_detail/assignment_detail_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/assignment_detail/assignment_detail_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/class_detail/class_detail_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/class_detail/class_detail_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/class_detail/class_detail_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/class_detail/class_detail_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/classinfo/classinfo_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/classinfo/classinfo_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/create_assignment/create_assignment_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/create_assignment/create_assignment_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/create_assignment/create_assignment_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/create_assignment/create_assignment_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/create_quiz/create_quiz_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/create_quiz/create_quiz_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/create_quiz/create_quiz_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/create_quiz/create_quiz_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/quiz/quiz_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/quiz/quiz_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/quiz/quiz_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/quiz/quiz_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/quiz_detail/quiz_detail_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/quiz_detail/quiz_detail_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/quiz_management/teacher_quiz_management_binding.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/quiz_management/teacher_quiz_management_binding.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/quiz_management/teacher_quiz_management_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/quiz_management/teacher_quiz_management_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/quiz_management/teacher_quiz_management_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/quiz_management/teacher_quiz_management_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/teacher_assignment/teacher_assignment_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_assignment/teacher_assignment_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/teacher_assignment/teacher_assignment_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_assignment/teacher_assignment_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/teacher_assignment_detail/teacher_assignment_detail_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_assignment_detail/teacher_assignment_detail_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/teacher_class_detail/teacher_class_detail_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_class_detail/teacher_class_detail_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/teacher_class_detail/teacher_class_detail_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_class_detail/teacher_class_detail_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/teacher_quiz_detail/teacher_quiz_detail_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_quiz_detail/teacher_quiz_detail_view.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -172,6 +196,20 @@
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/common/api/quiz_api.dart</url>
           <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/module/class_detail/class_detail_view.dart</url>
+          <line>98</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/module/class_detail/class_detail_view.dart</url>
+          <line>392</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/module/quiz_management/teacher_quiz_management_binding.dart</url>
+          <option name="timeStamp" value="5" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

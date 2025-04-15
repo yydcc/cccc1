@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import '../../common/theme/color.dart';
+import '../../routes/app_pages.dart';
 import 'teacher_assignment_controller.dart';
 import '../../model/assignment_model.dart';
 
@@ -20,11 +21,24 @@ class TeacherAssignmentView extends GetView<TeacherAssignmentController> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: controller.goToCreateAssignment,
-            tooltip: '发布作业',
+            icon: Icon(Icons.refresh),
+            onPressed: controller.refreshAssignments,
+            tooltip: '刷新',
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Get.toNamed(
+          AppRoutes.CREATE_ASSIGNMENT,
+          arguments: {'classId': controller.classId},
+        )?.then((value) {
+          if (value == true) {
+            controller.refreshAssignments();
+          }
+        }),
+        icon: Icon(Icons.add),
+        label: Text('创建作业'),
+        tooltip: '布置新作业',
       ),
       body: Column(
         children: [
@@ -116,93 +130,170 @@ class TeacherAssignmentView extends GetView<TeacherAssignmentController> {
   }
 
   Widget _buildAssignmentItem(Assignment assignment) {
-    return Card(
-      margin: EdgeInsets.only(bottom: 16.h),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.r),
-      ),
-      child: InkWell(
-        onTap: () => controller.goToAssignmentManagement(assignment.assignmentId ?? 0),
-        borderRadius: BorderRadius.circular(12.r),
-        child: Padding(
-          padding: EdgeInsets.all(16.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      assignment.title ?? '无标题',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.bold,
-                        color: GlobalThemData.textPrimaryColor,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 8.w,
-                      vertical: 2.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: assignment.statusColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(4.r),
-                    ),
-                    child: Text(
-                      assignment.statusText,
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: assignment.statusColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 8.h),
-              Text(
-                assignment.description ?? '无描述',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: GlobalThemData.textSecondaryColor,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              SizedBox(height: 12.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '截止日期: ${assignment.formattedDeadline}',
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: assignment.isDeadlineNear && assignment.status == 'in_progress'
-                          ? Colors.orange
-                          : GlobalThemData.textSecondaryColor,
-                    ),
-                  ),
-                  if (assignment.submittedCount != null && assignment.totalStudents != null)
-                    Text(
-                      '已提交: ${assignment.submittedCount}/${assignment.totalStudents}',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: GlobalThemData.textSecondaryColor,
-                      ),
-                    ),
-                ],
-              ),
-            ],
+    // 获取状态对应的颜色
+    Color statusColor;
+    IconData statusIcon;
+
+    switch (assignment.statusText) {
+      case '未开始':
+        statusColor = Colors.blue;
+        statusIcon = Icons.schedule;
+        break;
+      case '进行中':
+        statusColor = Colors.green;
+        statusIcon = Icons.play_circle_outline;
+        break;
+      case '已过期':
+        statusColor = Colors.red;
+        statusIcon = Icons.assignment_turned_in;
+        break;
+      default:
+        statusColor = Colors.grey;
+        statusIcon = Icons.help_outline;
+    }
+
+    return GestureDetector(
+      onTap: () => controller.goToAssignmentManagement(assignment.assignmentId),
+      child: Container(
+        margin: EdgeInsets.only(bottom: 16.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.r),
+          boxShadow: [
+            BoxShadow(
+              color: statusColor.withOpacity(0.1),
+              blurRadius: 12,
+              offset: Offset(0, 5),
+            ),
+          ],
+          border: Border.all(
+            color: statusColor.withOpacity(0.3),
+            width: 1,
           ),
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.all(16.w),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 左侧状态图标
+                  Container(
+                    width: 50.w,
+                    height: 50.w,
+                    decoration: BoxDecoration(
+                      color: statusColor.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      statusIcon,
+                      color: statusColor,
+                      size: 28.sp,
+                    ),
+                  ),
+                  SizedBox(width: 16.w),
+                  // 右侧内容
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8.w,
+                                vertical: 4.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: statusColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(4.r),
+                              ),
+                              child: Text(
+                                assignment.statusText,
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  color: statusColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            Spacer(),
+                            Icon(
+                              Icons.quiz,
+                              size: 16.sp,
+                              color: statusColor,
+                            ),
+                            SizedBox(width: 4.w),
+                            Text(
+                              '作业',
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                color: statusColor,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 8.h),
+                        Text(
+                          assignment.title ?? '未命名作业',
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
+                            color: GlobalThemData.textPrimaryColor,
+                          ),
+                        ),
+                        SizedBox(height: 12.h),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.access_time,
+                              size: 16.sp,
+                              color: assignment.isDeadlineNear ? Colors.red : GlobalThemData.textSecondaryColor,
+                            ),
+                            SizedBox(width: 4.w),
+                            Text(
+                              '截止时间: ${assignment.formattedDeadline}',
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                color: assignment.isDeadlineNear ? Colors.red : GlobalThemData.textSecondaryColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // 底部操作区域
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 12.h),
+              decoration: BoxDecoration(
+                color: statusColor.withOpacity(0.05),
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(16.r),
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  '点击查看详情',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: statusColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
-
   Widget _buildLoadingView() {
     return Center(
       child: Column(
@@ -250,31 +341,13 @@ class TeacherAssignmentView extends GetView<TeacherAssignmentController> {
           ),
           SizedBox(height: 8.h),
           Text(
-            '点击右上角按钮发布新作业',
+            '点击右下角按钮发布新作业',
             style: TextStyle(
               fontSize: 14.sp,
               color: GlobalThemData.textTertiaryColor,
             ),
           ),
-          SizedBox(height: 24.h),
-          ElevatedButton(
-            onPressed: controller.goToCreateAssignment,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(Get.context!).primaryColor,
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-            ),
-            child: Text(
-              '发布作业',
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
+
         ],
       ),
     );

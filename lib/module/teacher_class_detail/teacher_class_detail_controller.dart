@@ -9,7 +9,6 @@ class TeacherClassDetailController extends GetxController {
   final HttpUtil httpUtil = HttpUtil();
   final classInfo = Rx<ClassInfo?>(null);
   final RxBool isLoading = true.obs;
-  final RxList<dynamic> activities = <dynamic>[].obs;
   String? contentUrl;
   
   @override
@@ -40,12 +39,7 @@ class TeacherClassDetailController extends GetxController {
           // 使用try-catch包裹可能出错的代码
           classInfo.value = ClassInfo.fromJson(response.data);
           
-          // 安全地获取activities
-          if (response.data['activities'] is List) {
-            activities.value = response.data['activities'] ?? [];
-          } else {
-            activities.value = [];
-          }
+
           
           // 安全地获取contentUrl
           contentUrl = response.data['content_url'] as String?;

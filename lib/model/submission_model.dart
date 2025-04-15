@@ -49,8 +49,7 @@ class Submission {
   bool get isGraded {
     return feedback != null && feedback!.isNotEmpty;
   }
-  
-  // 判断是否已提交（只要有submissionId就认为已提交）
+
   bool get isSubmitted {
     return submissionId != null && submissionId! > 0;
   }

@@ -791,4 +791,118 @@ class TeacherQuizDetailView extends GetView<TeacherQuizDetailController> {
       ),
     );
   }
+
+  Widget _buildQuizInfo(Assignment quiz) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(16.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 8.h),
+            
+            // 添加批改模式信息
+            if (quiz.feedbackMode != null)
+              Column(
+                children: [
+                  Divider(height: 24.h),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.grading,
+                        size: 18.sp,
+                        color: GlobalThemData.textSecondaryColor,
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        '批改模式: ',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: GlobalThemData.textSecondaryColor,
+                        ),
+                      ),
+                      Text(
+                        quiz.feedbackModeText,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: GlobalThemData.textPrimaryColor,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  // 如果是自动批改，显示批改时间
+                  if (quiz.feedbackMode != 0)
+                    Padding(
+                      padding: EdgeInsets.only(top: 8.h),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.timer,
+                            size: 18.sp,
+                            color: GlobalThemData.textSecondaryColor,
+                          ),
+                          SizedBox(width: 8.w),
+                          Text(
+                            '批改时间: ',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: GlobalThemData.textSecondaryColor,
+                            ),
+                          ),
+                          Text(
+                            quiz.feedbackTimeText,
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: quiz.feedbackMode == 2 ? Colors.blue : Colors.orange,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                  // 如果是自动批改，添加AI批改说明
+                  if (quiz.feedbackMode != 0)
+                    Padding(
+                      padding: EdgeInsets.only(top: 12.h),
+                      child: Container(
+                        padding: EdgeInsets.all(12.w),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.smart_toy_outlined,
+                              size: 16.sp,
+                              color: Colors.blue,
+                            ),
+                            SizedBox(width: 8.w),
+                            Expanded(
+                              child: Text(
+                                '本测验将由AI自动批改，您可以在批改前手动批改或修改批改设置。',
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 } 

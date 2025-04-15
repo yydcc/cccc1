@@ -9,7 +9,6 @@ import 'package:cccc1/common/widget/code_input_field.dart';
 import 'dart:async';
 import '../../routes/app_pages.dart';
 import 'package:cccc1/common/api/api.dart';
-import 'package:cccc1/model/classinfo_model.dart';
 class ClassinfoController extends GetxController {
   var joinClassCode = ''.obs;
   var isJoining = false.obs; // 标记是否正在加入班级

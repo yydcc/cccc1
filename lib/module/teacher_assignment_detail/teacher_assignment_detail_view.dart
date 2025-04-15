@@ -173,14 +173,14 @@ class TeacherAssignmentDetailView extends GetView<TeacherAssignmentDetailControl
               Icon(
                 Icons.access_time,
                 size: 16.sp,
-                color: GlobalThemData.textSecondaryColor,
+                color: assignment.isDeadlineNear ? Colors.red : GlobalThemData.textSecondaryColor,
               ),
               SizedBox(width: 4.w),
               Text(
                 '截止时间: ${assignment.formattedDeadline}',
                 style: TextStyle(
                   fontSize: 14.sp,
-                  color: GlobalThemData.textSecondaryColor,
+                  color: assignment.isDeadlineNear ? Colors.red : GlobalThemData.textSecondaryColor,
                 ),
               ),
             ],

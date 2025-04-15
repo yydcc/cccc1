@@ -11,26 +11,34 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = Theme.of(Get.context!).primaryColor;
-    
-    return Scaffold(
-      backgroundColor: GlobalThemData.backgroundColor,
-      appBar: AppBar(
-        title: Text('作业详情'),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: primaryColor,
-      ),
-      body: Obx(() => controller.isLoading.value
-        ? Center(child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
-          ))
-        : _buildContent(),
-      ),
+    return Obx(() {
+      Color primaryColor = Colors.purple;
+
+      if (!controller.isLoading.value && controller.assignment.value != null) {
+        primaryColor = controller.assignment.value!.getStatusColor(controller.submission.value);
+      }
+      return Scaffold(
+        backgroundColor: GlobalThemData.backgroundColor,
+        appBar: AppBar(
+            title: Text('作业详情'),
+            centerTitle: true,
+            elevation: 0,
+            backgroundColor: primaryColor,
+        ),
+        body: controller.isLoading.value
+            ? Center(child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+        ))
+            : _buildContent(primaryColor),
+      );
+    },
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(Color primaryColor) {
+    final assignment = controller.assignment.value!;
+    final submission = controller.submission.value;
+
     if (controller.assignment.value == null) {
       return Center(
         child: Text(
@@ -43,47 +51,25 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
       );
     }
 
-    final assignment = controller.assignment.value!;
-    final submission = controller.submission.value;
-    
 
-    final Color statusColor = assignment.getStatusColor(submission);
-    
-    // 根据状态颜色获取渐变色
-    List<Color> gradientColors;
-    if (statusColor == Colors.grey) {
-      gradientColors = [Colors.grey.shade400, Colors.grey.shade600];
-    } else if (statusColor == Colors.blue) {
-      gradientColors = [Colors.blue.shade300, Colors.blue.shade600];
-    } else if (statusColor == Colors.orange) {
-      gradientColors = [Colors.orange.shade300, Colors.orange.shade600];
-    } else if (statusColor == Colors.green) {
-      gradientColors = [Colors.green.shade300, Colors.green.shade600];
-    } else if (statusColor == Colors.red) {
-      gradientColors = [Colors.red.shade300, Colors.red.shade600];
-    } else {
-      gradientColors = [Colors.grey.shade400, Colors.grey.shade600];
-    }
-    
-    final primaryColor = Theme.of(Get.context!).primaryColor;
 
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeaderSection(assignment, submission, gradientColors),
+          _buildHeaderSection(assignment, submission, primaryColor),
           SizedBox(height: 16.h),
-          _buildInfoCard(assignment, submission, gradientColors),
+          _buildInfoCard(assignment, submission, primaryColor),
           SizedBox(height: 16.h),
           if (submission != null && submission.isGraded)
-            _buildFeedbackCard(submission, gradientColors),
+            _buildFeedbackCard(submission, primaryColor),
           SizedBox(height: 16.h),
           if (submission != null)
-            _buildSubmissionCard(submission, gradientColors),
+            _buildSubmissionCard(submission, primaryColor),
           SizedBox(height: 16.h),
           if (controller.canSubmit.value)
-            _buildSubmitSection(gradientColors, isUpdate: controller.isSubmitted),
+            _buildSubmitSection(primaryColor, isUpdate: controller.isSubmitted),
           if (!controller.canSubmit.value && !controller.isSubmitted)
             _buildExpiredNotice(),
         ],
@@ -91,7 +77,7 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
     );
   }
 
-  Widget _buildHeaderSection(Assignment assignment, Submission? submission, List<Color> gradientColors) {
+  Widget _buildHeaderSection(Assignment assignment, Submission? submission, Color primaryColor) {
     // 获取状态文本和对应图标
     final String statusText = assignment.getStatusText(submission);
     
@@ -118,22 +104,17 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
         statusIcon = Icons.assignment_outlined;
     }
     
-    // 直接使用状态对应的渐变色
-    List<Color> statusGradient = _getStatusGradient(statusText);
+
     
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: statusGradient,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: primaryColor,
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: statusGradient[0].withOpacity(0.3),
+            color: primaryColor.withOpacity(0.3),
             blurRadius: 10,
             offset: Offset(0, 5),
           ),
@@ -201,9 +182,8 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
     );
   }
 
-  Widget _buildInfoCard(Assignment assignment, Submission? submission, List<Color> gradientColors) {
-    final primaryColor = Theme.of(Get.context!).primaryColor;
-    
+  Widget _buildInfoCard(Assignment assignment, Submission? submission, Color primaryColor) {
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16.w),
@@ -274,7 +254,7 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
                 color: GlobalThemData.backgroundColor,
                 borderRadius: BorderRadius.circular(8.r),
                 border: Border.all(
-                  color: gradientColors[0].withOpacity(0.3),
+                  color: primaryColor.withOpacity(0.3),
                   width: 1,
                 ),
               ),
@@ -356,6 +336,70 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
               ),
             ),
           ],
+          
+          // 添加批改模式信息
+          if (assignment.feedbackMode != null)
+            Column(
+              children: [
+                Divider(height: 24.h),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.grading,
+                      size: 18.sp,
+                      color: GlobalThemData.textSecondaryColor,
+                    ),
+                    SizedBox(width: 8.w),
+                    Text(
+                      '批改模式: ',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: GlobalThemData.textSecondaryColor,
+                      ),
+                    ),
+                    Text(
+                      assignment.feedbackModeText,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: GlobalThemData.textPrimaryColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                
+                // 如果是自动批改，显示批改时间
+                if (assignment.feedbackMode != 0)
+                  Padding(
+                    padding: EdgeInsets.only(top: 8.h),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.timer,
+                          size: 18.sp,
+                          color: GlobalThemData.textSecondaryColor,
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          '批改时间: ',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: GlobalThemData.textSecondaryColor,
+                          ),
+                        ),
+                        Text(
+                          assignment.feedbackTimeText,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: assignment.feedbackMode == 2 ? Colors.blue : Colors.orange,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
         ],
       ),
     );
@@ -399,9 +443,7 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
     );
   }
 
-  Widget _buildSubmitSection(List<Color> gradientColors, {bool isUpdate = false}) {
-    final primaryColor = Theme.of(Get.context!).primaryColor;
-    
+  Widget _buildSubmitSection( Color primaryColor, {bool isUpdate = false}) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16.w),
@@ -517,7 +559,7 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
                   ? () => controller.showSubmitDialog()
                   : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(Get.context!).primaryColor,
+                backgroundColor: primaryColor,
                 disabledBackgroundColor: Colors.grey,
                 foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
@@ -664,7 +706,7 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
     );
   }
 
-  Widget _buildSubmissionCard(Submission submission, List<Color> gradientColors) {
+  Widget _buildSubmissionCard(Submission submission, Color primaryColor) {
     final primaryColor = Theme.of(Get.context!).primaryColor;
     
     return Container(
@@ -803,8 +845,8 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
     );
   }
 
-  Widget _buildFeedbackCard(Submission submission, List<Color> gradientColors) {
-    final primaryColor = Theme.of(Get.context!).primaryColor;
+  Widget _buildFeedbackCard(Submission submission,  Color primaryColor) {
+
     
     return Container(
       width: double.infinity,
@@ -883,58 +925,10 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
     );
   }
 
-  // 辅助方法
-  IconData _getAssignmentIcon(String status) {
-    switch (status) {
-      case 'not_started':
-        return Icons.assignment_outlined;
-      case 'in_progress':
-        return Icons.edit_note;
-      case 'submitted':
-        return Icons.assignment_turned_in_outlined;
-      case 'graded':
-        return Icons.grading;
-      case 'expired':
-        return Icons.assignment_late;
-      default:
-        return Icons.assignment_outlined;
-    }
-  }
 
-  String _getStatusText(String status) {
-    switch (status) {
-      case 'not_started':
-        return '未开始';
-      case 'in_progress':
-        return '进行中';
-      case 'submitted':
-        return '待批改';
-      case 'graded':
-        return '已批改';
-      case 'expired':
-        return '已过期';
-      default:
-        return '未知';
-    }
-  }
 
-  List<Color> _getStatusGradient(String status) {
-    switch (status) {
-      case '未开始':
-        return [Color(0xFF5C6BC0), Color(0xFF3949AB)]; // 蓝色渐变
-      case '进行中':
-        return [Color(0xFF66BB6A), Color(0xFF388E3C)]; // 绿色渐变
-      case '已截止':
-      case '已过期':
-        return [Color(0xFFEF5350), Color(0xFFD32F2F)]; // 红色渐变
-      case '已提交':
-        return [Color(0xFFFF9800), Color(0xFFE65100)]; // 橙色渐变
-      case '已批改':
-        return [Color(0xFF9575CD), Color(0xFF5E35B1)]; // 紫色渐变
-      default:
-        return [Color(0xFF9E9E9E), Color(0xFF616161)]; // 灰色渐变
-    }
-  }
+
+
 
   IconData _getFileIcon(String url) {
     if (url.isEmpty) return Icons.insert_drive_file;
@@ -956,50 +950,7 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
     }
   }
 
-  String _getFileName(String url) {
-    if (url.isEmpty) return '无附件';
-    
-    final uri = Uri.parse(url);
-    final pathSegments = uri.pathSegments;
-    if (pathSegments.isNotEmpty) {
-      return pathSegments.last;
-    }
-    return '附件';
-  }
 
-  Color _getStatusBackgroundColor(String status) {
-    switch (status) {
-      case '未开始':
-        return Color(0xFFECEFFD); // 更柔和的浅蓝色背景
-      case '进行中':
-        return Color(0xFFEDF7ED); // 更柔和的浅绿色背景
-      case '已截止':
-      case '已过期':
-        return Color(0xFFFDEDED); // 更柔和的浅红色背景
-      case '已提交':
-        return Color(0xFFFEF5E7); // 更柔和的浅橙色背景
-      case '已批改':
-        return Color(0xFFF5EEFA); // 更柔和的浅紫色背景
-      default:
-        return Color(0xFFF8F8F8); // 更柔和的浅灰色背景
-    }
-  }
 
-  Color _getStatusTextColor(String status) {
-    switch (status) {
-      case '未开始':
-        return Color(0xFF5C6BC0); // 更柔和的靛蓝色文字
-      case '进行中':
-        return Color(0xFF66BB6A); // 更柔和的绿色文字
-      case '已截止':
-      case '已过期':
-        return Color(0xFFEF5350); // 更柔和的红色文字
-      case '已提交':
-        return Color(0xFFFF9800); // 更柔和的橙色文字
-      case '已批改':
-        return Color(0xFF9575CD); // 更柔和的紫色文字
-      default:
-        return Color(0xFF9E9E9E); // 更柔和的灰色文字
-    }
-  }
+
 }

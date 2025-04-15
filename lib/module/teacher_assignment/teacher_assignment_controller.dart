@@ -85,10 +85,10 @@ class TeacherAssignmentController extends GetxController {
     });
   }
   
-  void refreshAssignments() {
-    loadAssignments();
+   Future<void> refreshAssignments() async{
+    await loadAssignments();
   }
-  
+
   void goToCreateAssignment() {
     Get.toNamed(
       AppRoutes.CREATE_ASSIGNMENT,
@@ -118,7 +118,7 @@ class TeacherAssignmentController extends GetxController {
       }
     }).toList();
   }
-  
+
   void setFilter(String status) {
     filterStatus.value = status;
   }

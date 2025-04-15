@@ -4,6 +4,8 @@ import 'dart:ui';
 import 'package:cccc1/model/submission_model.dart';
 import 'package:flutter/material.dart';
 
+
+
 class Assignment {
   final int? assignmentId;
   String? title;
@@ -16,7 +18,9 @@ class Assignment {
   int? submittedCount;
   int? totalStudents;
   int? gradedCount;
-
+  final int? feedbackMode;
+  final int? thresholdMinutes;
+  DateTime? releaseTime;
 
   Assignment({
     this.assignmentId,
@@ -30,6 +34,9 @@ class Assignment {
     this.totalStudents,
     this.gradedCount,
     this.isInClass = false,
+    this.feedbackMode = 0,
+    this.thresholdMinutes = 0,
+    this.releaseTime,
   });
 
   factory Assignment.fromJson(Map<String, dynamic> json) {
@@ -42,6 +49,9 @@ class Assignment {
       classId: json['classId'], // 从JSON中解析
       contentUrl: json['contentUrl'] ?? '',
       isInClass: json['isInClass'] ?? false,
+      feedbackMode: json['feedbackMode']??0,
+      thresholdMinutes: json['thresholdMinutes']??0,
+      releaseTime:json['releaseTime']
     );
   }
 
@@ -140,6 +150,7 @@ class Assignment {
     return now.isAfter(startDate);
   }
 
+
   // 获取作业状态文本
   String getStatusText(Submission? submission) {
     if (submission != null && submission.isSubmitted) {
@@ -168,20 +179,19 @@ class Assignment {
     if (submission != null && submission.isSubmitted) {
       // 有提交记录
       if (submission.isGraded) {
-        return Colors.green;
+        return Colors.purple;
       } else if (isExpired) {
         return Colors.red;
       } else {
         return Colors.blue;
       }
     } else {
-      // 无提交记录
       if (!isStarted) {
         return Colors.grey;
       } else if (isExpired) {
         return Colors.red;
       } else {
-        return Colors.orange;
+        return Colors.green;
       }
     }
   }
@@ -226,5 +236,39 @@ class Assignment {
       print('日期解析错误: $e');
       return null;
     }
+  }
+
+  // 添加获取批改模式文本的方法
+  String get feedbackModeText {
+    switch (feedbackMode) {
+      case 0:
+        return '手动批改';
+      case 1:
+        return '截止后自动批改';
+      case 2:
+        return '指定时间自动批改';
+      default:
+        return '手动批改';
+    }
+  }
+
+  // 添加获取批改时间文本的方法
+  String get feedbackTimeText {
+    if (feedbackMode == 1 && thresholdMinutes != null) {
+      return '截止后 $thresholdMinutes 分钟';
+    } else if (feedbackMode == 2 && releaseTime != null) {
+      // 格式化发布时间
+      final DateTime? releaseDateTime = parseDateTime(releaseTime.toString());
+      if (releaseDateTime != null) {
+        return '${releaseDateTime.year}-${_twoDigits(releaseDateTime.month)}-${_twoDigits(releaseDateTime.day)} ${_twoDigits(releaseDateTime.hour)}:${_twoDigits(releaseDateTime.minute)}';
+      }
+    }
+    return '无';
+  }
+
+  // 辅助方法：两位数格式化
+  String _twoDigits(int n) {
+    if (n >= 10) return '$n';
+    return '0$n';
   }
 }

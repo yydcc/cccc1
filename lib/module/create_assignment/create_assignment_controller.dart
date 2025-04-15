@@ -19,6 +19,10 @@ class CreateAssignmentController extends GetxController {
   final Rx<DateTime?> selectedStartTime = Rx<DateTime?>(DateTime.now());
   final deadlineController = TextEditingController();
   final Rx<DateTime?> selectedDeadline = Rx<DateTime?>(null);
+  final RxInt feedbackMode = 0.obs; // 0: 手动批改, 1: 时间阈值, 2: 固定时间点
+  final TextEditingController thresholdMinutesController = TextEditingController();
+  final TextEditingController releaseTimeController = TextEditingController();
+  final Rx<DateTime?> selectedReleaseTime = Rx<DateTime?>(null);
   
   final String classId;
   
@@ -28,6 +32,8 @@ class CreateAssignmentController extends GetxController {
   void onClose() {
     titleController.dispose();
     descriptionController.dispose();
+    thresholdMinutesController.dispose();
+    releaseTimeController.dispose();
     super.onClose();
   }
   
@@ -118,6 +124,37 @@ class CreateAssignmentController extends GetxController {
     }
   }
   
+  void selectReleaseTime() async {
+    final DateTime now = DateTime.now();
+    
+    final DateTime? picked = await showDatePicker(
+      context: Get.context!,
+      initialDate: selectedReleaseTime.value ?? now.add(const Duration(days: 1)),
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 365)),
+    );
+    
+    if (picked != null) {
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: Get.context!,
+        initialTime: TimeOfDay.now(),
+      );
+      
+      if (pickedTime != null) {
+        final DateTime combinedDateTime = DateTime(
+          picked.year,
+          picked.month,
+          picked.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+        
+        selectedReleaseTime.value = combinedDateTime;
+        releaseTimeController.text = _formatDateTime(combinedDateTime);
+      }
+    }
+  }
+  
   Future<void> createAssignment() async {
     if (titleController.text.isEmpty) {
       Get.snackbar('提示', '请输入作业标题');
@@ -139,6 +176,17 @@ class CreateAssignmentController extends GetxController {
       return;
     }
     
+    // 验证批改设置
+    if (feedbackMode.value == 1 && thresholdMinutesController.text.isEmpty) {
+      Get.snackbar('提示', '请输入时间阈值');
+      return;
+    }
+    
+    if (feedbackMode.value == 2 && selectedReleaseTime.value == null) {
+      Get.snackbar('提示', '请选择发布时间');
+      return;
+    }
+    
     try {
       isSubmitting.value = true;
       
@@ -152,8 +200,16 @@ class CreateAssignmentController extends GetxController {
         'classId': int.parse(classId),
         'teacherId': teacherId,
         'deadline': _formatDateTimeForApi(selectedDeadline.value!),
-        'createTime': _formatDateTimeForApi(selectedStartTime.value!)
+        'createTime': _formatDateTimeForApi(selectedStartTime.value!),
+        'feedbackMode': feedbackMode.value,
       };
+      
+      // 添加时间阈值或发布时间
+      if (feedbackMode.value == 1 && thresholdMinutesController.text.isNotEmpty) {
+        assignmentData['thresholdMinutes'] = int.parse(thresholdMinutesController.text);
+      } else if (feedbackMode.value == 2 && selectedReleaseTime.value != null) {
+        assignmentData['releaseTime'] = _formatDateTimeForApi(selectedReleaseTime.value!);
+      }
       
       // 准备文件（如果有）
       File? fileToUpload = null;

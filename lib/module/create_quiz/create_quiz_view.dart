@@ -66,6 +66,8 @@ class CreateQuizView extends GetView<CreateQuizController> {
             _buildDeadlineSelector(),
             SizedBox(height: 24.h),
             _buildInfoCard(),
+            SizedBox(height: 16.h),
+            _buildFeedbackSettings(),
             SizedBox(height: 24.h),
             _buildSubmitButton(),
           ],
@@ -191,6 +193,141 @@ class CreateQuizView extends GetView<CreateQuizController> {
           ),
         ],
       ),
+    );
+  }
+  
+  Widget _buildFeedbackSettings() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '批改设置',
+          style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.bold,
+            color: GlobalThemData.textPrimaryColor,
+          ),
+        ),
+        SizedBox(height: 8.h),
+        Container(
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8.r),
+            border: Border.all(color: Colors.grey.shade300),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '批改模式',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w500,
+                  color: GlobalThemData.textPrimaryColor,
+                ),
+              ),
+              SizedBox(height: 8.h),
+              Obx(() => Column(
+                children: [
+                  RadioListTile<int>(
+                    title: Text('手动批改', style: TextStyle(fontSize: 14.sp)),
+                    value: 0,
+                    groupValue: controller.feedbackMode.value,
+                    onChanged: (value) => controller.feedbackMode.value = value!,
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                  ),
+                  RadioListTile<int>(
+                    title: Text('截止后自动批改（时间阈值）', style: TextStyle(fontSize: 14.sp)),
+                    value: 1,
+                    groupValue: controller.feedbackMode.value,
+                    onChanged: (value) => controller.feedbackMode.value = value!,
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                  ),
+                  if (controller.feedbackMode.value == 1)
+                    Padding(
+                      padding: EdgeInsets.only(left: 32.w, right: 16.w, bottom: 8.h),
+                      child: TextField(
+                        controller: controller.thresholdMinutesController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          hintText: '截止后多少分钟自动批改',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 12.w,
+                            vertical: 8.h,
+                          ),
+                        ),
+                      ),
+                    ),
+                  RadioListTile<int>(
+                    title: Text('指定时间自动批改', style: TextStyle(fontSize: 14.sp)),
+                    value: 2,
+                    groupValue: controller.feedbackMode.value,
+                    onChanged: (value) => controller.feedbackMode.value = value!,
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                  ),
+                  if (controller.feedbackMode.value == 2)
+                    Padding(
+                      padding: EdgeInsets.only(left: 32.w, right: 16.w, bottom: 8.h),
+                      child: GestureDetector(
+                        onTap: controller.selectReleaseTime,
+                        child: AbsorbPointer(
+                          child: TextField(
+                            controller: controller.releaseTimeController,
+                            decoration: InputDecoration(
+                              hintText: '选择批改结果发布时间',
+                              prefixIcon: const Icon(Icons.event),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12.w,
+                                vertical: 8.h,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              )),
+              SizedBox(height: 8.h),
+              Container(
+                padding: EdgeInsets.all(12.w),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      size: 16.sp,
+                      color: Colors.blue,
+                    ),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                        '自动批改将使用AI对学生提交进行评分，并自动发布结果。',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
   

@@ -13,19 +13,32 @@ class QuizDetailView extends GetView<QuizDetailController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
+      return Obx(() {
       // 根据测验状态获取主题色
       Color primaryColor = Colors.purple;
-      List<Color> gradientColors = [Color(0xFF9E9E9E), Color(0xFF616161)];
-      
+
       if (!controller.isLoading.value && controller.quiz.value != null) {
-        // 使用控制器的方法获取正确的状态文本
-        final statusText = controller.getStatusText(
-          controller.quiz.value!, 
-          controller.submission.value
-        );
-        gradientColors = _getStatusGradient(statusText);
-        primaryColor = gradientColors[0];
+        final statusText = controller.quiz.value!.statusText;
+        switch (statusText) {
+          case '未开始':
+            primaryColor = Colors.blue;
+            break;
+          case '进行中':
+            primaryColor = Colors.green;
+            break;
+          case '已截止':
+          case '已过期':
+            primaryColor = Colors.red;
+            break;
+          case '已提交':
+            primaryColor = Colors.orange;
+            break;
+          case '已批改':
+            primaryColor = Colors.purple;
+            break;
+          default:
+            primaryColor = Colors.grey;
+        }
       }
       
       return Scaffold(
