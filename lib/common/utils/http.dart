@@ -1,10 +1,9 @@
 import 'package:cccc1/routes/app_pages.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+
 import 'package:get/get.dart' as tr;
 import 'package:get/get_core/src/get_main.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import '../utils/storage.dart';
 
 class DioResponse<T> {
@@ -29,7 +28,7 @@ class DioResponse<T> {
 
 class HttpUtil {
   static final HttpUtil _instance = HttpUtil.internal();
-  static final SERVER_API_URL = "http://140.143.194.73:8080";
+  static final SERVER_API_URL = "http://yizhe.natapp1.cc";
   factory HttpUtil() => _instance;
   late Dio dio;
 
