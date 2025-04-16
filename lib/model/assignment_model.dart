@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'dart:ui';
 
 import 'package:cccc1/model/submission_model.dart';
@@ -20,7 +19,7 @@ class Assignment {
   int? gradedCount;
   final int? feedbackMode;
   final int? thresholdMinutes;
-  DateTime? releaseTime;
+  String? releaseTime;
 
   Assignment({
     this.assignmentId,
@@ -187,7 +186,7 @@ class Assignment {
       }
     } else {
       if (!isStarted) {
-        return Colors.grey;
+        return Colors.blue;
       } else if (isExpired) {
         return Colors.red;
       } else {
@@ -242,13 +241,13 @@ class Assignment {
   String get feedbackModeText {
     switch (feedbackMode) {
       case 0:
-        return '手动批改';
+        return '教师手动批改';
       case 1:
-        return '截止后自动批改';
+        return '截止后AI自动批改';
       case 2:
-        return '指定时间自动批改';
+        return '指定时间AI自动批改';
       default:
-        return '手动批改';
+        return '教师手动批改';
     }
   }
 

@@ -1,10 +1,10 @@
-import 'package:cccc1/module/quiz/quiz_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import '../../common/theme/color.dart';
 import '../../model/assignment_model.dart';
-import '../../routes/app_pages.dart';
+import 'package:cccc1/module/quiz/quiz_controller.dart';
 
 class QuizView extends GetView<QuizController> {
   const QuizView({Key? key}) : super(key: key);
@@ -12,25 +12,24 @@ class QuizView extends GetView<QuizController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: GlobalThemData.backgroundColor,
-        appBar: AppBar(
-          title: Text('课堂测验'),
-          centerTitle: true,
-          elevation: 0,
-          actions: [
-            IconButton(
-              icon: Icon(Icons.refresh),
-              onPressed: controller.refreshQuizList,
-              tooltip: '刷新',
-            ),
-          ],
-        ),
-
-        body: Column(
-          children: [
-            _buildFilterTabs(),
-            Expanded(child:
-            Obx(() {
+      backgroundColor: GlobalThemData.backgroundColor,
+      appBar: AppBar(
+        title: const Text('课堂测验'),
+        centerTitle: true,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: controller.refreshQuizzes,
+            tooltip: '刷新',
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          _buildFilterTabs(),
+          Expanded(
+            child: Obx(() {
               if (controller.isLoading.value && controller.quizzes.isEmpty) {
                 return _buildLoadingView();
               } else if (controller.filteredQuizzes.isEmpty) {
@@ -39,9 +38,9 @@ class QuizView extends GetView<QuizController> {
                 return _buildQuizList();
               }
             }),
-            )
-          ],
-        )
+          ),
+        ],
+      ),
     );
   }
 
@@ -98,82 +97,24 @@ class QuizView extends GetView<QuizController> {
     ));
   }
 
-
-  Widget _buildLoadingView() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 40.w,
-            height: 40.w,
-            child: CircularProgressIndicator(
-              strokeWidth: 3.w,
-              valueColor: AlwaysStoppedAnimation<Color>(Theme.of(Get.context!).primaryColor),
-            ),
-          ),
-          SizedBox(height: 16.h),
-          Text(
-            '加载中...',
-            style: TextStyle(
-              fontSize: 16.sp,
-              color: GlobalThemData.textSecondaryColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-  Widget _buildEmptyView() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.assignment_outlined,
-            size: 60.sp,
-            color: Colors.grey.shade400,
-          ),
-          SizedBox(height: 16.h),
-          Text(
-            '暂无测验',
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.bold,
-              color: GlobalThemData.textSecondaryColor,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            '请等待老师发布新测验',
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: GlobalThemData.textTertiaryColor,
-            ),
-          ),
-          SizedBox(height: 24.h),
-
-        ],
-      ),
-    );
-  }
   Widget _buildQuizList() {
-    return RefreshIndicator(
-      onRefresh: controller.refreshQuizList,
+    // 使用EasyRefresh包装ListView，避免直接使用controller.refreshController
+    return EasyRefresh(
+      controller: controller.refreshController,
+      onRefresh: controller.onRefresh,
+      onLoad: controller.onLoadMore,
       child: ListView.builder(
         padding: EdgeInsets.all(16.w),
         itemCount: controller.filteredQuizzes.length,
         itemBuilder: (context, index) {
           final quiz = controller.filteredQuizzes[index];
-          return _buildQuizCard(quiz);
+          return _buildQuizItem(quiz);
         },
       ),
     );
   }
 
-  Widget _buildQuizCard(Assignment quiz) {
+  Widget _buildQuizItem(Assignment quiz) {
     // 获取状态对应的颜色
     Color statusColor;
     IconData statusIcon;
@@ -197,7 +138,7 @@ class QuizView extends GetView<QuizController> {
     }
 
     return GestureDetector(
-      onTap: () => controller.goToQuizDetail(quiz),
+      onTap: () => controller.goToQuizDetail(quiz.assignmentId),
       child: Container(
         margin: EdgeInsets.only(bottom: 16.h),
         decoration: BoxDecoration(
@@ -335,6 +276,64 @@ class QuizView extends GetView<QuizController> {
             ),
           ],
         ),
+      ),
+    );
+  }
+  Widget _buildLoadingView() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 40.w,
+            height: 40.w,
+            child: CircularProgressIndicator(
+              strokeWidth: 3.w,
+              valueColor: AlwaysStoppedAnimation<Color>(Theme.of(Get.context!).primaryColor),
+            ),
+          ),
+          SizedBox(height: 16.h),
+          Text(
+            '加载中...',
+            style: TextStyle(
+              fontSize: 16.sp,
+              color: GlobalThemData.textSecondaryColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyView() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.assignment_outlined,
+            size: 60.sp,
+            color: Colors.grey.shade400,
+          ),
+          SizedBox(height: 16.h),
+          Text(
+            '暂无测验',
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
+              color: GlobalThemData.textSecondaryColor,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            '请等待老师发布测验',
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: GlobalThemData.textTertiaryColor,
+            ),
+          ),
+
+        ],
       ),
     );
   }

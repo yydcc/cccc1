@@ -367,7 +367,7 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
                     ),
                   ],
                 ),
-                
+
                 // 如果是自动批改，显示批改时间
                 if (assignment.feedbackMode != 0)
                   Padding(
@@ -693,7 +693,7 @@ class AssignmentDetailView extends GetView<AssignmentDetailController> {
           SizedBox(width: 12.w),
           Expanded(
             child: Text(
-              '该作业已过截止日期，无法提交',
+              '该作业处于${controller.assignment.value!.getStatusText(controller.submission.value)}状态，无法提交',
               style: TextStyle(
                 fontSize: 14.sp,
                 color: Colors.red,

@@ -18,27 +18,7 @@ class QuizDetailView extends GetView<QuizDetailController> {
       Color primaryColor = Colors.purple;
 
       if (!controller.isLoading.value && controller.quiz.value != null) {
-        final statusText = controller.quiz.value!.statusText;
-        switch (statusText) {
-          case '未开始':
-            primaryColor = Colors.blue;
-            break;
-          case '进行中':
-            primaryColor = Colors.green;
-            break;
-          case '已截止':
-          case '已过期':
-            primaryColor = Colors.red;
-            break;
-          case '已提交':
-            primaryColor = Colors.orange;
-            break;
-          case '已批改':
-            primaryColor = Colors.purple;
-            break;
-          default:
-            primaryColor = Colors.grey;
-        }
+        primaryColor = controller.quiz.value!.getStatusColor(controller.submission.value);
       }
       
       return Scaffold(
@@ -94,6 +74,7 @@ class QuizDetailView extends GetView<QuizDetailController> {
     );
   }
 
+
   Widget _buildQuizHeader(Assignment quiz, Submission? submission, String statusText) {
     // 获取状态对应的图标
     IconData statusIcon;
@@ -118,21 +99,17 @@ class QuizDetailView extends GetView<QuizDetailController> {
     }
     
     // 根据状态获取对应的渐变色
-    List<Color> statusGradient = _getStatusGradient(statusText);
+    final Color primaryColor = controller.quiz.value!.getStatusColor(submission);
     
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: statusGradient,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+          color: primaryColor,
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: statusGradient[0].withOpacity(0.3),
+            color: primaryColor.withOpacity(0.3),
             blurRadius: 10,
             offset: Offset(0, 5),
           ),
@@ -269,6 +246,71 @@ class QuizDetailView extends GetView<QuizDetailController> {
               color: GlobalThemData.textSecondaryColor,
             ),
           ),
+          SizedBox(height: 8.h),
+          // 添加批改模式信息
+          if (quiz.feedbackMode != null)
+            Column(
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.grading,
+                      size: 18.sp,
+                      color: GlobalThemData.textSecondaryColor,
+                    ),
+                    SizedBox(width: 8.w),
+                    Text(
+                      '批改模式 ',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: GlobalThemData.textSecondaryColor,
+                      ),
+                    ),
+                    SizedBox(width: 8.h),
+                    Text(
+                      quiz.feedbackModeText,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: GlobalThemData.textPrimaryColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+
+                // 如果是自动批改，显示批改时间
+                if (quiz.feedbackMode != 0)
+                  Padding(
+                    padding: EdgeInsets.only(top: 8.h),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.timer,
+                          size: 18.sp,
+                          color: GlobalThemData.textSecondaryColor,
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          '批改时间: ',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: GlobalThemData.textSecondaryColor,
+                          ),
+                        ),
+                        Text(
+                          quiz.feedbackTimeText,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: quiz.feedbackMode == 2 ? Colors.blue : Colors.orange,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+
         ],
       ),
     );
@@ -765,25 +807,6 @@ class QuizDetailView extends GetView<QuizDetailController> {
         ],
       ),
     );
-  }
-
-  // 添加状态渐变色方法
-  List<Color> _getStatusGradient(String status) {
-    switch (status) {
-      case '未开始':
-        return [Color(0xFF5C6BC0), Color(0xFF3949AB)]; // 蓝色渐变
-      case '进行中':
-        return [Color(0xFF66BB6A), Color(0xFF388E3C)]; // 绿色渐变
-      case '已截止':
-      case '已过期':
-        return [Color(0xFFEF5350), Color(0xFFD32F2F)]; // 红色渐变
-      case '已提交':
-        return [Color(0xFFFF9800), Color(0xFFE65100)]; // 橙色渐变
-      case '已批改':
-        return [Color(0xFF9575CD), Color(0xFF5E35B1)]; // 紫色渐变
-      default:
-        return [Color(0xFF9E9E9E), Color(0xFF616161)]; // 灰色渐变
-    }
   }
 
   Widget _buildInfoRow({
