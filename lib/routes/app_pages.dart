@@ -1,4 +1,5 @@
 import 'package:cccc1/model/assignment_model.dart';
+import 'package:cccc1/module/grade_statistics/grade_statistic_bindind.dart';
 import 'package:cccc1/module/quiz_management/teacher_quiz_management_binding.dart';
 import 'package:cccc1/module/quiz_management/teacher_quiz_management_view.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +43,8 @@ import '../module/teacher_quiz_detail/teacher_quiz_detail_binding.dart';
 import '../module/teacher_quiz_detail/teacher_quiz_detail_view.dart';
 import '../module/schedule/schedule_binding.dart';
 import '../module/schedule/schedule_view.dart';
+import '../module/grade_statistics/grade_statistics_view.dart';
+import '../module/grade_statistics/grade_statistics_controller.dart';
 
 part 'app_routes.dart';
 
@@ -163,6 +166,11 @@ class AppPages {
       name: AppRoutes.SCHEDULE,
       page: () => ScheduleView(),
       binding: ScheduleBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.GRADE_STATISTICS,
+      page: () => const GradeStatisticsView(),
+      binding:GradeStatisticsBinding(),
     ),
   ];
 }

@@ -15,7 +15,6 @@
       <root url="file://D:/flutter/pub_cache/hosted/pub.flutter-io.cn/shared_preferences-2.5.3" />
       <root url="file://D:/flutter/pub_cache/hosted/pub.flutter-io.cn/shared_preferences_foundation-2.5.4" />
       <root url="file://D:/flutter/pub_cache/hosted/pub.flutter-io.cn/url_launcher_linux-3.2.1" />
-      <root url="file://D:/flutter/pub_cache/hosted/pub.flutter-io.cn/shared_preferences_android-2.4.8" />
       <root url="file://D:/flutter/pub_cache/hosted/pub.flutter-io.cn/path_provider_windows-2.3.0" />
       <root url="file://D:/flutter/pub_cache/hosted/pub.flutter-io.cn/file_selector_linux-0.9.3+2" />
       <root url="file://D:/flutter/pub_cache/hosted/pub.flutter-io.cn/image_picker_for_web-3.0.6" />
@@ -35,6 +34,7 @@
       <root url="file://D:/flutter/pub_cache/hosted/pub.flutter-io.cn/image_picker-1.1.2" />
       <root url="file://D:/flutter/pub_cache/hosted/pub.flutter-io.cn/image_picker_linux-0.2.1+2" />
       <root url="file://D:/flutter/pub_cache/hosted/pub.flutter-io.cn/url_launcher_ios-6.3.3" />
+      <root url="file://D:/flutter/pub_cache/hosted/pub.flutter-io.cn/shared_preferences_android-2.4.9" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

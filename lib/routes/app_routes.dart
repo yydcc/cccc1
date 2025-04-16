@@ -29,6 +29,7 @@ abstract class AppRoutes {
   static const TEACHER_QUIZ_MANAGEMENT = "/teacher/quiz/management";
   static const TEACHER_QUIZ_DETAIL = '/teacher/quiz/detail';
   static const SCHEDULE = '/schedule';
+  static const GRADE_STATISTICS = "/statistic/grade";
 }
 
 

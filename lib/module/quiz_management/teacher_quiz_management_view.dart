@@ -46,13 +46,13 @@ class TeacherQuizManagementView extends GetView<TeacherQuizManagementController>
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value && controller.quizzes.isEmpty) {
-                return _buildLoadingView();
+          return _buildLoadingView();
               } else if (controller.filteredQuizzes.isEmpty) {
-                return _buildEmptyView();
-              } else {
-                return _buildQuizList();
-              }
-            }),
+          return _buildEmptyView();
+        } else {
+          return _buildQuizList();
+        }
+      }),
           ),
         ],
       ),
@@ -319,7 +319,7 @@ class TeacherQuizManagementView extends GetView<TeacherQuizManagementController>
       ),
     );
   }
-
+  
   Widget _buildEmptyView() {
     return Center(
       child: Column(

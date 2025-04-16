@@ -1,3 +1,4 @@
+import 'package:cccc1/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -446,7 +447,7 @@ class ClassDetailView extends GetView<ClassDetailController> {
                 subtitle: '学习分析',
                 color: Colors.purple,
                 onTap: (){
-
+                  Get.toNamed(AppRoutes.GRADE_STATISTICS);
                 },
               ),
             ),
