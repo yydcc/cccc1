@@ -10,6 +10,8 @@ import '../../common/theme/color.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 import '../../common/api/api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 class ProfileController extends GetxController {
   final HttpUtil httpUtil = HttpUtil();
   final RxString username = ''.obs;
@@ -348,6 +350,10 @@ class ProfileController extends GetxController {
     if (result == true) {
       try {
         final storage = await StorageService.instance;
+        final prefs = await SharedPreferences.getInstance();
+        
+        // 清除所有本地缓存
+        await prefs.clear();
         await storage.removeToken();
         Get.offAllNamed(AppRoutes.SIGN_IN);
       } catch (e) {
@@ -419,6 +425,7 @@ class ProfileController extends GetxController {
     if (result == true) {
       try {
         final storage = await StorageService.instance;
+        final prefs = await SharedPreferences.getInstance();
         final userRole = storage.getRole() ?? 'student';
         final userId = storage.getUserId()??0;
         dynamic response;
@@ -429,6 +436,8 @@ class ProfileController extends GetxController {
           response = await API.teachers.deleteTeacher(userId);
         }
         if (response.code == 200) {
+          // 清除所有本地缓存
+          await prefs.clear();
           await storage.removeToken();
           Get.offAllNamed(AppRoutes.SIGN_IN);
           Get.snackbar('成功', '账号已删除');

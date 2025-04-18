@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../common/utils/storage.dart';
 import 'home_controller.dart';
+import '../../routes/app_pages.dart';
 
 class HomePage extends GetView<HomeController> {
   const HomePage({Key? key}) : super(key: key);
@@ -38,6 +39,22 @@ class HomePage extends GetView<HomeController> {
               crossAxisSpacing: 16.w,
               mainAxisSpacing: 16.h,
               children: _buildFeatureItems(context, role),
+            ),
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              Get.toNamed(AppRoutes.AI_CHAT);
+            },
+            backgroundColor: Theme.of(context).primaryColor,
+            child: Container(
+              width: 40.w,
+              height: 40.w,
+
+              child: Icon(
+                Icons.smart_toy_outlined,
+                color: Colors.white,
+                size: 24.sp,
+              ),
             ),
           ),
         );

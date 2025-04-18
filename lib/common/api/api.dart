@@ -6,6 +6,7 @@ import 'submission_api.dart';
 import 'chat_api.dart';
 import 'file_api.dart';
 import 'quiz_api.dart';
+import 'schedule_api.dart';
 
 class API {
   static final ClassApi classes = ClassApi();
@@ -16,4 +17,5 @@ class API {
   static final ChatApi chat = ChatApi();
   static final FileApi files = FileApi();
   static final QuizApi quiz = QuizApi();
+  static final ScheduleApi schedules = ScheduleApi();
 } 
