@@ -281,22 +281,40 @@ class TeacherAssignmentDetailView extends GetView<TeacherAssignmentDetailControl
                   color: GlobalThemData.textPrimaryColor,
                 ),
               ),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 12.w,
-                  vertical: 4.h,
-                ),
-                decoration: BoxDecoration(
-                  color: Theme.of(Get.context!).primaryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(15.r),
-                ),
-                child: Obx(() => Text(
-                  '已提交: ${controller.submissions.length}',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Theme.of(Get.context!).primaryColor,
+              Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.w,
+                      vertical: 4.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(Get.context!).primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(15.r),
+                    ),
+                    child: Obx(() => Text(
+                      '已提交: ${controller.submissions.length}',
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: Theme.of(Get.context!).primaryColor,
+                      ),
+                    )),
                   ),
-                )),
+                  SizedBox(width: 8.w),
+                  ElevatedButton.icon(
+                    onPressed: controller.autoGradeAll,
+                    icon: Icon(Icons.auto_awesome, size: 16.sp,color: Colors.white),
+                    label: Text('一键批改'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(Get.context!).primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.r),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
