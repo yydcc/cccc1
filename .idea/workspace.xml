@@ -9,7 +9,9 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="90c71f39-95ed-4573-8768-4b6e6de27f4d" name="Changes" comment="">
+    <list default="true" id="90c71f39-95ed-4573-8768-4b6e6de27f4d" name="Changes" comment="备忘录功能界面优化">
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/module/teacher_assignment_detail/teacher_assignment_detail_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_assignment_detail/teacher_assignment_detail_controller.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/module/teacher_assignment_detail/teacher_assignment_detail_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_assignment_detail/teacher_assignment_detail_view.dart" afterDir="false" />
@@ -62,6 +64,16 @@
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/yydcc/cccc1.git&quot;,
     &quot;accountId&quot;: &quot;57cfa081-3ae2-44d6-8b5f-5064e65846a7&quot;
+  },
+  &quot;recentNewPullRequestHead&quot;: {
+    &quot;server&quot;: {
+      &quot;useHttp&quot;: false,
+      &quot;host&quot;: &quot;github.com&quot;,
+      &quot;port&quot;: null,
+      &quot;suffix&quot;: null
+    },
+    &quot;owner&quot;: &quot;yydcc&quot;,
+    &quot;repository&quot;: &quot;cccc1&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
@@ -90,19 +102,19 @@
     &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;flutter.view.tool.window.visible&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;quiz__feature&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;优化界面&quot;,
     &quot;io.flutter.reload.alreadyRun&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/Lenovo/Desktop/code/jishe/cccc1&quot;,
     &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;device.mirroring&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;dart.settings&quot;,
     &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
   }
 }</component>
@@ -128,6 +140,23 @@
       <option name="presentableId" value="Default" />
       <updated>1740903866802</updated>
     </task>
+    <task id="LOCAL-00001" summary="备忘录功能界面优化">
+      <option name="closed" value="true" />
+      <created>1744817432251</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1744817432251</updated>
+    </task>
+    <task id="LOCAL-00002" summary="备忘录功能界面优化">
+      <option name="closed" value="true" />
+      <created>1744817652720</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1744817652720</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -164,13 +193,13 @@
       </map>
     </option>
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="备忘录功能界面优化" />
+    <option name="LAST_COMMIT_MESSAGE" value="备忘录功能界面优化" />
+  </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" type="Dart">
-          <url>file://$PROJECT_DIR$/lib/common/api/quiz_api.dart</url>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/module/class_detail/class_detail_view.dart</url>
           <line>99</line>

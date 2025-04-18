@@ -12,6 +12,7 @@ class HomePage extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
+
     return FutureBuilder<StorageService>(
       future: StorageService.instance,
       builder: (context, snapshot) {
@@ -94,31 +95,25 @@ class HomePage extends GetView<HomeController> {
         ),
         _buildFeatureItem(
           context,
-          icon: Icons.chat,
-          label: '讨论',
-          routeName: AppRoutes.CLASS_DISCUSSION,
-        ),
-        _buildFeatureItem(
-          context,
           icon: Icons.group,
           label: '班级成员',
           routeName: AppRoutes.CLASS_MEMBERS,
-        ),
-        _buildFeatureItem(
-          context,
-          icon: Icons.announcement,
-          label: '公告',
-          routeName: AppRoutes.CLASS_ANNOUNCEMENTS,
         ),
       ];
     }
   }
 
-  Widget _buildFeatureItem(BuildContext context, {required IconData icon, required String label, required String routeName}) {
+  Widget _buildFeatureItem(
+      BuildContext context, {
+        required IconData icon,
+        required String label,
+        required String routeName,
+        Object? arguments, // 添加可选的 arguments 参数
+      }) {
     return GestureDetector(
       onTap: () async {
         try {
-          await Get.toNamed(routeName);
+          await Get.toNamed(routeName, arguments: arguments); // 传递 arguments
         } catch (e) {
           _showError(context, e);
         }

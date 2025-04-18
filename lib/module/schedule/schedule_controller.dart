@@ -1,35 +1,81 @@
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+class Schedule {
+  String task;
+  String date;
+  bool isCompleted;
+
+  Schedule({required this.task, required this.date, this.isCompleted = false});
+}
 
 class ScheduleController extends GetxController {
-  final TextEditingController taskController = TextEditingController();
-  final TextEditingController dateController = TextEditingController();
-  final RxList<Schedule> schedules = <Schedule>[].obs;
-  
+  final taskController = TextEditingController();
+  final dateController = TextEditingController();
+  final schedules = <Schedule>[].obs;
+  final isTaskValid = false.obs;
+  final taskError = ''.obs;
+  final dateError = ''.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    taskController.addListener(() {
+      taskError.value = '';
+      validateInputs();
+    });
+    dateController.addListener(() {
+      dateError.value = '';
+      validateInputs();
+    });
+  }
+
   @override
   void onClose() {
     taskController.dispose();
     dateController.dispose();
     super.onClose();
   }
-  
-  void addMemo() {
-    if (taskController.text.isNotEmpty && dateController.text.isNotEmpty) {
-      schedules.add(Schedule(
-        task: taskController.text,
-        date: dateController.text,
-      ));
-      taskController.clear();
-      dateController.clear();
-    } else {
-      Get.snackbar('提示', '请输入任务和日期');
-    }
+
+  void validateInputs() {
+    isTaskValid.value = taskController.text.isNotEmpty && dateController.text.isNotEmpty;
   }
-}
 
-class Schedule {
-  final String task;
-  final String date;
+  void addMemo() {
+    if (taskController.text.isEmpty) {
+      taskError.value = '请输入备忘事项';
+      return;
+    }
+    if (dateController.text.isEmpty) {
+      dateError.value = '请选择日期';
+      return;
+    }
 
-  Schedule({required this.task, required this.date});
+    schedules.add(Schedule(
+      task: taskController.text,
+      date: dateController.text,
+    ));
+    Get.snackbar(
+      '成功',
+      '备忘录已添加',
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+      duration: const Duration(seconds: 2),
+    );
+    taskController.clear();
+    dateController.clear();
+    taskError.value = '';
+    dateError.value = '';
+    isTaskValid.value = false;
+  }
+  void deleteMemo(int index) {
+    schedules.removeAt(index);
+  }
+
+
+  void toggleCompletion(int index) {
+    schedules[index].isCompleted = !schedules[index].isCompleted;
+    schedules.refresh();
+  }
 }

@@ -60,15 +60,5 @@ class ApiService {
     }
   }
   
-  // 获取当前用户角色
-  Future<String> _getUserRole() async {
-    final storage = await StorageService.instance;
-    return storage.getRole() ?? 'student';
-  }
-  
-  // 获取当前用户名
-  Future<String> _getUsername() async {
-    final storage = await StorageService.instance;
-    return storage.getUsername() ?? '';
-  }
+
 } 
