@@ -69,6 +69,10 @@ class ScheduleController extends GetxController {
     dateError.value = '';
     isTaskValid.value = false;
   }
+  void deleteMemo(int index) {
+    schedules.removeAt(index);
+  }
+
 
   void toggleCompletion(int index) {
     schedules[index].isCompleted = !schedules[index].isCompleted;

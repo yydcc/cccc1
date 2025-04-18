@@ -9,7 +9,15 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="90c71f39-95ed-4573-8768-4b6e6de27f4d" name="Changes" comment="备忘录功能界面优化" />
+    <list default="true" id="90c71f39-95ed-4573-8768-4b6e6de27f4d" name="Changes" comment="备忘录功能界面优化">
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/common/utils/http.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/common/utils/http.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/home/home_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/home/home_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/schedule/schedule_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/schedule/schedule_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/schedule/schedule_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/schedule/schedule_view.dart" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -142,7 +150,15 @@
       <option name="project" value="LOCAL" />
       <updated>1744817432251</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="备忘录功能界面优化">
+      <option name="closed" value="true" />
+      <created>1744817652720</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1744817652720</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="ToolWindowManager">

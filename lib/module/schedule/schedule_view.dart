@@ -13,7 +13,17 @@ class ScheduleView extends GetView<ScheduleController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: GlobalThemData.backgroundColor,
+      appBar: AppBar(
+        title: const Text('备忘录'),
+        centerTitle: true,
+        backgroundColor: Theme.of(context).primaryColor,
+        titleTextStyle: TextStyle(
+          fontSize: 20.sp,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -23,20 +33,13 @@ class ScheduleView extends GetView<ScheduleController> {
           ),
         ),
         child: SafeArea(
+          minimum: EdgeInsets.only(bottom: 16.h),
           child: Padding(
-            padding: EdgeInsets.all(16.w),
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '备忘录',
-                  style: TextStyle(
-                    fontSize: 28.sp,
-                    fontWeight: FontWeight.w700,
-                    color: GlobalThemData.textPrimaryColor,
-                  ),
-                ),
-                SizedBox(height: 24.h),
+                SizedBox(height: 16.h),
                 Obx(() => TextField(
                   controller: controller.taskController,
                   decoration: InputDecoration(
@@ -158,6 +161,7 @@ class ScheduleView extends GetView<ScheduleController> {
                               ],
                             ),
                             child: ListTile(
+                              onLongPress: () => _showDeleteDialog(context, index, schedule.task),
                               leading: Checkbox(
                                 value: schedule.isCompleted,
                                 onChanged: (value) => controller.toggleCompletion(index),
@@ -191,6 +195,77 @@ class ScheduleView extends GetView<ScheduleController> {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showDeleteDialog(BuildContext context, int index, String task) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(16.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '删除备忘事项',
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w600,
+                  color: GlobalThemData.textPrimaryColor,
+                ),
+              ),
+              SizedBox(height: 12.h),
+              Text(
+                '确定要删除“$task”吗？',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  color: GlobalThemData.textSecondaryColor,
+                ),
+              ),
+              SizedBox(height: 20.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Get.back(),
+                    child: Text(
+                      '取消',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        color: GlobalThemData.textPrimaryColor,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  ElevatedButton(
+                    onPressed: () {
+                      controller.deleteMemo(index);
+                      Get.back();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                    ),
+                    child: Text(
+                      '删除',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
