@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'teacher_grade_statistics_controller.dart';
+import 'package:cccc1/module/teacher_statistics/teacher_grade_statistics_controller.dart';
 
 class TeacherGradeStatisticsBinding implements Bindings {
   @override
