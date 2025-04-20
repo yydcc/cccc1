@@ -1,9 +1,12 @@
 import 'package:get/get.dart';
 import 'class_members_controller.dart';
 
-class ClassMembersBinding implements Bindings {
+class ClassMembersBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<ClassMembersController>(() => ClassMembersController());
+    final classId = Get.arguments['classId'];
+    Get.lazyPut<ClassMembersController>(
+      () => ClassMembersController(classId: classId),
+    );
   }
 } 

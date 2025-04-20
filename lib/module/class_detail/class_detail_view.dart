@@ -1,3 +1,4 @@
+import 'package:cccc1/common/utils/storage.dart';
 import 'package:cccc1/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -446,8 +447,12 @@ class ClassDetailView extends GetView<ClassDetailController> {
                 title: '成绩统计',
                 subtitle: '学习分析',
                 color: Colors.purple,
-                onTap: (){
-                  Get.toNamed(AppRoutes.GRADE_STATISTICS);
+                onTap: () async {
+                  final prefs = await StorageService.instance;
+                  Get.toNamed(AppRoutes.GRADE_STATISTICS,arguments: {
+                    "classId": controller.classInfo.value?.classId,
+                    "studentId": prefs.getUserId()
+                  });
                 },
               ),
             ),

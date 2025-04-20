@@ -1,10 +1,11 @@
-import 'package:cccc1/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../common/theme/color.dart';
+import '../../routes/app_pages.dart';
 import '../../model/classinfo_model.dart';
 import 'teacher_class_detail_controller.dart';
+
 
 class TeacherClassDetailView extends GetView<TeacherClassDetailController> {
   @override
@@ -442,8 +443,10 @@ class TeacherClassDetailView extends GetView<TeacherClassDetailController> {
                 title: '成绩统计',
                 subtitle: '学习分析',
                 color: Colors.purple,
-                onTap: (){
-                    Get.toNamed(AppRoutes.GRADE_STATISTICS);
+                onTap: () {
+                  Get.toNamed(AppRoutes.TEACHER_GRADE_STATISTICS, arguments: {
+                    "classId": controller.classInfo.value?.classId,
+                  });
                 },
               ),
             ),

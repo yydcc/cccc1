@@ -45,6 +45,10 @@ import '../module/schedule/schedule_binding.dart';
 import '../module/schedule/schedule_view.dart';
 import '../module/grade_statistics/grade_statistics_view.dart';
 import '../module/grade_statistics/grade_statistics_controller.dart';
+import '../module/teacher_statistics/teacher_grade_statistics_binding.dart';
+import '../module/teacher_statistics/teacher_grade_statistics_view.dart';
+import '../module/teacher_class_members/teacher_class_members_binding.dart';
+import '../module/teacher_class_members/teacher_class_members_view.dart';
 
 part 'app_routes.dart';
 
@@ -171,6 +175,16 @@ class AppPages {
       name: AppRoutes.GRADE_STATISTICS,
       page: () => const GradeStatisticsView(),
       binding:GradeStatisticsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.TEACHER_GRADE_STATISTICS,
+      page: () => const TeacherGradeStatisticsView(),
+      binding: TeacherGradeStatisticsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.TEACHER_CLASS_MEMBERS,
+      page: () => const TeacherClassMembersView(),
+      binding: TeacherClassMembersBinding(),
     ),
   ];
 }

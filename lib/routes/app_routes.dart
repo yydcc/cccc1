@@ -29,7 +29,9 @@ abstract class AppRoutes {
   static const TEACHER_QUIZ_MANAGEMENT = "/teacher/quiz/management";
   static const TEACHER_QUIZ_DETAIL = '/teacher/quiz/detail';
   static const SCHEDULE = '/schedule';
-  static const GRADE_STATISTICS = "/statistic/grade";
+  static const GRADE_STATISTICS = '/grade-statistics';
+  static const TEACHER_GRADE_STATISTICS = '/teacher-grade-statistics';
+  static const TEACHER_CLASS_MEMBERS = '/teacher-class-members';
 }
 
 

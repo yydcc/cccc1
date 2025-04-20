@@ -4,25 +4,19 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:cccc1/model/grade_statistics_model.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-class GradeStatisticsController extends GetxController {
 
-
-
-
-
+class TeacherGradeStatisticsController extends GetxController {
   final RxList<GradeStatistics> _allStatistics = <GradeStatistics>[].obs;
   List<GradeStatistics> get statistics => _filteredStatistics;
   final http = HttpUtil();
   final RxBool isLoading = true.obs;
   final RxInt filterType = 0.obs; // 0: 全部, 1: 作业, 2: 测验
   final int classId;
-  final int studentId;
 
-  GradeStatisticsController({
+  TeacherGradeStatisticsController({
     required this.classId,
-    required this.studentId
   });
-  // 获取筛选后的数据
+
   List<GradeStatistics> get _filteredStatistics {
     if (filterType.value == 0) return _allStatistics;
     if (filterType.value == 1) return _allStatistics.where((stat) => !stat.isInClass).toList();
@@ -33,17 +27,15 @@ class GradeStatisticsController extends GetxController {
   void onInit() {
     super.onInit();
     fetchData();
-    // 监听筛选类型变化
     ever(filterType, (_) => update());
   }
 
   Future<void> fetchData() async {
     try {
       isLoading.value = true;
-      final response = await http.get("/statistics/grades",
+      final response = await http.get("/statistics/class-grades",
         queryParameters: {
           "classId": classId,
-          "studentId": studentId,
         }
       );
 
@@ -53,31 +45,13 @@ class GradeStatisticsController extends GetxController {
             .toList();
         list.sort((a, b) => a.createTime.compareTo(b.createTime));
         _allStatistics.value = list;
-        update(); // 确保视图更新
+        update();
       }
     } catch (e) {
       debugPrint('获取数据失败: $e');
     } finally {
       isLoading.value = false;
     }
-  }
-
-  double get averageScore {
-    final currentStats = statistics;
-    if (currentStats.isEmpty) return 0.0;
-    return currentStats.map((e) => e.score).reduce((a, b) => a + b) / currentStats.length;
-  }
-
-  double get maxScore {
-    final currentStats = statistics;
-    if (currentStats.isEmpty) return 0.0;
-    return currentStats.map((e) => e.score).reduce((a, b) => a > b ? a : b);
-  }
-
-  double get minScore {
-    final currentStats = statistics;
-    if (currentStats.isEmpty) return 0.0;
-    return currentStats.map((e) => e.score).reduce((a, b) => a < b ? a : b);
   }
 
   LineChartData getLineChartData() {
@@ -89,11 +63,6 @@ class GradeStatisticsController extends GetxController {
         lineBarsData: [],
       );
     }
-
-    final spots = statistics.map((stat) {
-      final index = statistics.indexOf(stat).toDouble();
-      return FlSpot(index, stat.score);
-    }).toList();
 
     return LineChartData(
       gridData: FlGridData(
@@ -153,7 +122,10 @@ class GradeStatisticsController extends GetxController {
       borderData: FlBorderData(show: false),
       lineBarsData: [
         LineChartBarData(
-          spots: spots,
+          spots: statistics.map((stat) {
+            final index = statistics.indexOf(stat).toDouble();
+            return FlSpot(index, stat.averageScore);
+          }).toList(),
           isCurved: true,
           curveSmoothness: 0.35,
           gradient: const LinearGradient(
@@ -184,21 +156,75 @@ class GradeStatisticsController extends GetxController {
             ),
           ),
         ),
+        LineChartBarData(
+          spots: statistics.map((stat) {
+            final index = statistics.indexOf(stat).toDouble();
+            return FlSpot(index, stat.maxScore);
+          }).toList(),
+          isCurved: true,
+          curveSmoothness: 0.35,
+          gradient: const LinearGradient(
+            colors: [Colors.green, Colors.greenAccent],
+          ),
+          barWidth: 3,
+          isStrokeCapRound: true,
+          dotData: FlDotData(
+            show: true,
+            getDotPainter: (spot, percent, barData, index) {
+              return FlDotCirclePainter(
+                radius: 4,
+                color: Colors.white,
+                strokeWidth: 2,
+                strokeColor: Colors.green,
+              );
+            },
+          ),
+        ),
+        LineChartBarData(
+          spots: statistics.map((stat) {
+            final index = statistics.indexOf(stat).toDouble();
+            return FlSpot(index, stat.minScore);
+          }).toList(),
+          isCurved: true,
+          curveSmoothness: 0.35,
+          gradient: const LinearGradient(
+            colors: [Colors.red, Colors.redAccent],
+          ),
+          barWidth: 3,
+          isStrokeCapRound: true,
+          dotData: FlDotData(
+            show: true,
+            getDotPainter: (spot, percent, barData, index) {
+              return FlDotCirclePainter(
+                radius: 4,
+                color: Colors.white,
+                strokeWidth: 2,
+                strokeColor: Colors.red,
+              );
+            },
+          ),
+        ),
       ],
       lineTouchData: LineTouchData(
         touchTooltipData: LineTouchTooltipData(
           tooltipBgColor: Colors.blueAccent,
           getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
             return touchedBarSpots.map((barSpot) {
+              final stat = statistics[barSpot.x.toInt()];
+              String label = '';
+              if (barSpot.barIndex == 0) label = '平均分';
+              else if (barSpot.barIndex == 1) label = '最高分';
+              else label = '最低分';
+              
               return LineTooltipItem(
-                '${statistics[barSpot.x.toInt()].title}\n',
+                '${stat.title}\n',
                 TextStyle(
                   color: Colors.white,
                   fontSize: 12.sp,
                 ),
                 children: [
                   TextSpan(
-                    text: '分数: ${barSpot.y.toStringAsFixed(1)}',
+                    text: '$label: ${barSpot.y.toStringAsFixed(1)}',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -214,82 +240,37 @@ class GradeStatisticsController extends GetxController {
     );
   }
 
-  BarChartData getDistributionChartData(GradeStatistics stat) {
-    final List<BarChartGroupData> barGroups = [];
+  PieChartData getDistributionChartData(GradeStatistics stat) {
     final intervals = ['0-60', '60-70', '70-80', '80-90', '90-100'];
-    
+    final colors = [
+      Colors.red,
+      Colors.orange,
+      Colors.yellow,
+      Colors.lightGreen,
+      Colors.green,
+    ];
+
     // 如果分布数据为空，创建一个全零的分布
     final distribution = stat.distribution.isEmpty 
         ? List<int>.filled(5, 0) 
         : stat.distribution;
-    
-    for (int i = 0; i < distribution.length; i++) {
-      final double x = i.toDouble();
-      final double y = distribution[i].toDouble();
-      
-      // 判断当前成绩所在区间
-      bool isCurrentScoreInterval = false;
-      if (i == 0 && stat.score < 60) isCurrentScoreInterval = true;
-      else if (i == 1 && stat.score >= 60 && stat.score < 70) isCurrentScoreInterval = true;
-      else if (i == 2 && stat.score >= 70 && stat.score < 80) isCurrentScoreInterval = true;
-      else if (i == 3 && stat.score >= 80 && stat.score < 90) isCurrentScoreInterval = true;
-      else if (i == 4 && stat.score >= 90) isCurrentScoreInterval = true;
 
-      barGroups.add(
-        BarChartGroupData(
-          x: i,
-          barRods: [
-            BarChartRodData(
-              toY: y,
-              color: isCurrentScoreInterval ? Colors.red : Colors.blue,
-              width: 20,
-            ),
-          ],
-        ),
-      );
-    }
-
-    return BarChartData(
-      gridData: FlGridData(show: false),
-      titlesData: FlTitlesData(
-        bottomTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            getTitlesWidget: (value, meta) {
-              return Text(
-                intervals[value.toInt()],
-                style: const TextStyle(fontSize: 10),
-              );
-            },
+    return PieChartData(
+      sections: List.generate(distribution.length, (index) {
+        return PieChartSectionData(
+          value: distribution[index].toDouble(),
+          title: '${intervals[index]}\n${distribution[index]}人',
+          color: colors[index],
+          radius: 100,
+          titleStyle: TextStyle(
+            fontSize: 12.sp,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
-        ),
-        leftTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            reservedSize: 30,
-          ),
-        ),
-        topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-      ),
-      borderData: FlBorderData(show: false),
-      barGroups: barGroups,
+        );
+      }),
+      sectionsSpace: 2,
+      centerSpaceRadius: 40,
     );
-  }
-
-  String? getScoreTrend() {
-    final currentStats = statistics;
-    if (currentStats.length < 2) return null;
-    
-    final lastScore = currentStats.first.score;
-    final previousScore = currentStats[1].score;
-    final difference = lastScore - previousScore;
-    
-    if (difference > 0) {
-      return '+${difference.toStringAsFixed(1)}';
-    } else if (difference < 0) {
-      return difference.toStringAsFixed(1);
-    }
-    return null;
   }
 } 

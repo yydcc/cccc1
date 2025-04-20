@@ -5,7 +5,7 @@ class GradeStatistics {
   final double averageScore;
   final double maxScore;
   final double minScore;
-  final bool isQuiz; // 是否为课堂测验
+  final bool isInClass; // 是否为课堂测验
   final String createTime;
   final List<int> distribution; // 分数区间分布
 
@@ -16,7 +16,7 @@ class GradeStatistics {
     required this.averageScore,
     required this.maxScore,
     required this.minScore,
-    required this.isQuiz,
+    required this.isInClass,
     required this.createTime,
     required this.distribution,
   });
@@ -29,7 +29,7 @@ class GradeStatistics {
       averageScore: json['averageScore'].toDouble(),
       maxScore: json['maxScore'].toDouble(),
       minScore: json['minScore'].toDouble(),
-      isQuiz: json['isQuiz'] ?? false,
+      isInClass: json['isInClass'] ?? false,
       createTime: json['createTime'],
       distribution: List<int>.from(json['distribution'] ?? []),
     );

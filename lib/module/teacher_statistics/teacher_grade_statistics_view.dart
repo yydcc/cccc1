@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:get/get.dart';
 import 'package:cccc1/model/grade_statistics_model.dart';
-import 'grade_statistics_controller.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-class GradeStatisticsView extends GetView<GradeStatisticsController> {
-  const GradeStatisticsView({Key? key}) : super(key: key);
+import 'teacher_grade_statistics_controller.dart';
+class TeacherGradeStatisticsView extends GetView<TeacherGradeStatisticsController> {
+  const TeacherGradeStatisticsView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +13,7 @@ class GradeStatisticsView extends GetView<GradeStatisticsController> {
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          '成绩统计',
+          '班级成绩统计',
           style: TextStyle(
             fontSize: 18.sp,
             fontWeight: FontWeight.w600,
@@ -43,9 +42,10 @@ class GradeStatisticsView extends GetView<GradeStatisticsController> {
                           padding: EdgeInsets.all(16.w),
                           children: [
                             _buildScoreTrendChart(),
-                            _buildSummaryCards(),
-                            SizedBox(height: 8.h),
-                            _buildLatestAssignmentList(),
+                            SizedBox(height: 16.h),
+                            _buildLegend(),
+                            SizedBox(height: 16.h),
+                            _buildAssignmentList(),
                           ],
                         ),
                       ),
@@ -126,182 +126,9 @@ class GradeStatisticsView extends GetView<GradeStatisticsController> {
     );
   }
 
-  Widget _buildContent() {
-    return RefreshIndicator(
-      onRefresh: () => controller.fetchData(),
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          children: [
-            _buildScoreTrendChart(),
-            _buildSummaryCards(),
-            SizedBox(height: 8.h),
-            _buildLatestAssignmentList(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSummaryCards() {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 1,
-            child: _buildSummaryCard(
-              title: '平均分',
-              value: controller.averageScore.toStringAsFixed(1),
-              icon: Icons.analytics_outlined,
-              color: Colors.blue,
-              trend: controller.getScoreTrend(),
-            ),
-          ),
-          SizedBox(width: 8.w), // 减小间距以适应三个卡片
-          Expanded(
-            flex: 1,
-            child: _buildSummaryCard(
-              title: '最高分',
-              value: controller.maxScore.toStringAsFixed(1),
-              icon: Icons.emoji_events_outlined,
-              color: Colors.orange,
-              showTrend: false,
-            ),
-          ),
-          SizedBox(width: 8.w), // 减小间距以适应三个卡片
-          Expanded(
-            flex: 1,
-            child: _buildSummaryCard(
-              title: '最低分',
-              value: controller.minScore.toStringAsFixed(1),
-              icon: Icons.low_priority,
-              color: Colors.red,
-              showTrend: false,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSummaryCard({
-    required String title,
-    required String value,
-    required IconData icon,
-    required Color color,
-    String? trend,
-    bool showTrend = true,
-  }) {
-    return Container(
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: EdgeInsets.all(6.w),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Icon(icon, color: color, size: 16.sp),
-              ),
-              SizedBox(width: 6.w),
-              Flexible(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 8.h),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Flexible(
-                child: Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 20.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              if (showTrend && trend != null) ...[
-                SizedBox(width: 4.w),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 2.w,
-                    vertical: 2.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color: trend.startsWith('+')
-                        ? Colors.green.withOpacity(0.1)
-                        : Colors.red.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(4.r),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        trend.startsWith('+')
-                            ? Icons.arrow_upward
-                            : Icons.arrow_downward,
-                        size: 10.sp,
-                        color: trend.startsWith('+')
-                            ? Colors.green
-                            : Colors.red,
-                      ),
-
-                      Text(
-                        trend,
-                        style: TextStyle(
-                          fontSize: 10.sp,
-                          color: trend.startsWith('+')
-                              ? Colors.green
-                              : Colors.red,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildScoreTrendChart() {
     return Container(
       height: 280.h,
-      margin: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
@@ -317,7 +144,7 @@ class GradeStatisticsView extends GetView<GradeStatisticsController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.all(16.w),
+            padding: EdgeInsets.all(8.w),
             child: Text(
               '成绩趋势',
               style: TextStyle(
@@ -355,7 +182,55 @@ class GradeStatisticsView extends GetView<GradeStatisticsController> {
     );
   }
 
-  Widget _buildLatestAssignmentList() {
+  Widget _buildLegend() {
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildLegendItem('平均分', Colors.blue),
+          _buildLegendItem('最高分', Colors.green),
+          _buildLegendItem('最低分', Colors.red),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegendItem(String label, Color color) {
+    return Row(
+      children: [
+        Container(
+          width: 12.w,
+          height: 12.w,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        SizedBox(width: 8.w),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12.sp,
+            color: Colors.grey[600],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAssignmentList() {
     return Column(
       children: controller.statistics.map((stat) {
         return Container(
@@ -414,17 +289,22 @@ class GradeStatisticsView extends GetView<GradeStatisticsController> {
                   ),
                   SizedBox(height: 12.h),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildScoreIndicator(
-                        label: '个人得分',
-                        score: stat.score,
-                        color: Colors.blue,
-                      ),
-                      SizedBox(width: 24.w),
                       _buildScoreIndicator(
                         label: '平均分',
                         score: stat.averageScore,
-                        color: Colors.grey[600]!,
+                        color: Colors.blue,
+                      ),
+                      _buildScoreIndicator(
+                        label: '最高分',
+                        score: stat.maxScore,
+                        color: Colors.green,
+                      ),
+                      _buildScoreIndicator(
+                        label: '最低分',
+                        score: stat.minScore,
+                        color: Colors.red,
                       ),
                     ],
                   ),
@@ -531,13 +411,18 @@ class GradeStatisticsView extends GetView<GradeStatisticsController> {
                   ),
                 ),
               Container(
-                height: 240.h,
-                padding: EdgeInsets.all(16.w),
+                height: 280.h,
+                padding: EdgeInsets.only(
+                  left: 16.w,
+                  right: 16.w,
+                  top: 24.h,
+                  bottom: 16.h,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.grey[50],
                   borderRadius: BorderRadius.circular(12.r),
                 ),
-                child: BarChart(
+                child: PieChart(
                   controller.getDistributionChartData(stat),
                 ),
               ),
@@ -545,67 +430,6 @@ class GradeStatisticsView extends GetView<GradeStatisticsController> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildDistributionSummary(GradeStatistics stat) {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12.r),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildDistributionItem(
-                label: '你的得分',
-                value: stat.score.toStringAsFixed(1),
-                color: Colors.blue,
-              ),
-              _buildDistributionItem(
-                label: '平均分',
-                value: stat.averageScore.toStringAsFixed(1),
-                color: Colors.grey[600]!,
-              ),
-              _buildDistributionItem(
-                label: '最高分',
-                value: stat.maxScore.toStringAsFixed(1),
-                color: Colors.orange,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDistributionItem({
-    required String label,
-    required String value,
-    required Color color,
-  }) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12.sp,
-            color: Colors.grey[600],
-          ),
-        ),
-        SizedBox(height: 4.h),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-      ],
     );
   }
 
@@ -631,19 +455,13 @@ class GradeStatisticsView extends GetView<GradeStatisticsController> {
               _buildInfoItem(
                 icon: Icons.analytics_outlined,
                 title: '成绩趋势',
-                description: '展示你的历次作业和测验成绩变化趋势',
+                description: '展示班级历次作业和测验的平均分、最高分、最低分变化趋势',
               ),
               SizedBox(height: 12.h),
               _buildInfoItem(
-                icon: Icons.bar_chart,
+                icon: Icons.pie_chart,
                 title: '分数分布',
                 description: '显示每次作业或测验的班级分数分布情况',
-              ),
-              SizedBox(height: 12.h),
-              _buildInfoItem(
-                icon: Icons.compare_arrows,
-                title: '成绩对比',
-                description: '可以查看个人得分与班级平均分的对比',
               ),
               SizedBox(height: 20.h),
               ElevatedButton(

@@ -87,10 +87,12 @@ class TeacherClassDetailController extends GetxController {
   
   void goToClassMembers() {
     if (classInfo.value == null) return;
-    
+
     Get.toNamed(
-      AppRoutes.CLASS_MEMBERS,
-      arguments: {'classId': classInfo.value!.classId}
+      AppRoutes.TEACHER_CLASS_MEMBERS,
+      arguments: {
+        'classId': classInfo.value?.classId,
+      },
     );
   }
   

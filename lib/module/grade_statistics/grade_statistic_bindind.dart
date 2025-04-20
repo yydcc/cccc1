@@ -5,7 +5,13 @@ import 'package:get/get.dart';
 class GradeStatisticsBinding implements Bindings{
   @override
   void dependencies() {
-    Get.lazyPut<GradeStatisticsController>(() => GradeStatisticsController());
-  }
 
+      final Map<String, dynamic> args = Get.arguments ?? {};
+      final int studentId = args['studentId']??0;
+      final int classId = args['classId']??0;
+      Get.lazyPut<GradeStatisticsController>(() => GradeStatisticsController(
+        studentId:studentId,
+        classId: classId
+      ));
+  }
 }

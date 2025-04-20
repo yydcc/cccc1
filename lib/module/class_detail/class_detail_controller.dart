@@ -10,7 +10,6 @@ class ClassDetailController extends GetxController {
   final HttpUtil httpUtil = HttpUtil();
   final classInfo = Rx<ClassInfo?>(null);
   final RxBool isLoading = true.obs;
-  final RxList<dynamic> activities = <dynamic>[].obs;
   String? contentUrl;
 
   @override
@@ -60,47 +59,8 @@ class ClassDetailController extends GetxController {
     );
   }
 
-  // 讨论功能
-  void goToDiscussion() {
-    Get.toNamed(
-      AppRoutes.CLASS_DISCUSSION,
-      arguments: {'classId': classInfo.value?.classId},
-    );
-  }
 
-  // 更多功能
-  void showMoreOptions() {
-    Get.bottomSheet(
-      Container(
-        padding: EdgeInsets.all(16.w),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(Icons.people),
-              title: Text('班级成员'),
-              onTap: () {
-                Get.back();
-                goToClassMembers();
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.announcement),
-              title: Text('班级公告'),
-              onTap: () {
-                Get.back();
-                goToAnnouncements();
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+
 
   // 班级成员
   void goToClassMembers() {
@@ -113,12 +73,7 @@ class ClassDetailController extends GetxController {
   }
 
   // 班级公告
-  void goToAnnouncements() {
-    Get.toNamed(
-      AppRoutes.CLASS_ANNOUNCEMENTS,
-      arguments: {'classId': classInfo.value?.classId},
-    );
-  }
+
 
   Future<void> downloadClassMaterial() async {
     if (contentUrl == null || contentUrl!.isEmpty) {
