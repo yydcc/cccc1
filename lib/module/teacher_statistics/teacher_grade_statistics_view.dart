@@ -144,7 +144,7 @@ class TeacherGradeStatisticsView extends GetView<TeacherGradeStatisticsControlle
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.all(8.w),
+            padding: EdgeInsets.all(16.w),
             child: Text(
               '成绩趋势',
               style: TextStyle(

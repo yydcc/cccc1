@@ -42,6 +42,7 @@ class GradeSubmissionController extends GetxController {
       final response = await API.submissions.getSubmissionDetail(submissionId);
       
       if (response.code == 200 && response.data != null) {
+
         submission.value = Submission.fromJson(response.data);
         
         // 预填充评分和反馈
@@ -117,11 +118,6 @@ class GradeSubmissionController extends GetxController {
       final response = await API.submissions.autoGradeSubmission(submissionId);
       
       if (response.code == 200 && response.data != null) {
-        // 更新提交信息
-        submission.value = Submission.fromJson(response.data);
-        scoreController.text = submission.value!.score.toString();
-        feedbackController.text = submission.value!.feedback ?? '';
-        
         Get.snackbar(
           '成功',
           "AI批改已完成",
@@ -129,6 +125,8 @@ class GradeSubmissionController extends GetxController {
           colorText: Colors.white,
           duration: const Duration(seconds: 2),
         );
+        await Future.delayed(Duration(seconds: 2));
+        loadSubmissionDetail();
       } else {
         Get.snackbar(
           '错误',

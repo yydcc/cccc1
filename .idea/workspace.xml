@@ -11,9 +11,10 @@
   <component name="ChangeListManager">
     <list default="true" id="90c71f39-95ed-4573-8768-4b6e6de27f4d" name="Changes" comment="备忘录功能界面优化">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/common/utils/http.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/common/utils/http.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/module/grade_submission/grade_submission_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/grade_submission/grade_submission_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/home/home_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/home/home_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/teacher_statistics/teacher_grade_statistics_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_statistics/teacher_grade_statistics_view.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
