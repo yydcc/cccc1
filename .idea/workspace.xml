@@ -11,21 +11,9 @@
   <component name="ChangeListManager">
     <list default="true" id="90c71f39-95ed-4573-8768-4b6e6de27f4d" name="Changes" comment="备忘录功能界面优化">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/common/api/api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/common/api/api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/common/utils/http.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/common/utils/http.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/model/grade_statistics_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/model/grade_statistics_model.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/class_detail/class_detail_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/class_detail/class_detail_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/class_detail/class_detail_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/class_detail/class_detail_view.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/class_members/class_members_binding.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/class_members/class_members_binding.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/class_members/class_members_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/class_members/class_members_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/class_members/class_members_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/class_members/class_members_view.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/grade_statistics/grade_statistic_bindind.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/grade_statistics/grade_statistic_bindind.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/grade_statistics/grade_statistics_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/grade_statistics/grade_statistics_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/grade_statistics/grade_statistics_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/grade_statistics/grade_statistics_view.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/teacher_class_detail/teacher_class_detail_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_class_detail/teacher_class_detail_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/module/teacher_class_detail/teacher_class_detail_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/teacher_class_detail/teacher_class_detail_view.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/routes/app_pages.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/routes/app_pages.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/routes/app_routes.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/routes/app_routes.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/grade_submission/grade_submission_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/grade_submission/grade_submission_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/module/home/home_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/module/home/home_view.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -106,22 +106,46 @@ class GradeSubmissionController extends GetxController {
     try {
       isAutoGrading.value = true;
       
+      // 显示开始批改提示
+      Get.snackbar(
+        '提示',
+        "AI正在批改中，请稍候...",
+        duration: const Duration(seconds: 2),
+      );
+
+      // 发送自动批改请求并等待结果
       final response = await API.submissions.autoGradeSubmission(submissionId);
       
       if (response.code == 200 && response.data != null) {
+        // 更新提交信息
         submission.value = Submission.fromJson(response.data);
-        
-        // 更新UI
         scoreController.text = submission.value!.score.toString();
         feedbackController.text = submission.value!.feedback ?? '';
         
-        Get.snackbar('成功', '自动批改完成');
+        Get.snackbar(
+          '成功',
+          "AI批改已完成",
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 2),
+        );
       } else {
-        Get.snackbar('错误', '自动批改失败: ${response.msg}');
+        Get.snackbar(
+          '错误',
+          '自动批改失败: ${response.msg}',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
       }
+      
     } catch (e) {
-      print('自动批改失败: $e');
-      Get.snackbar('错误', '自动批改失败，请稍后重试');
+      debugPrint('自动批改失败: $e');
+      Get.snackbar(
+        '错误',
+        '自动批改失败，请稍后重试',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     } finally {
       isAutoGrading.value = false;
     }

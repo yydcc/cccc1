@@ -6,24 +6,22 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../common/utils/storage.dart';
 import 'home_controller.dart';
-import '../../routes/app_pages.dart';
 
 class HomePage extends GetView<HomeController> {
   const HomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-
     return FutureBuilder<StorageService>(
       future: StorageService.instance,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
         final String? role = snapshot.data!.getRole();
         if (role == null) {
-          return Center(child: Text('无法获取角色信息'));
+          return Center(child: Text('无法获取角色信息', style: TextStyle(fontSize: 16.sp)));
         }
 
         return Scaffold(
@@ -31,25 +29,41 @@ class HomePage extends GetView<HomeController> {
           appBar: AppBar(
             title: const Text('首页'),
             centerTitle: true,
+            elevation: 0,
           ),
-          body: Padding(
-            padding: EdgeInsets.all(16.w),
-            child: GridView.count(
-              crossAxisCount: 2,
-              crossAxisSpacing: 16.w,
-              mainAxisSpacing: 16.h,
-              children: _buildFeatureItems(context, role),
+          body: SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // 根据屏幕宽度动态调整列数
+                final crossAxisCount = constraints.maxWidth > 600 ? 3 : 2;
+                return Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 16.h,
+                  ),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: GridView.count(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: 16.w,
+                          mainAxisSpacing: 16.h,
+                          childAspectRatio: 1.2,
+                          children: _buildFeatureItems(context, role),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              Get.toNamed(AppRoutes.AI_CHAT);
-            },
+            onPressed: () => Get.toNamed(AppRoutes.AI_CHAT),
             backgroundColor: Theme.of(context).primaryColor,
             child: Container(
               width: 40.w,
               height: 40.w,
-
               child: Icon(
                 Icons.smart_toy_outlined,
                 color: Colors.white,
@@ -121,16 +135,16 @@ class HomePage extends GetView<HomeController> {
   }
 
   Widget _buildFeatureItem(
-      BuildContext context, {
-        required IconData icon,
-        required String label,
-        required String routeName,
-        Object? arguments, // 添加可选的 arguments 参数
-      }) {
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String routeName,
+    Object? arguments,
+  }) {
     return GestureDetector(
       onTap: () async {
         try {
-          await Get.toNamed(routeName, arguments: arguments); // 传递 arguments
+          await Get.toNamed(routeName, arguments: arguments);
         } catch (e) {
           _showError(context, e);
         }
@@ -150,8 +164,20 @@ class HomePage extends GetView<HomeController> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 50.sp, color: Theme.of(context).primaryColor),
-            SizedBox(height: 10.h),
+            Container(
+              width: 60.w,
+              height: 60.w,
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 30.sp,
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+            SizedBox(height: 12.h),
             Text(
               label,
               style: TextStyle(

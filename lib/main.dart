@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return OKToast(
       child: ScreenUtilInit(
-        designSize: Size(375, 812),
+        designSize: Size(400, 640),
         minTextAdapt: true,
         splitScreenMode: true,
         builder: (_, child) {
