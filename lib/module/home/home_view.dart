@@ -65,19 +65,17 @@ class HomePage extends GetView<HomeController> {
   // 构建轮播图
   Widget _buildCarousel(BuildContext context) {
     return Container(
-      height: 200.h,
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      height: 180.h,
       child: CarouselSlider.builder(
         itemCount: controller.banners.length,
         options: CarouselOptions(
           height: 200.h,
-          viewportFraction: 0.9,
+          viewportFraction: 0.95,
           initialPage: 0,
           enableInfiniteScroll: true,
           autoPlay: true,
           autoPlayInterval: Duration(seconds: 2),
-          autoPlayAnimationDuration: Duration(milliseconds: 1500),
+          autoPlayAnimationDuration: Duration(milliseconds: 1000),
           autoPlayCurve: Curves.easeInOut,
           enlargeCenterPage: true,
           scrollDirection: Axis.horizontal,
@@ -92,7 +90,7 @@ class HomePage extends GetView<HomeController> {
               borderRadius: BorderRadius.circular(10.r),
               image: DecorationImage(
                 image: AssetImage(controller.banners[index]["url"]),
-                fit: BoxFit.cover,
+                fit: BoxFit.fitWidth,
               ),
             ),
           );
@@ -104,25 +102,25 @@ class HomePage extends GetView<HomeController> {
   // 构建网站导航
   Widget _buildWebsiteNavigation() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 32.w),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             '常用网站导航',
             style: TextStyle(
-              fontSize: 24.sp,
+              fontSize: 20.sp,
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 24.h),
+          SizedBox(height: 16.h),
           GridView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 6,
-              crossAxisSpacing: 24.w,
-              mainAxisSpacing: 24.h,
+              crossAxisCount: 3,
+              crossAxisSpacing: 16.w,
+              mainAxisSpacing: 16.h,
               childAspectRatio: 1.0,
             ),
             itemCount: controller.websites.length,
@@ -138,39 +136,42 @@ class HomePage extends GetView<HomeController> {
 
   // 构建网站导航项
   Widget _buildWebsiteItem(Map<String, dynamic> website) {
-    return GestureDetector(
-      onTap: () => controller.launchWebsite(website['url'], website['name']),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 5,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              website['icon'] as IconData,
-              size: 40.sp,
-              color: Theme.of(Get.context!).primaryColor,
-            ),
-            SizedBox(height: 12.h),
-            Text(
-              website['name'] as String,
-              style: TextStyle(
-                fontSize: 16.sp,
-                color: Colors.black87,
+    return Hero(
+      tag: 'website_${website['name']}',
+      child: GestureDetector(
+        onTap: () => controller.launchWebsite(website['url'], website['name']),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 5,
+                offset: Offset(0, 2),
               ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                website['icon'] as IconData,
+                size: 32.sp,
+                color: Theme.of(Get.context!).primaryColor,
+              ),
+              SizedBox(height: 8.h),
+              Text(
+                website['name'] as String,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );

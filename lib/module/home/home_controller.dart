@@ -1,9 +1,7 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_windows/webview_windows.dart';
 import 'dart:async';
-import 'package:url_launcher/url_launcher.dart';
 
 class HomeController extends GetxController {
   final currentBannerIndex = 0.obs;
@@ -96,35 +94,29 @@ class HomeController extends GetxController {
       
       final uri = Uri.parse(url);
       
-      if (GetPlatform.isDesktop) {
-        // 桌面端使用系统浏览器
-        launchUrl(uri);
-      } else {
-        // 移动端使用WebView
-        Get.to(
-          Scaffold(
-            appBar: AppBar(
-              title: Text(title),
-              centerTitle: true,
-            ),
-            body: WebViewWidget(
-              controller: WebViewController()
-                ..loadRequest(uri)
-                ..setJavaScriptMode(JavaScriptMode.unrestricted)
-                ..setNavigationDelegate(
-                  NavigationDelegate(
-                    onNavigationRequest: (request) {
-                      if (request.url.startsWith('http://') || request.url.startsWith('https://')) {
-                        return NavigationDecision.navigate;
-                      }
-                      return NavigationDecision.prevent;
-                    },
-                  ),
-                ),
-            ),
+      Get.to(
+        Scaffold(
+          appBar: AppBar(
+            title: Text(title),
+            centerTitle: true,
           ),
-        );
-      }
+          body: WebViewWidget(
+            controller: WebViewController()
+              ..loadRequest(uri)
+              ..setJavaScriptMode(JavaScriptMode.unrestricted)
+              ..setNavigationDelegate(
+                NavigationDelegate(
+                  onNavigationRequest: (request) {
+                    if (request.url.startsWith('http://') || request.url.startsWith('https://')) {
+                      return NavigationDecision.navigate;
+                    }
+                    return NavigationDecision.prevent;
+                  },
+                ),
+              ),
+          ),
+        ),
+      );
     } catch (e) {
       Get.snackbar('错误', '无法打开网页: $url');
     }
