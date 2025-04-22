@@ -31,14 +31,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return OKToast(
       child: ScreenUtilInit(
-        // designSize: Size(400, 640),
-        designSize: Size(1280, 720),
+        designSize: Size(360, 640),
+        // designSize: Size(1280, 720),
         minTextAdapt: true,
         splitScreenMode: true,
         builder: (_, child) {
           return Obx(() => GetMaterialApp(
             debugShowCheckedModeBanner: false,
-            title: 'Flutter demo',
+            title: '墨智',
             theme: GlobalThemData.currentTheme.value,
             initialRoute: _getInitialRoute(),
             getPages: AppPages.routes,
@@ -54,11 +54,7 @@ class MyApp extends StatelessWidget {
     if (!isLogined) {
       return AppPages.INITIAL;
     }
-    if (userRole == 'student') {
-      return AppRoutes.STUDENT_HOME; // 学生的主页路由
-    } else if (userRole == 'teacher') {
-      return AppRoutes.TEACHER_HOME; // 教师的主页路由
-    } else {
+    else {
       return AppRoutes.HOME;
     }
   }

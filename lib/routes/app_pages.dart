@@ -15,8 +15,6 @@ import '../module/class_detail/class_detail_view.dart';
 
 import '../module/quiz/quiz_binding.dart';
 import '../module/quiz/quiz_view.dart';
-import '../module/discussion/discussion_binding.dart';
-import '../module/discussion/discussion_view.dart';
 import '../module/class_members/class_members_binding.dart';
 import '../module/class_members/class_members_view.dart';
 import '../module/assignment/assignment_binding.dart';
@@ -91,13 +89,7 @@ class AppPages {
       transition: Transition.fadeIn,
       transitionDuration: const Duration(milliseconds: 200),
     ),
-    GetPage(
-      name: AppRoutes.CLASS_DISCUSSION,
-      page: () => const DiscussionView(),
-      binding: DiscussionBinding(),
-      transition: Transition.fadeIn,
-      transitionDuration: const Duration(milliseconds: 200),
-    ),
+
     GetPage(
       name: AppRoutes.CLASS_MEMBERS,
       page: () => const ClassMembersView(),

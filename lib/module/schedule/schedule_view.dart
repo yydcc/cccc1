@@ -83,25 +83,25 @@ class ScheduleView extends GetView<ScheduleController> {
                     margin: EdgeInsets.symmetric(vertical: 8.h),
                     width: 40.w,
                     height: 4.h,
-                    decoration: BoxDecoration(
+        decoration: BoxDecoration(
                       color: Colors.grey[300],
                       borderRadius: BorderRadius.circular(2.r),
                     ),
                   ),
                   Padding(
                     padding: EdgeInsets.all(16.w),
-                    child: Column(
-                      children: [
-                        Obx(() => TextField(
-                          controller: controller.taskController,
-                          decoration: InputDecoration(
-                            hintText: '请输入要做的事情',
-                            filled: true,
+            child: Column(
+              children: [
+                Obx(() => TextField(
+                  controller: controller.taskController,
+                  decoration: InputDecoration(
+                    hintText: '请输入要做的事情',
+                    filled: true,
                             fillColor: Colors.grey[50],
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                              borderSide: BorderSide.none,
-                            ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                      borderSide: BorderSide.none,
+                    ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.r),
                               borderSide: BorderSide(
@@ -116,56 +116,56 @@ class ScheduleView extends GetView<ScheduleController> {
                                 width: 1.5,
                               ),
                             ),
-                            prefixIcon: Icon(Icons.note, color: Theme.of(context).primaryColor),
-                            suffixIcon: controller.taskController.text.isNotEmpty
-                                ? IconButton(
-                              icon: Icon(Icons.clear, color: GlobalThemData.textSecondaryColor),
-                              onPressed: () => controller.taskController.clear(),
-                            )
-                                : null,
-                            errorText: controller.taskError.value.isEmpty ? null : controller.taskError.value,
-                          ),
-                        )),
+                    prefixIcon: Icon(Icons.note, color: Theme.of(context).primaryColor),
+                    suffixIcon: controller.taskController.text.isNotEmpty
+                        ? IconButton(
+                      icon: Icon(Icons.clear, color: GlobalThemData.textSecondaryColor),
+                      onPressed: () => controller.taskController.clear(),
+                    )
+                        : null,
+                    errorText: controller.taskError.value.isEmpty ? null : controller.taskError.value,
+                  ),
+                )),
                         SizedBox(height: 12.h),
                         Row(
                           children: [
                             Expanded(
                               child: Obx(() => GestureDetector(
-                                onTap: () async {
-                                  DateTime? pickedDate = await showDatePicker(
-                                    context: context,
-                                    initialDate: DateTime.now(),
-                                    firstDate: DateTime(2000),
-                                    lastDate: DateTime(2101),
-                                    builder: (context, child) {
-                                      return Theme(
-                                        data: Theme.of(context).copyWith(
-                                          colorScheme: ColorScheme.light(
-                                            primary: Theme.of(context).primaryColor,
-                                            onPrimary: Colors.white,
+                  onTap: () async {
+                    DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2101),
+                      builder: (context, child) {
+                        return Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: ColorScheme.light(
+                              primary: Theme.of(context).primaryColor,
+                              onPrimary: Colors.white,
                                             surface: Colors.white,
-                                          ),
-                                          dialogBackgroundColor: Colors.white,
-                                        ),
-                                        child: child!,
-                                      );
-                                    },
-                                  );
-                                  if (pickedDate != null) {
-                                    controller.dateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
-                                  }
-                                },
-                                child: AbsorbPointer(
-                                  child: TextField(
-                                    controller: controller.dateController,
-                                    decoration: InputDecoration(
+                            ),
+                            dialogBackgroundColor: Colors.white,
+                          ),
+                          child: child!,
+                        );
+                      },
+                    );
+                    if (pickedDate != null) {
+                      controller.dateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+                    }
+                  },
+                  child: AbsorbPointer(
+                    child: TextField(
+                      controller: controller.dateController,
+                      decoration: InputDecoration(
                                       hintText: '选择日期',
-                                      filled: true,
+                        filled: true,
                                       fillColor: Colors.grey[50],
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12.r),
-                                        borderSide: BorderSide.none,
-                                      ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                          borderSide: BorderSide.none,
+                        ),
                                       enabledBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(12.r),
                                         borderSide: BorderSide(
@@ -180,12 +180,12 @@ class ScheduleView extends GetView<ScheduleController> {
                                           width: 1.5,
                                         ),
                                       ),
-                                      prefixIcon: Icon(Icons.calendar_today, color: Theme.of(context).primaryColor),
-                                      errorText: controller.dateError.value.isEmpty ? null : controller.dateError.value,
-                                    ),
-                                  ),
-                                ),
-                              )),
+                        prefixIcon: Icon(Icons.calendar_today, color: Theme.of(context).primaryColor),
+                        errorText: controller.dateError.value.isEmpty ? null : controller.dateError.value,
+                      ),
+                    ),
+                  ),
+                )),
                             ),
                             SizedBox(width: 12.w),
                             Expanded(
@@ -248,30 +248,30 @@ class ScheduleView extends GetView<ScheduleController> {
                         ),
                         SizedBox(height: 16.h),
                         SizedBox(
-                          width: double.infinity,
-                          height: 50.h,
+                      width: double.infinity,
+                      height: 50.h,
                           child: Obx(() => ElevatedButton(
                             onPressed: controller.isTaskValid.value ? () {
                               controller.addMemo();
                               Navigator.pop(context);
                             } : null,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).primaryColor,
-                              disabledBackgroundColor: Theme.of(context).primaryColor.withOpacity(0.5),
-                              elevation: 5,
-                              shadowColor: Theme.of(context).primaryColor.withOpacity(0.3),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12.r),
-                              ),
-                            ),
-                            child: Text(
-                              '添加备忘录',
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).primaryColor,
+                          disabledBackgroundColor: Theme.of(context).primaryColor.withOpacity(0.5),
+                          elevation: 5,
+                          shadowColor: Theme.of(context).primaryColor.withOpacity(0.3),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                        ),
+                        child: Text(
+                          '添加备忘录',
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
                           )),
                         ),
                       ],
@@ -323,7 +323,7 @@ class ScheduleView extends GetView<ScheduleController> {
                               color: Theme.of(context).primaryColor,
                             ),
                           ),
-                          SizedBox(height: 24.h),
+                SizedBox(height: 24.h),
                           Text(
                             '暂无备忘录',
                             style: TextStyle(
@@ -408,9 +408,9 @@ class ScheduleView extends GetView<ScheduleController> {
                                   borderRadius: BorderRadius.circular(20.r),
                                 ),
                                 child: Checkbox(
-                                  value: schedule.isCompleted,
-                                  onChanged: (value) => controller.toggleCompletion(index),
-                                  activeColor: Theme.of(context).primaryColor,
+                                value: schedule.isCompleted,
+                                onChanged: (value) => controller.toggleCompletion(index),
+                                activeColor: Theme.of(context).primaryColor,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10.r),
                                   ),
@@ -487,9 +487,9 @@ class ScheduleView extends GetView<ScheduleController> {
                               fontWeight: FontWeight.w600,
                               color: GlobalThemData.textPrimaryColor,
                             ),
-                          ),
-                        ],
-                      ),
+                ),
+              ],
+            ),
                       children: [
                         Container(
                           margin: EdgeInsets.symmetric(horizontal: 16.w),

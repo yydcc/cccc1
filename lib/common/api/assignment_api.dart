@@ -40,7 +40,7 @@ class AssignmentApi extends ApiService {
       
       if (fileResponse.code == 200 && fileResponse.data != null) {
         // 获取文件URL并添加到作业数据中
-        assignmentData['contentUrl'] = fileResponse.data['url'];
+        assignmentData['contentUrl'] = fileResponse.data['path'];
       }
     }
     

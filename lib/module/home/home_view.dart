@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../common/utils/storage.dart';
 import 'home_controller.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class HomePage extends GetView<HomeController> {
   const HomePage({Key? key}) : super(key: key);
@@ -19,10 +20,7 @@ class HomePage extends GetView<HomeController> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final String? role = snapshot.data!.getRole();
-        if (role == null) {
-          return Center(child: Text('无法获取角色信息', style: TextStyle(fontSize: 16.sp)));
-        }
+
 
         return Scaffold(
           backgroundColor: GlobalThemData.backgroundColor,
@@ -32,33 +30,21 @@ class HomePage extends GetView<HomeController> {
             elevation: 0,
           ),
           body: SafeArea(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                // 根据屏幕宽度动态调整列数
-                final crossAxisCount = constraints.maxWidth > 600 ? 3 : 2;
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 16.h,
-                  ),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: GridView.count(
-                          crossAxisCount: crossAxisCount,
-                          crossAxisSpacing: 16.w,
-                          mainAxisSpacing: 16.h,
-                          childAspectRatio: 1.2,
-                          children: _buildFeatureItems(context, role),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  // 轮播图部分
+                  _buildCarousel(context),
+                  SizedBox(height: 20.h),
+                  
+                  // 网站导航部分
+                  _buildWebsiteNavigation(),
+                ],
+              ),
             ),
           ),
           floatingActionButton: FloatingActionButton(
+            key: const ValueKey('home_ai_chat_button'),
             onPressed: () => Get.toNamed(AppRoutes.AI_CHAT),
             backgroundColor: Theme.of(context).primaryColor,
             child: Container(
@@ -76,128 +62,117 @@ class HomePage extends GetView<HomeController> {
     );
   }
 
-  List<Widget> _buildFeatureItems(BuildContext context, String role) {
-    if (role == 'teacher') {
-      return [
-        _buildFeatureItem(
-          context,
-          icon: Icons.class_,
-          label: '班级详情',
-          routeName: AppRoutes.TEACHER_CLASS_DETAIL,
+  // 构建轮播图
+  Widget _buildCarousel(BuildContext context) {
+    return Container(
+      height: 180.h,
+      child: CarouselSlider.builder(
+        itemCount: controller.banners.length,
+        options: CarouselOptions(
+          height: 200.h,
+          viewportFraction: 0.95,
+          initialPage: 0,
+          enableInfiniteScroll: true,
+          autoPlay: true,
+          autoPlayInterval: Duration(seconds: 2),
+          autoPlayAnimationDuration: Duration(milliseconds: 1000),
+          autoPlayCurve: Curves.easeInOut,
+          enlargeCenterPage: true,
+          scrollDirection: Axis.horizontal,
+          onPageChanged: (index, reason) {
+            controller.currentBannerIndex.value = index;
+          },
         ),
-        _buildFeatureItem(
-          context,
-          icon: Icons.assignment,
-          label: '作业',
-          routeName: AppRoutes.TEACHER_ASSIGNMENT,
-        ),
-        _buildFeatureItem(
-          context,
-          icon: Icons.add_task,
-          label: '创建作业',
-          routeName: AppRoutes.CREATE_ASSIGNMENT,
-        ),
-        _buildFeatureItem(
-          context,
-          icon: Icons.grade,
-          label: '批改作业',
-          routeName: AppRoutes.GRADE_SUBMISSION,
-        ),
-      ];
-    } else {
-      return [
-        _buildFeatureItem(
-          context,
-          icon: Icons.class_,
-          label: '班级详情',
-          routeName: AppRoutes.CLASS_DETAIL,
-        ),
-        _buildFeatureItem(
-          context,
-          icon: Icons.assignment,
-          label: '作业',
-          routeName: AppRoutes.ASSIGNMENT,
-        ),
-        _buildFeatureItem(
-          context,
-          icon: Icons.quiz,
-          label: '测验',
-          routeName: AppRoutes.CLASS_QUIZ,
-        ),
-        _buildFeatureItem(
-          context,
-          icon: Icons.group,
-          label: '班级成员',
-          routeName: AppRoutes.CLASS_MEMBERS,
-        ),
-      ];
-    }
-  }
-
-  Widget _buildFeatureItem(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required String routeName,
-    Object? arguments,
-  }) {
-    return GestureDetector(
-      onTap: () async {
-        try {
-          await Get.toNamed(routeName, arguments: arguments);
-        } catch (e) {
-          _showError(context, e);
-        }
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: Offset(0, 5),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 60.w,
-              height: 60.w,
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                size: 30.sp,
-                color: Theme.of(context).primaryColor,
+        itemBuilder: (context, index, realIndex) {
+          return Container(
+            margin: EdgeInsets.symmetric(horizontal: 5.w),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10.r),
+              image: DecorationImage(
+                image: AssetImage(controller.banners[index]["url"]),
+                fit: BoxFit.fitWidth,
               ),
             ),
-            SizedBox(height: 12.h),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w500,
-                color: GlobalThemData.textPrimaryColor,
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
-  void _showError(BuildContext context, Object e) {
-    final errorMessage = e is FlutterError ? e.message : e.toString();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('发生错误: $errorMessage'),
-        backgroundColor: Colors.red,
+  // 构建网站导航
+  Widget _buildWebsiteNavigation() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '常用网站导航',
+            style: TextStyle(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 16.h),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 16.w,
+              mainAxisSpacing: 16.h,
+              childAspectRatio: 1.0,
+            ),
+            itemCount: controller.websites.length,
+            itemBuilder: (context, index) {
+              final website = controller.websites[index];
+              return _buildWebsiteItem(website);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 构建网站导航项
+  Widget _buildWebsiteItem(Map<String, dynamic> website) {
+    return Hero(
+      tag: 'website_${website['name']}',
+      child: GestureDetector(
+        onTap: () => controller.launchWebsite(website['url'], website['name']),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 5,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                website['icon'] as IconData,
+                size: 32.sp,
+                color: Theme.of(Get.context!).primaryColor,
+              ),
+              SizedBox(height: 8.h),
+              Text(
+                website['name'] as String,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
