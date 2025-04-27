@@ -14,7 +14,7 @@ class QuizView extends GetView<QuizController> {
     return Scaffold(
       backgroundColor: GlobalThemData.backgroundColor,
       appBar: AppBar(
-        title: const Text('课堂测验'),
+        title: const Text('课堂问答'),
         centerTitle: true,
         elevation: 0,
         actions: [
@@ -211,7 +211,7 @@ class QuizView extends GetView<QuizController> {
                             ),
                             SizedBox(width: 4.w),
                             Text(
-                              '课堂测验',
+                              '课堂问答',
                               style: TextStyle(
                                 fontSize: 12.sp,
                                 color: statusColor,
@@ -222,7 +222,7 @@ class QuizView extends GetView<QuizController> {
                         ),
                         SizedBox(height: 8.h),
                         Text(
-                          quiz.title ?? '未命名测验',
+                          quiz.title ?? '未命名问答',
                           style: TextStyle(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.bold,
@@ -317,7 +317,7 @@ class QuizView extends GetView<QuizController> {
           ),
           SizedBox(height: 16.h),
           Text(
-            '暂无测验',
+            '暂无问答',
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.bold,
@@ -326,7 +326,7 @@ class QuizView extends GetView<QuizController> {
           ),
           SizedBox(height: 8.h),
           Text(
-            '请等待老师发布测验',
+            '请等待老师发布问答',
             style: TextStyle(
               fontSize: 14.sp,
               color: GlobalThemData.textTertiaryColor,

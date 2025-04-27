@@ -40,7 +40,7 @@ class HomeController extends GetxController {
       "url":"assets/images/banner2.jpg",
     },
     {
-      "name":"随堂测验",
+      "name":"随堂问答",
       "url":"assets/images/banner3.png",
     },
     {

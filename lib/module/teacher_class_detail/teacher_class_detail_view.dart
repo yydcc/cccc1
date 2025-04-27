@@ -332,7 +332,7 @@ class TeacherClassDetailView extends GetView<TeacherClassDetailController> {
               Expanded(
                 child: _buildStatItem(
                   icon:Icons.quiz,
-                  title: '测验',
+                  title: '问答',
                   value: classInfo.quizCount?.toString() ?? '0',
                   color: Colors.orange,
                 ),
@@ -416,8 +416,8 @@ class TeacherClassDetailView extends GetView<TeacherClassDetailController> {
             Expanded(
               child: _buildFunctionCard(
                 icon: Icons.quiz,
-                title: '课堂测验',
-                subtitle: '即时测验',
+                title: '课堂问答',
+                subtitle: '即时问答',
                 color: Colors.orange,
                 onTap: ()=>controller.goToQuizManagement(),
               ),

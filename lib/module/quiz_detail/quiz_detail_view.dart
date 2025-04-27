@@ -14,7 +14,7 @@ class QuizDetailView extends GetView<QuizDetailController> {
   @override
   Widget build(BuildContext context) {
       return Obx(() {
-      // 根据测验状态获取主题色
+      // 根据问答状态获取主题色
       Color primaryColor = Colors.purple;
 
       if (!controller.isLoading.value && controller.quiz.value != null) {
@@ -24,7 +24,7 @@ class QuizDetailView extends GetView<QuizDetailController> {
       return Scaffold(
         backgroundColor: GlobalThemData.backgroundColor,
         appBar: AppBar(
-          title: Text('课堂测验'),
+          title: Text('课堂问答'),
           centerTitle: true,
           elevation: 0,
           backgroundColor: primaryColor,
@@ -42,7 +42,7 @@ class QuizDetailView extends GetView<QuizDetailController> {
     if (controller.quiz.value == null) {
       return Center(
         child: Text(
-          '无法加载测验详情',
+          '无法加载问答详情',
           style: TextStyle(
             fontSize: 16.sp,
             color: GlobalThemData.textSecondaryColor,
@@ -136,7 +136,7 @@ class QuizDetailView extends GetView<QuizDetailController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  quiz.title ?? '课堂测验',
+                  quiz.title ?? '课堂问答',
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.bold,
@@ -204,7 +204,7 @@ class QuizDetailView extends GetView<QuizDetailController> {
               ),  
               SizedBox(width: 8.w),
               Text(
-                '测验信息',
+                '问答信息',
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
@@ -229,7 +229,7 @@ class QuizDetailView extends GetView<QuizDetailController> {
           ),
           SizedBox(height: 16.h),
           Text(
-            '测验说明',
+            '问答说明',
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.bold,
@@ -437,7 +437,7 @@ class QuizDetailView extends GetView<QuizDetailController> {
                   child: Text(
                     controller.isSubmitting.value 
                         ? '提交中...' 
-                        : '提交测验',
+                        : '提交问答',
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.bold,
@@ -697,7 +697,7 @@ class QuizDetailView extends GetView<QuizDetailController> {
               ),
               SizedBox(width: 8.w),
               Text(
-                '测验结果',
+                '问答结果',
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.bold,

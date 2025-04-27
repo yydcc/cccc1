@@ -141,7 +141,7 @@ class QuizDetailController extends GetxController {
     answerAttachments[index] = attachments;
   }
   
-  // 加载测验详情时，获取最新答案
+  // 加载问答详情时，获取最新答案
   Future<void> loadQuizDetail() async {
     try {
       isLoading.value = true;
@@ -152,11 +152,11 @@ class QuizDetailController extends GetxController {
         quiz.value = Assignment.fromJson(response.data);
         await loadLatestAnswer();
       } else {
-        Get.snackbar('错误', '获取测验详情失败: ${response.msg}');
+        Get.snackbar('错误', '获取问答详情失败: ${response.msg}');
       }
     } catch (e) {
-      print('加载测验详情失败: $e');
-      Get.snackbar('错误', '获取测验详情失败，请检查网络连接');
+      print('加载问答详情失败: $e');
+      Get.snackbar('错误', '获取问答详情失败，请检查网络连接');
     } finally {
       isLoading.value = false;
     }
@@ -250,16 +250,16 @@ class QuizDetailController extends GetxController {
     answerAttachments.clear();
   }
   
-  // 保存测验答案（不提交为最终版本）
+  // 保存问答答案（不提交为最终版本）
   Future<void> saveQuiz({bool showSnackbar = true}) async {
     if (isSaving.value || isSubmitting.value) return;
     if (isSubmitted.value) {
-      if (showSnackbar) Get.snackbar('提示', '已提交的测验无法再次保存');
+      if (showSnackbar) Get.snackbar('提示', '已提交的问答无法再次保存');
       return;
     }
     
     if (quiz.value == null) {
-      if (showSnackbar) Get.snackbar('错误', '测验信息不完整');
+      if (showSnackbar) Get.snackbar('错误', '问答信息不完整');
       return;
     }
     
@@ -300,7 +300,7 @@ class QuizDetailController extends GetxController {
       );
       
       if (response.code == 200) {
-        if (showSnackbar) Get.snackbar('成功', '测验已保存');
+        if (showSnackbar) Get.snackbar('成功', '问答已保存');
         // 更新submission
         if (response.data != null) {
           submission.value = Submission.fromJson(response.data);
@@ -309,29 +309,29 @@ class QuizDetailController extends GetxController {
         if (showSnackbar) Get.snackbar('保存失败', response.msg);
       }
     } catch (e) {
-      print('保存测验失败: $e');
-      if (showSnackbar) Get.snackbar('错误', '保存测验失败，请稍后重试');
+      print('保存问答失败: $e');
+      if (showSnackbar) Get.snackbar('错误', '保存问答失败，请稍后重试');
     } finally {
       isSaving.value = false;
     }
   }
   
-  // 提交测验答案（标记为最终版本）
+  // 提交问答答案（标记为最终版本）
   Future<void> submitQuiz() async {
     if (isSubmitting.value || isSaving.value) return;
     
     if (isSubmitted.value) {
-      Get.snackbar('提示', '测验已提交，无法再次提交');
+      Get.snackbar('提示', '问答已提交，无法再次提交');
       return;
     }
     
     if (quiz.value == null) {
-      Get.snackbar('错误', '测验信息不完整');
+      Get.snackbar('错误', '问答信息不完整');
       return;
     }
     
     if (!quiz.value!.isSubmittable) {
-      Get.snackbar('提示', '当前不能提交测验');
+      Get.snackbar('提示', '当前不能提交问答');
       return;
     }
     
@@ -381,13 +381,13 @@ class QuizDetailController extends GetxController {
       if (response.code == 200) {
         isSubmitted.value = true;
         Get.back(result: true);
-        Get.snackbar('成功', '测验已提交');
+        Get.snackbar('成功', '问答已提交');
       } else {
         Get.snackbar('提交失败', response.msg);
       }
     } catch (e) {
-      print('提交测验失败: $e');
-      Get.snackbar('错误', '提交测验失败，请稍后重试');
+      print('提交问答失败: $e');
+      Get.snackbar('错误', '提交问答失败，请稍后重试');
     } finally {
       isSubmitting.value = false;
     }

@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'main_controller.dart';
 import '../home/home_controller.dart';
 import '../schedule/schedule_controller.dart';
-import '../message/message_controller.dart';
 import '../profile/profile_controller.dart';
 import '../teacher_classinfo/teacher_classinfo_controller.dart';
 

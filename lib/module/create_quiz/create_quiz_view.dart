@@ -10,7 +10,7 @@ class CreateQuizView extends GetView<CreateQuizController> {
     return Scaffold(
       backgroundColor: GlobalThemData.backgroundColor,
       appBar: AppBar(
-        title: Text('发布课堂测验'),
+        title: Text('发布课堂问答'),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Theme.of(context).primaryColor,
@@ -34,7 +34,7 @@ class CreateQuizView extends GetView<CreateQuizController> {
             TextFormField(
               controller: controller.startTimeController,
               decoration: InputDecoration(
-                hintText: '选择测验开始时间',
+                hintText: '选择问答开始时间',
                 prefixIcon: const Icon(Icons.calendar_today),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.r),
@@ -92,7 +92,7 @@ class CreateQuizView extends GetView<CreateQuizController> {
         TextField(
           controller: controller.titleController,
           decoration: InputDecoration(
-            hintText: '请输入测验标题',
+            hintText: '请输入问答标题',
             filled: true,
             fillColor: Colors.white,
             border: OutlineInputBorder(
@@ -117,7 +117,7 @@ class CreateQuizView extends GetView<CreateQuizController> {
     return TextFormField(
       controller: controller.deadlineController,
       decoration: InputDecoration(
-        hintText: '选择测验截止时间',
+        hintText: '选择问答截止时间',
         prefixIcon: const Icon(Icons.event),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.r),
@@ -158,7 +158,7 @@ class CreateQuizView extends GetView<CreateQuizController> {
               ),
               SizedBox(width: 8.w),
               Text(
-                '课堂测验说明',
+                '课堂问答说明',
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.bold,
@@ -169,7 +169,7 @@ class CreateQuizView extends GetView<CreateQuizController> {
           ),
           SizedBox(height: 8.h),
           Text(
-            '1. 课堂测验是一种特殊的作业类型，适用于课堂即时提问。',
+            '1. 课堂问答是一种特殊的作业类型，适用于课堂即时口头提问。',
             style: TextStyle(
               fontSize: 12.sp,
               color: GlobalThemData.textPrimaryColor,
@@ -177,7 +177,7 @@ class CreateQuizView extends GetView<CreateQuizController> {
           ),
           SizedBox(height: 4.h),
           Text(
-            '2. 测验创建后，学生可以在测验界面看到并提交答案。',
+            '2. 问答创建后，学生可以在问答界面看到并提交答案。',
             style: TextStyle(
               fontSize: 12.sp,
               color: GlobalThemData.textPrimaryColor,
@@ -185,7 +185,7 @@ class CreateQuizView extends GetView<CreateQuizController> {
           ),
           SizedBox(height: 4.h),
           Text(
-            '3. 测验结束后，您可以添加描述和附件，并进行批改。',
+            '3. 问答结束后，您可以添加描述和附件，并进行批改。',
             style: TextStyle(
               fontSize: 12.sp,
               color: GlobalThemData.textPrimaryColor,
@@ -356,7 +356,7 @@ class CreateQuizView extends GetView<CreateQuizController> {
                 ),
               )
             : Text(
-                '发布测验',
+                '发布问答',
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.bold,

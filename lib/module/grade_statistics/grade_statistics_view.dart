@@ -99,7 +99,7 @@ class GradeStatisticsView extends GetView<GradeStatisticsController> {
                     ),
                     ButtonSegment(
                       value: 2,
-                      label: Text('测验', style: TextStyle(fontSize: 13.sp)),
+                      label: Text('问答', style: TextStyle(fontSize: 13.sp)),
                       icon: Icon(Icons.quiz, size: 18.sp),
                     ),
                   ],
@@ -145,7 +145,8 @@ class GradeStatisticsView extends GetView<GradeStatisticsController> {
 
   Widget _buildSummaryCards() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w),
+
+
       child: Row(
         children: [
           Expanded(
@@ -158,7 +159,7 @@ class GradeStatisticsView extends GetView<GradeStatisticsController> {
               trend: controller.getScoreTrend(),
             ),
           ),
-          SizedBox(width: 8.w), // 减小间距以适应三个卡片
+          SizedBox(width: 4.w), // 减小间距以适应三个卡片
           Expanded(
             flex: 1,
             child: _buildSummaryCard(
@@ -169,7 +170,7 @@ class GradeStatisticsView extends GetView<GradeStatisticsController> {
               showTrend: false,
             ),
           ),
-          SizedBox(width: 8.w), // 减小间距以适应三个卡片
+          SizedBox(width: 4.w), // 减小间距以适应三个卡片
           Expanded(
             flex: 1,
             child: _buildSummaryCard(
@@ -301,7 +302,7 @@ class GradeStatisticsView extends GetView<GradeStatisticsController> {
   Widget _buildScoreTrendChart() {
     return Container(
       height: 280.h,
-      margin: EdgeInsets.all(16.w),
+      margin: EdgeInsets.symmetric(vertical: 16.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
@@ -391,7 +392,7 @@ class GradeStatisticsView extends GetView<GradeStatisticsController> {
                           borderRadius: BorderRadius.circular(6.r),
                         ),
                         child: Text(
-                          stat.isInClass ? '测验' : '作业',
+                          stat.isInClass ? '问答' : '作业',
                           style: TextStyle(
                             fontSize: 12.sp,
                             color: stat.isInClass ? Colors.blue : Colors.green,
@@ -491,7 +492,7 @@ class GradeStatisticsView extends GetView<GradeStatisticsController> {
                       borderRadius: BorderRadius.circular(6.r),
                     ),
                     child: Text(
-                      stat.isInClass ? '测验' : '作业',
+                      stat.isInClass ? '问答' : '作业',
                       style: TextStyle(
                         fontSize: 12.sp,
                         color: stat.isInClass ? Colors.blue : Colors.green,
@@ -548,66 +549,7 @@ class GradeStatisticsView extends GetView<GradeStatisticsController> {
     );
   }
 
-  Widget _buildDistributionSummary(GradeStatistics stat) {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12.r),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildDistributionItem(
-                label: '你的得分',
-                value: stat.score.toStringAsFixed(1),
-                color: Colors.blue,
-              ),
-              _buildDistributionItem(
-                label: '平均分',
-                value: stat.averageScore.toStringAsFixed(1),
-                color: Colors.grey[600]!,
-              ),
-              _buildDistributionItem(
-                label: '最高分',
-                value: stat.maxScore.toStringAsFixed(1),
-                color: Colors.orange,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildDistributionItem({
-    required String label,
-    required String value,
-    required Color color,
-  }) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12.sp,
-            color: Colors.grey[600],
-          ),
-        ),
-        SizedBox(height: 4.h),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-      ],
-    );
-  }
 
   void _showInfoDialog() {
     Get.dialog(
@@ -631,13 +573,13 @@ class GradeStatisticsView extends GetView<GradeStatisticsController> {
               _buildInfoItem(
                 icon: Icons.analytics_outlined,
                 title: '成绩趋势',
-                description: '展示你的历次作业和测验成绩变化趋势',
+                description: '展示你的历次作业和问答成绩变化趋势',
               ),
               SizedBox(height: 12.h),
               _buildInfoItem(
                 icon: Icons.bar_chart,
                 title: '分数分布',
-                description: '显示每次作业或测验的班级分数分布情况',
+                description: '显示每次作业或问答的班级分数分布情况',
               ),
               SizedBox(height: 12.h),
               _buildInfoItem(

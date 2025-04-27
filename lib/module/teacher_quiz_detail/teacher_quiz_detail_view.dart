@@ -12,7 +12,7 @@ class TeacherQuizDetailView extends GetView<TeacherQuizDetailController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      // 根据测验状态获取主题色
+      // 根据问答状态获取主题色
       Color primaryColor = Colors.purple;
       
       if (!controller.isLoading.value && controller.quiz.value != null) {
@@ -42,7 +42,7 @@ class TeacherQuizDetailView extends GetView<TeacherQuizDetailController> {
       return Scaffold(
         backgroundColor: GlobalThemData.backgroundColor,
         appBar: AppBar(
-          title: Text('测验详情'),
+          title: Text('问答详情'),
           centerTitle: true,
           backgroundColor: primaryColor,
           elevation: 0,
@@ -67,7 +67,7 @@ class TeacherQuizDetailView extends GetView<TeacherQuizDetailController> {
     if (controller.quiz.value == null) {
       return Center(
         child: Text(
-          '无法加载测验详情',
+          '无法加载问答详情',
           style: TextStyle(
             fontSize: 16.sp,
             color: GlobalThemData.textSecondaryColor,
@@ -138,7 +138,7 @@ class TeacherQuizDetailView extends GetView<TeacherQuizDetailController> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            quiz.title ?? '未命名测验',
+                            quiz.title ?? '未命名问答',
                             style: TextStyle(
                               fontSize: 18.sp,
                               fontWeight: FontWeight.bold,
@@ -258,7 +258,7 @@ class TeacherQuizDetailView extends GetView<TeacherQuizDetailController> {
               child: ElevatedButton.icon(
                 onPressed: controller.endQuiz,
                 icon: Icon(Icons.stop_circle_outlined),
-                label: Text('结束测验'),
+                label: Text('结束问答'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: primaryColor,
@@ -302,7 +302,7 @@ class TeacherQuizDetailView extends GetView<TeacherQuizDetailController> {
               ),
               SizedBox(width: 8.w),
               Text(
-                '测验编辑',
+                '问答编辑',
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
@@ -335,7 +335,7 @@ class TeacherQuizDetailView extends GetView<TeacherQuizDetailController> {
           
           // 标题
           Text(
-            '测验标题',
+            '问答标题',
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: FontWeight.w500,
@@ -346,7 +346,7 @@ class TeacherQuizDetailView extends GetView<TeacherQuizDetailController> {
           TextField(
             controller: controller.titleController.value,
             decoration: InputDecoration(
-              hintText: '请输入测验标题',
+              hintText: '请输入问答标题',
               filled: true,
               fillColor: Colors.grey.shade50,
               border: OutlineInputBorder(
@@ -368,7 +368,7 @@ class TeacherQuizDetailView extends GetView<TeacherQuizDetailController> {
           
           // 描述
           Text(
-            '测验描述',
+            '问答描述',
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: FontWeight.w500,
@@ -380,7 +380,7 @@ class TeacherQuizDetailView extends GetView<TeacherQuizDetailController> {
             controller: controller.descriptionController.value,
             maxLines: 4,
             decoration: InputDecoration(
-              hintText: '请输入测验描述（可选）',
+              hintText: '请输入问答描述（可选）',
               filled: true,
               fillColor: Colors.grey.shade50,
               border: OutlineInputBorder(
@@ -887,7 +887,7 @@ class TeacherQuizDetailView extends GetView<TeacherQuizDetailController> {
                             SizedBox(width: 8.w),
                             Expanded(
                               child: Text(
-                                '本测验将由AI自动批改，您可以在批改前手动批改或修改批改设置。',
+                                '本问答将由AI自动批改，您可以在批改前手动批改或修改批改设置。',
                                 style: TextStyle(
                                   fontSize: 12.sp,
                                   color: Colors.blue,

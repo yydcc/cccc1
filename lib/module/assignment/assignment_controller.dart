@@ -108,7 +108,7 @@ class AssignmentController extends GetxController {
       if (response.code == 200 && response.data != null) {
         final List<dynamic> assignmentsData = response.data;
         
-        // 过滤掉isInClass为true的作业（课堂测验）
+        // 过滤掉isInClass为true的作业（课堂问答）
         assignments.value = assignmentsData
             .map((item) => Assignment.fromJson(item))
             .where((assignment) => assignment.isInClass != true)

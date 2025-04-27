@@ -16,7 +16,7 @@ class TeacherQuizManagementView extends GetView<TeacherQuizManagementController>
     return Scaffold(
       backgroundColor: GlobalThemData.backgroundColor,
       appBar: AppBar(
-        title: const Text('测验管理'),
+        title: const Text('问答管理'),
         centerTitle: true,
         elevation: 0,
         actions: [
@@ -37,8 +37,8 @@ class TeacherQuizManagementView extends GetView<TeacherQuizManagementController>
           }
         }),
         icon: Icon(Icons.add),
-        label: Text('创建课堂测验'),
-        tooltip: '布置新测验',
+        label: Text('创建课堂问答'),
+        tooltip: '布置新问答',
       ),
       body: Column(
         children: [
@@ -226,7 +226,7 @@ class TeacherQuizManagementView extends GetView<TeacherQuizManagementController>
                             ),
                             SizedBox(width: 4.w),
                             Text(
-                              '测验',
+                              '问答',
                               style: TextStyle(
                                 fontSize: 12.sp,
                                 color: statusColor,
@@ -237,7 +237,7 @@ class TeacherQuizManagementView extends GetView<TeacherQuizManagementController>
                         ),
                         SizedBox(height: 8.h),
                         Text(
-                          assignment.title ?? '未命名测验',
+                          assignment.title ?? '未命名问答',
                           style: TextStyle(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.bold,
@@ -332,7 +332,7 @@ class TeacherQuizManagementView extends GetView<TeacherQuizManagementController>
           ),
           SizedBox(height: 16.h),
           Text(
-            '暂无测验',
+            '暂无问答',
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.bold,
@@ -341,7 +341,7 @@ class TeacherQuizManagementView extends GetView<TeacherQuizManagementController>
           ),
           SizedBox(height: 8.h),
           Text(
-            '点击右下角按钮发布新测验',
+            '点击右下角按钮发布新问答',
             style: TextStyle(
               fontSize: 14.sp,
               color: GlobalThemData.textTertiaryColor,
